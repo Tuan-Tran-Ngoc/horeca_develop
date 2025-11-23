@@ -1,0 +1,68 @@
+[
+    {
+       "position_level_title":"Admin",
+       "position_parent_id":0,
+       "updated_by":1,
+       "position_level_code":"AD",
+       "created_date":"2019-11-01 00:00:00.000",
+       "updated_date":"2019-11-01 00:00:00.000",
+       "created_by":1,
+       "version":1,
+       "position_level_id":1
+    },
+    {
+       "position_level_title":"Accountant",
+       "position_parent_id":0,
+       "updated_by":1,
+       "position_level_code":"AC",
+       "created_date":"2019-11-01 00:00:00.000",
+       "updated_date":"2019-11-01 00:00:00.000",
+       "created_by":1,
+       "version":1,
+       "position_level_id":2
+    },
+    {
+       "position_level_title":"Stock Keeper",
+       "position_parent_id":0,
+       "updated_by":1,
+       "position_level_code":"SK",
+       "created_date":"2019-11-01 00:00:00.000",
+       "updated_date":"2019-11-01 00:00:00.000",
+       "created_by":1,
+       "version":1,
+       "position_level_id":3
+    },
+    {
+       "position_level_title":"City Leader",
+       "position_parent_id":0,
+       "updated_by":1,
+       "position_level_code":"CL",
+       "created_date":"2019-11-01 00:00:00.000",
+       "updated_date":"2019-11-01 00:00:00.000",
+       "created_by":1,
+       "version":1,
+       "position_level_id":4
+    },
+    {
+       "position_level_title":"Supervisor",
+       "position_parent_id":4,
+       "updated_by":1,
+       "position_level_code":"SUP",
+       "created_date":"2019-11-01 00:00:00.000",
+       "updated_date":"2019-11-01 00:00:00.000",
+       "created_by":1,
+       "version":1,
+       "position_level_id":5
+    },
+    {
+       "position_level_title":"BA",
+       "position_parent_id":5,
+       "updated_by":1,
+       "position_level_code":"BA",
+       "created_date":"2019-11-01 00:00:00.000",
+       "updated_date":"2019-11-01 00:00:00.000",
+       "created_by":1,
+       "version":1,
+       "position_level_id":6
+    }
+ ]

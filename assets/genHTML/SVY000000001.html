@@ -1,0 +1,52 @@
+﻿<!doctype html>
+<html>
+ <head> 
+  <title></title> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <script src="jquery"></script> 
+  <script src="survey.jquery.js"></script> 
+  <link href="survey.css" type="text/css" rel="stylesheet"> 
+  <link rel="stylesheet" href="index.css"> 
+ </head> 
+ <body> 
+  <div id="surveyElement"></div> 
+  <div id="surveyResult"></div> 
+  <script type="text/javascript">
+		Survey
+	    .StylesManager
+	    .applyTheme("default");
+
+	var json = {	    "title": "SURVEY1",
+	    "description": "",
+	    "pages": [
+	        {
+	            "name": "page1",
+	            "elements": [
+        {
+            "type": "boolean",
+            "name": "SUR001",
+            "title": "Mì Hảo Hảo bán có chạy ?",
+                        choices: [
+                "Yes","No"
+            ],
+            "isRequired": false
+        }
+	            ]
+	        }
+	    ],
+	    "showQuestionNumbers": "on"
+};
+
+	window.survey = new Survey.Model(json);
+
+	survey
+	    .onComplete
+	    .add(function (result) {
+	    	var jsonReturn = JSON.stringify(result.data, null, 3);
+	    	window.webkit.messageHandlers.handleObserver.postMessage(jsonReturn);
+	    });
+	$("#surveyElement").Survey({model: survey});
+</script> 
+  <input type="hidden" value="2">  
+ </body>
+</html>

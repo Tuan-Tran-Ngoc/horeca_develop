@@ -1,0 +1,211 @@
+[
+    {
+       "product_type_id":10,
+       "type_name":"Quà tặng",
+       "type_code":"GIFT",
+       "status":"01",
+       "created_by":1,
+       "created_date":"2021-05-24 17:33:27.720",
+       "updated_by":1,
+       "updated_date":"2023-03-03 10:49:46.940",
+       "version":3
+    },
+    {
+       "type_name":"Khuyến mãi",
+       "updated_by":1,
+       "product_type_id":11,
+       "created_date":"2021-05-24 17:33:27.744",
+       "updated_date":"2023-03-03 10:49:46.940",
+       "created_by":1,
+       "version":3,
+       "type_code":"POP",
+       "status":"01"
+    },
+    {
+       "type_name":"Mẫu",
+       "updated_by":1,
+       "product_type_id":12,
+       "created_date":"2021-05-24 17:33:27.776",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"SAMPLING",
+       "status":"01"
+    },
+    {
+       "type_name":"Mì",
+       "updated_by":1,
+       "product_type_id":13,
+       "created_date":"2021-05-24 17:33:27.803",
+       "updated_date":"2023-03-03 10:49:46.940",
+       "created_by":1,
+       "version":3,
+       "type_code":"TOBACCO",
+       "status":"01"
+    },
+    {
+       "type_name":"Mì",
+       "updated_by":1,
+       "product_type_id":14,
+       "created_date":"2023-03-02 15:08:34.300",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"PC001",
+       "status":"00"
+    },
+    {
+       "type_name":"Khuyến mãi",
+       "updated_by":1,
+       "product_type_id":15,
+       "created_date":"2023-03-02 15:08:34.300",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"PC010",
+       "status":"00"
+    },
+    {
+       "type_name":"Quảng cáo",
+       "updated_by":1,
+       "product_type_id":16,
+       "created_date":"2023-03-02 15:08:34.315",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"PC011",
+       "status":"00"
+    },
+    {
+       "type_name":"Mì chiên",
+       "updated_by":1,
+       "product_type_id":17,
+       "created_date":"2023-03-02 15:08:34.315",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0101",
+       "status":"00"
+    },
+    {
+       "type_name":"Mì không chiên",
+       "updated_by":1,
+       "product_type_id":18,
+       "created_date":"2023-03-02 15:08:34.315",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0102",
+       "status":"00"
+    },
+    {
+       "type_name":"Phở",
+       "updated_by":1,
+       "product_type_id":19,
+       "created_date":"2023-03-02 15:08:34.315",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0203",
+       "status":"00"
+    },
+    {
+       "type_name":"Hủ tiếu",
+       "updated_by":1,
+       "product_type_id":20,
+       "created_date":"2023-03-02 15:08:34.315",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0204",
+       "status":"00"
+    },
+    {
+       "type_name":"Bún",
+       "updated_by":1,
+       "product_type_id":21,
+       "created_date":"2023-03-02 15:08:34.331",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0205",
+       "status":"00"
+    },
+    {
+       "type_name":"Miến",
+       "updated_by":1,
+       "product_type_id":22,
+       "created_date":"2023-03-02 15:08:34.331",
+       "updated_date":"2023-03-02 17:18:35.463",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0306",
+       "status":"00"
+    },
+    {
+       "type_name":"Muối chấm",
+       "updated_by":1,
+       "product_type_id":23,
+       "created_date":"2023-03-02 15:08:34.331",
+       "updated_date":"2023-03-02 17:18:35.479",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0407",
+       "status":"00"
+    },
+    {
+       "type_name":"Snack mì",
+       "updated_by":1,
+       "product_type_id":24,
+       "created_date":"2023-03-02 15:08:34.331",
+       "updated_date":"2023-03-02 17:18:35.479",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0508",
+       "status":"00"
+    },
+    {
+       "type_name":"Cháo",
+       "updated_by":1,
+       "product_type_id":25,
+       "created_date":"2023-03-02 15:08:34.331",
+       "updated_date":"2023-03-02 17:18:35.479",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0609",
+       "status":"00"
+    },
+    {
+       "type_name":"Soup",
+       "updated_by":1,
+       "product_type_id":26,
+       "created_date":"2023-03-02 15:08:34.346",
+       "updated_date":"2023-03-02 17:18:35.479",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0710",
+       "status":"00"
+    },
+    {
+       "type_name":"Phở",
+       "updated_by":1,
+       "product_type_id":27,
+       "created_date":"2023-03-02 15:08:34.346",
+       "updated_date":"2023-03-02 17:18:35.479",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0103",
+       "status":"00"
+    },
+    {
+       "type_name":"Chiên",
+       "updated_by":1,
+       "product_type_id":28,
+       "created_date":"2023-03-02 15:08:34.346",
+       "updated_date":"2023-03-02 17:18:35.479",
+       "created_by":1,
+       "version":2,
+       "type_code":"S0201",
+       "status":"00"
+    }
+ ]

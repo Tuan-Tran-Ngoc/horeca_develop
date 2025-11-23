@@ -1,0 +1,46 @@
+[
+    {
+       "category_name":"Competitor",
+       "category_id":10,
+       "category_code":"COMPETITOR",
+       "updated_by":1,
+       "created_date":"2021-05-24 17:08:31.783",
+       "updated_date":"2021-05-24 17:08:31.783",
+       "created_by":1,
+       "version":1,
+       "status":"01"
+    },
+    {
+       "category_name":"ACV",
+       "category_id":11,
+       "category_code":"JTI",
+       "updated_by":1,
+       "created_date":"2021-05-24 17:08:31.805",
+       "updated_date":"2023-02-24 15:12:48.823",
+       "created_by":1,
+       "version":2,
+       "status":"01"
+    },
+    {
+       "category_name":"ASIAN FOOD",
+       "category_id":12,
+       "category_code":"ASF",
+       "updated_by":1,
+       "created_date":"2023-03-03 11:11:42.816",
+       "updated_date":"2023-03-03 11:11:42.816",
+       "created_by":1,
+       "version":1,
+       "status":"01"
+    },
+    {
+       "category_name":"UNIBEN",
+       "category_id":13,
+       "category_code":"UNI",
+       "updated_by":1,
+       "created_date":"2023-03-03 11:11:42.816",
+       "updated_date":"2023-03-03 11:11:42.816",
+       "created_by":1,
+       "version":1,
+       "status":"01"
+    }
+ ]

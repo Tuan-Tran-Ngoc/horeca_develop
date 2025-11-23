@@ -1,0 +1,632 @@
+[
+    {
+       "province_id":1,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2021-05-25 13:50:42.703",
+       "province_code":"HN",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hà Nội"
+    },
+    {
+       "province_id":2,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"02",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hà Giang"
+    },
+    {
+       "province_id":3,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"04",
+       "created_by":1,
+       "version":0,
+       "province_name":"Cao Bằng"
+    },
+    {
+       "province_id":4,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"06",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bắc Kạn"
+    },
+    {
+       "province_id":5,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"08",
+       "created_by":1,
+       "version":0,
+       "province_name":"Tuyên Quang"
+    },
+    {
+       "province_id":6,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"10",
+       "created_by":1,
+       "version":0,
+       "province_name":"Lào Cai"
+    },
+    {
+       "province_id":7,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"11",
+       "created_by":1,
+       "version":0,
+       "province_name":"Điện Biên"
+    },
+    {
+       "province_id":8,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"12",
+       "created_by":1,
+       "version":0,
+       "province_name":"Lai Châu"
+    },
+    {
+       "province_id":9,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"14",
+       "created_by":1,
+       "version":0,
+       "province_name":"Sơn La"
+    },
+    {
+       "province_id":10,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"15",
+       "created_by":1,
+       "version":0,
+       "province_name":"Yên Bái"
+    },
+    {
+       "province_id":11,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"17",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hoà Bình"
+    },
+    {
+       "province_id":12,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"19",
+       "created_by":1,
+       "version":0,
+       "province_name":"Thái Nguyên"
+    },
+    {
+       "province_id":13,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"20",
+       "created_by":1,
+       "version":0,
+       "province_name":"Lạng Sơn"
+    },
+    {
+       "province_id":14,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"22",
+       "created_by":1,
+       "version":0,
+       "province_name":"Quảng Ninh"
+    },
+    {
+       "province_id":15,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"24",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bắc Giang"
+    },
+    {
+       "province_id":16,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"25",
+       "created_by":1,
+       "version":0,
+       "province_name":"Phú Thọ"
+    },
+    {
+       "province_id":17,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"26",
+       "created_by":1,
+       "version":0,
+       "province_name":"Vĩnh Phúc"
+    },
+    {
+       "province_id":18,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"27",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bắc Ninh"
+    },
+    {
+       "province_id":19,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"30",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hải Dương"
+    },
+    {
+       "province_id":20,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"31",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hải Phòng"
+    },
+    {
+       "province_id":21,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"33",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hưng Yên"
+    },
+    {
+       "province_id":22,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"34",
+       "created_by":1,
+       "version":0,
+       "province_name":"Thái Bình"
+    },
+    {
+       "province_id":23,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"35",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hà Nam"
+    },
+    {
+       "province_id":24,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"36",
+       "created_by":1,
+       "version":0,
+       "province_name":"Nam Định"
+    },
+    {
+       "province_id":25,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"37",
+       "created_by":1,
+       "version":0,
+       "province_name":"Ninh Bình"
+    },
+    {
+       "province_id":26,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"38",
+       "created_by":1,
+       "version":0,
+       "province_name":"Thanh Hóa"
+    },
+    {
+       "province_id":27,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"40",
+       "created_by":1,
+       "version":0,
+       "province_name":"Nghệ An"
+    },
+    {
+       "province_id":28,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"42",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hà Tĩnh"
+    },
+    {
+       "province_id":29,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"44",
+       "created_by":1,
+       "version":0,
+       "province_name":"Quảng Bình"
+    },
+    {
+       "province_id":30,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"45",
+       "created_by":1,
+       "version":0,
+       "province_name":"Quảng Trị"
+    },
+    {
+       "province_id":31,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"46",
+       "created_by":1,
+       "version":0,
+       "province_name":"Thừa Thiên Huế"
+    },
+    {
+       "province_id":32,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"48",
+       "created_by":1,
+       "version":0,
+       "province_name":"Đà Nẵng"
+    },
+    {
+       "province_id":33,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"49",
+       "created_by":1,
+       "version":0,
+       "province_name":"Quảng Nam"
+    },
+    {
+       "province_id":34,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"51",
+       "created_by":1,
+       "version":0,
+       "province_name":"Quảng Ngãi"
+    },
+    {
+       "province_id":35,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"52",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bình Định"
+    },
+    {
+       "province_id":36,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"54",
+       "created_by":1,
+       "version":0,
+       "province_name":"Phú Yên"
+    },
+    {
+       "province_id":37,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"56",
+       "created_by":1,
+       "version":0,
+       "province_name":"Khánh Hòa"
+    },
+    {
+       "province_id":38,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"58",
+       "created_by":1,
+       "version":0,
+       "province_name":"Ninh Thuận"
+    },
+    {
+       "province_id":39,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"60",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bình Thuận"
+    },
+    {
+       "province_id":40,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"62",
+       "created_by":1,
+       "version":0,
+       "province_name":"Kon Tum"
+    },
+    {
+       "province_id":41,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"64",
+       "created_by":1,
+       "version":0,
+       "province_name":"Gia Lai"
+    },
+    {
+       "province_id":42,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"66",
+       "created_by":1,
+       "version":0,
+       "province_name":"Đắk Lắk"
+    },
+    {
+       "province_id":43,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"67",
+       "created_by":1,
+       "version":0,
+       "province_name":"Đắk Nông"
+    },
+    {
+       "province_id":44,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"68",
+       "created_by":1,
+       "version":0,
+       "province_name":"Lâm Đồng"
+    },
+    {
+       "province_id":45,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"70",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bình Phước"
+    },
+    {
+       "province_id":46,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"72",
+       "created_by":1,
+       "version":0,
+       "province_name":"Tây Ninh"
+    },
+    {
+       "province_id":47,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"74",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bình Dương"
+    },
+    {
+       "province_id":48,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"75",
+       "created_by":1,
+       "version":0,
+       "province_name":"Đồng Nai"
+    },
+    {
+       "province_id":49,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"77",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bà Rịa - Vũng Tàu"
+    },
+    {
+       "province_id":50,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2021-05-25 13:50:42.656",
+       "province_code":"HCM",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hồ Chí Minh"
+    },
+    {
+       "province_id":51,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"80",
+       "created_by":1,
+       "version":0,
+       "province_name":"Long An"
+    },
+    {
+       "province_id":52,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"82",
+       "created_by":1,
+       "version":0,
+       "province_name":"Tiền Giang"
+    },
+    {
+       "province_id":53,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"83",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bến Tre"
+    },
+    {
+       "province_id":54,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"84",
+       "created_by":1,
+       "version":0,
+       "province_name":"Trà Vinh"
+    },
+    {
+       "province_id":55,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"86",
+       "created_by":1,
+       "version":0,
+       "province_name":"Vĩnh Long"
+    },
+    {
+       "province_id":56,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"87",
+       "created_by":1,
+       "version":0,
+       "province_name":"Đồng Tháp"
+    },
+    {
+       "province_id":57,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"89",
+       "created_by":1,
+       "version":0,
+       "province_name":"An Giang"
+    },
+    {
+       "province_id":58,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"91",
+       "created_by":1,
+       "version":0,
+       "province_name":"Kiên Giang"
+    },
+    {
+       "province_id":59,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"92",
+       "created_by":1,
+       "version":0,
+       "province_name":"Cần Thơ"
+    },
+    {
+       "province_id":60,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"93",
+       "created_by":1,
+       "version":0,
+       "province_name":"Hậu Giang"
+    },
+    {
+       "province_id":61,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"94",
+       "created_by":1,
+       "version":0,
+       "province_name":"Sóc Trăng"
+    },
+    {
+       "province_id":62,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"95",
+       "created_by":1,
+       "version":0,
+       "province_name":"Bạc Liêu"
+    },
+    {
+       "province_id":63,
+       "updated_by":1,
+       "created_date":"2015-04-17 00:00:00.000",
+       "updated_date":"2019-06-04 14:03:18.388",
+       "province_code":"96",
+       "created_by":1,
+       "version":0,
+       "province_name":"Cà Mau"
+    }
+ ]

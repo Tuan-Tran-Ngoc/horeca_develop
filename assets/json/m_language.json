@@ -1,0 +1,20 @@
+[
+    {
+       "language_code":"en",
+       "country_code":"US",
+       "language_name":"cl.language.0023",
+       "region_code":"en"
+    },
+    {
+       "language_code":"ja",
+       "country_code":"JP",
+       "language_name":"cl.language.0036",
+       "region_code":"jp"
+    },
+    {
+       "language_code":"vi",
+       "country_code":"VN",
+       "language_name":"cl.language.0060",
+       "region_code":"vi"
+    }
+ ]

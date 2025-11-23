@@ -1,0 +1,30 @@
+[
+    {
+    "survey_id": 2,
+    "survey_code": "SVY000000001",
+    "survey_title": "SURVEY1",
+    "description": null,
+    "start_date": "2024-01-30T00:00:00",
+    "end_date": "9999-12-31T00:00:00",
+    "status": "01",
+    "created_by": 1,
+    "created_date": "2024-01-29T15:19:21.358",
+    "updated_by": 1,
+    "updated_date": "2024-01-29T15:19:21.358",
+    "version": 1
+},
+{
+    "survey_id": 3,
+    "survey_code": "SVY000000002",
+    "survey_title": "SURVEY1",
+    "description": null,
+    "start_date": "2024-01-30T00:00:00",
+    "end_date": "9999-12-31T00:00:00",
+    "status": "01",
+    "created_by": 1,
+    "created_date": "2024-01-29T15:19:21.358",
+    "updated_by": 1,
+    "updated_date": "2024-01-29T15:19:21.358",
+    "version": 1
+}
+]

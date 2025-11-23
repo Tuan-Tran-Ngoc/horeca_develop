@@ -1,0 +1,231 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta name="viewport" content="width=device-width" />
+	<script type="text/javascript">
+		CONTEXT_PATH = "";		
+		DATE_FORMAT = "DD/MM/YYYY";
+		DATE_TIME_FORMAT = "DD/MM/YYYY HH:mm:ss";
+		TIME_FORMAT = "HH:mm:ss";
+	</script>
+	
+	<title>1.2.1 APP</title>
+	
+	<link rel="icon" href="/resources/media/images/tool.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="/resources/media/images/tool.ico" type="image/x-icon" />
+	
+	<link type="text/css" href="/resources/media/css/bootstrap.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/media/css/bootstrap.theme.css" rel="stylesheet" />
+	<link rel="stylesheet" href="/resources/media/js/combobox/bootstrap-combobox.css">
+	<link type="text/css" href="/resources/media/css/common.css" rel="stylesheet" media="screen,print" />
+	<link type="text/css" href="/resources/media/css/elements.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/media/css/custom-theme/blue-theme/style.css" rel="stylesheet" id="themeStyle" />
+	<link type="text/css" href="/resources/media/js/fancybox/jquery.fancybox.min.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/media/js/datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+	<link type="text/css" href="/resources/media/js/spinedit/bootstrap-spinedit.css" rel="stylesheet" />	
+
+	<script type="text/javascript" src="/resources/media/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="/resources/media/js/jquery-migrate-3.0.1.min.js"></script>
+	<script type="text/javascript" src="/resources/media/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/resources/media/js/fancybox/jquery.fancybox.min.js"></script>
+	<script type="text/javascript" src="/resources/media/js/autoNumeric.min.js"></script>
+	<script type="text/javascript" src="/resources/media/js/jquery.watermark.js"></script>
+	<script type="text/javascript" src="/resources/media/js/moment.js"></script>
+	<script type="text/javascript" src="/resources/media/js/bootstrap-datetimepicker.js"></script>
+	<script src="/resources/media/js/bootstrap-combobox.js"></script>
+	<script src="/resources/media/js/bootstrap-tooltip.js"></script>	
+	<script type="text/javascript" src="/resources/media/js/bootstrap.file-input.js"></script>
+	<script type="text/javascript" src="/resources/media/js/bootstrap-spinedit.js"></script>
+	
+	<script type="text/javascript" src="/jsMsgSource.js"></script>
+	
+	<script type="text/javascript" src="/resources/media/js/baseproject-1.0.0.0.js"></script>
+	<script type="text/javascript" src="/resources/media/js/baseproject-init.js"></script>
+	<link type="text/css" href="/resources/media/css/custom-theme/jti-theme/jti.css" rel="stylesheet" id="themeStyle" />
+	
+	
+
+</head>
+<body class="ndvn-header-img">
+	<div class="container">
+		<div class="row">
+		
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Start header info -->
+<div class="container">
+	<div class="row">
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12">
+				<div class="com-header-info-panel" style="min-height: 47px;">
+					<div class="com-header-logo-panel" style="width: 30%; float: left; padding-top: 12px; height: 100%;">
+<!-- 						<div style="float: left; "> -->
+
+<!-- 						</div> -->
+						<div style="font-family: Tahoma, sans-serif; font-weight:bold; font-size: 24px;">
+							<span> <span style="white-space:pre-wrap" class="">1.2.1 APP</span></span>
+						</div>
+					</div>
+					<div class="com-header-logo-panel" style="width: 70%; float: left; padding-top: 12px; height: 50%;">
+						<div type="0" style="float: left;  width: 38%;">&nbsp;</div>
+						<div type="1" style="float: right;  width: 38%; text-align: right;">&nbsp;</div>
+					</div>
+					<div class="com-header-button-panel" style="width: 70%; float: left; height: 50%;">
+						<div type="2" style="width: 48%; float: left;">&nbsp;</div>
+						<div type="3" style="width: 48%; float: right; text-align: right;">&nbsp;</div>
+					</div>
+				</div>
+			</div>
+		</div>
+<!-- End logo panel -->
+<!-- End header info -->
+		<div class="row">
+			<div class="col-xs-12 col-sm-12 col-md-12">
+				<nav class="navbar navbar-default ndvn-menu-primary">
+					<div class="navbar-header">
+						
+					</div>
+				</nav>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- End Menu panel -->
+
+		<!-- Start body container -->
+		<div class="ndvn-body-container">
+
+			<!-- Start message -->
+			<div class="ndvn-message"></div>
+			<!-- End message -->
+
+			<!-- Start content -->
+			<div class="ndvn-body">
+				<div class="container">
+		<div class="ndvn-panel-form-login">
+			<div class="panel panel-default login-panel ">
+				<div class="panel-heading">
+					<b>Đăng nhập</b>
+				</div>
+				<div class="panel-body ndvn-panel-body-login">
+					<form id="command" action="/login" method="post">
+						
+						<fieldset>
+							<div class="form-group input-group">
+								<!-- username -->
+								<input class="form-control ndvn-form-control" id="username" name="username" placeholder="Tài khoản" autofocus />
+								<span class="input-group-addon"><i class="glyphicon glyphicon-user" id="user-icon" style=""></i></span>
+							</div>
+							<div class="form-group input-group">
+								<!-- Password -->
+								<input class="form-control ndvn-form-control" placeholder="Mật khẩu" type="password" id="password" name="password" value="" />
+								<span class="input-group-addon"><i class="glyphicon glyphicon-lock" id="lock-icon"></i></span>
+							</div>
+							<div>
+								<p class="help-block">Tên người dùng và mật khẩu phân biệt hoa thường</p>
+							</div>
+							<!-- Change this to a button or input when using this as a form -->
+							<div class="ndvn-div-action">
+								<!-- 「login」ボタン -->
+								<input id="loginBtn" type="submit" value="Đăng nhập" class="btn" onclick="preventDoubleSubmission(this)" />
+								<input type="hidden" name="redirectTo" value="" />
+							</div>
+						</fieldset>
+					<div>
+<input type="hidden" name="_csrf" value="a1ce0728-91aa-459c-bbce-1b4ba20d986c" />
+</div></form>
+				</div>
+			</div>
+		</div>
+	</div>
+		<script type="text/javascript">
+			var parentWindow = window.parent.document;
+			$(document).ready(function() {
+				if ($(parentWindow).find('iframe').length == 1) {
+					$(parentWindow).find('.fancybox-overlay').hide();
+					parentWindow.location.reload();
+				}
+			});
+			function preventDoubleSubmission(thiz){
+				//全部なdiv要素の値を入力値に変更し、返却する。
+				$(thiz).val($.ndvn.unEscapseHTML(fcomMsgSource["sc.sys.0056"]));//処理中…
+				$(thiz).attr('disabled','disabled');
+				$(thiz).closest("form").submit();
+			}
+		</script>
+			</div>
+			<!-- End content -->
+
+			<div class="ndvn-footer">
+				
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <ul class="pull-left"> -->
+
+
+<!-- </ul> -->
+<address class="pull-right">
+
+20190904.0908
+</address>
+
+			</div>
+		</div>
+		<!-- End body panel -->
+		</div>
+		</div>
+</body>
+</html>
