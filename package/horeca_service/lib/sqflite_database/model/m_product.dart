@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class Product {
   int? productId;
   String? productCd;
@@ -39,23 +41,23 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      productId: json['product_id'],
+      productId: JsonUtils.toInt(json['product_id']),
       productCd: json['product_cd'],
-      productTypeId: json['product_type_id'],
+      productTypeId: JsonUtils.toInt(json['product_type_id']),
       productName: json['product_name'],
       priceCost: json['price_cost'],
-      priority: json['priority'],
-      categoryId: json['category_id'],
-      uomId: json['uom_id'],
-      brandId: json['brand_id'],
+      priority: JsonUtils.toInt(json['priority']),
+      categoryId: JsonUtils.toInt(json['category_id']),
+      uomId: JsonUtils.toInt(json['uom_id']),
+      brandId: JsonUtils.toInt(json['brand_id']),
       productImg: json['product_img'],
-      isSalable: json['is_salable'],
+      isSalable: JsonUtils.toInt(json['is_salable']),
       status: json['status'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
   factory Product.fromMap(Map<dynamic, dynamic> map) {

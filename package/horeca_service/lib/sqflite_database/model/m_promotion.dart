@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class Promotion {
   int? promotionId;
   String? promotionCode;
@@ -31,7 +33,7 @@ class Promotion {
       this.version);
 
   Promotion.fromJson(Map<String, dynamic> json) {
-    promotionId = json['promotion_id'];
+    promotionId = JsonUtils.toInt(json['promotion_id']);
     promotionCode = json['promotion_code'];
     promotionName = json['promotion_name'];
     startDate = json['start_date'];
@@ -40,11 +42,11 @@ class Promotion {
     conditionType = json['condition_type'];
     promotionType = json['promotion_type'];
     remark = json['remark'];
-    createdBy = json['created_by'];
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toJson() {

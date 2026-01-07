@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class AccountPositionLink {
   int? positionId;
   int? accountId;
@@ -19,14 +21,14 @@ class AccountPositionLink {
       this.version);
 
   AccountPositionLink.fromJson(Map<String, dynamic> json) {
-    positionId = json['position_id'];
-    accountId = json['account_id'];
+    positionId = JsonUtils.toInt(json['position_id']);
+    accountId = JsonUtils.toInt(json['account_id']);
     status = json['status'];
-    createdBy = json['created_by'];
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toJson() {
@@ -56,13 +58,13 @@ class AccountPositionLink {
   }
 
   AccountPositionLink.fromMap(Map<dynamic, dynamic> map) {
-    positionId = map['position_id'];
-    accountId = map['account_id'];
+    positionId = JsonUtils.toInt(map['position_id']);
+    accountId = JsonUtils.toInt(map['account_id']);
     status = map['status'];
-    createdBy = map['created_by'];
+    createdBy = JsonUtils.toInt(map['created_by']);
     createdDate = map['created_date'];
-    updatedBy = map['updated_by'];
+    updatedBy = JsonUtils.toInt(map['updated_by']);
     updatedDate = map['updated_date'];
-    version = map['version'];
+    version = JsonUtils.toInt(map['version']);
   }
 }

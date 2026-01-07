@@ -1,8 +1,10 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class CustomersGroup {
   int? customersGroupId;
   String? customersGroupCode;
   String? customersGroupName;
-  double? branchId;
+  int? branchId;
   int? createdBy;
   String? createdDate;
   int? updatedBy;
@@ -21,15 +23,15 @@ class CustomersGroup {
       this.version);
 
   CustomersGroup.fromJson(Map<String, dynamic> json) {
-    customersGroupId = json['customers_group_id'];
+    customersGroupId = JsonUtils.toInt(json['customers_group_id']);
     customersGroupCode = json['customers_group_code'];
     customersGroupName = json['customers_group_name'];
-    branchId = json['branch_id'];
-    createdBy = json['created_by'];
+    branchId = JsonUtils.toInt(json['branch_id']);
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toJson() {
@@ -61,14 +63,14 @@ class CustomersGroup {
   }
 
   CustomersGroup.fromMap(Map<dynamic, dynamic> map) {
-    customersGroupId = map['customers_group_id'];
+    customersGroupId = JsonUtils.toInt(map['customers_group_id']);
     customersGroupCode = map['customers_group_code'];
     customersGroupName = map['customers_group_name'];
-    branchId = map['branch_id'];
-    createdBy = map['created_by'];
+    branchId = JsonUtils.toInt(map['branch_id']);
+    createdBy = JsonUtils.toInt(map['created_by']);
     createdDate = map['created_date'];
-    updatedBy = map['updated_by'];
+    updatedBy = JsonUtils.toInt(map['updated_by']);
     updatedDate = map['updated_date'];
-    version = map['version'];
+    version = JsonUtils.toInt(map['version']);
   }
 }

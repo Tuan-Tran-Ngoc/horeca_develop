@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class Employee {
   int? employeeId;
   String? employeeCode;
@@ -39,24 +41,24 @@ class Employee {
       this.version);
 
   Employee.fromJson(Map<String, dynamic> json) {
-    employeeId = json['employee_id'];
+    employeeId = JsonUtils.toInt(json['employee_id']);
     employeeCode = json['employee_code'];
     employeeName = json['employee_name'];
     status = json['status'];
     phoneNumber = json['phone_number'];
     email = json['email'];
     birthdate = json['birthdate'];
-    provinceId = json['province_id'];
-    districtId = json['district_id'];
-    wardId = json['ward_id'];
+    provinceId = JsonUtils.toInt(json['province_id']);
+    districtId = JsonUtils.toInt(json['district_id']);
+    wardId = JsonUtils.toInt(json['ward_id']);
     streetName = json['street_name'];
     addressDetail = json['address_detail'];
     remark = json['remark'];
-    createdBy = json['created_by'];
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toJson() {
@@ -106,23 +108,23 @@ class Employee {
   }
 
   Employee.fromMap(Map<dynamic, dynamic> map) {
-    employeeId = map['employee_id'];
+    employeeId = JsonUtils.toInt(map['employee_id']);
     employeeCode = map['employee_code'];
     employeeName = map['employee_name'];
     status = map['status'];
     phoneNumber = map['phone_number'];
     email = map['email'];
     birthdate = map['birthdate'];
-    provinceId = map['province_id'];
-    districtId = map['district_id'];
-    wardId = map['ward_id'];
+    provinceId = JsonUtils.toInt(map['province_id']);
+    districtId = JsonUtils.toInt(map['district_id']);
+    wardId = JsonUtils.toInt(map['ward_id']);
     streetName = map['street_name'];
     addressDetail = map['address_detail'];
     remark = map['remark'];
-    createdBy = map['created_by'];
+    createdBy = JsonUtils.toInt(map['created_by']);
     createdDate = map['created_date'];
-    updatedBy = map['updated_by'];
+    updatedBy = JsonUtils.toInt(map['updated_by']);
     updatedDate = map['updated_date'];
-    version = map['version'];
+    version = JsonUtils.toInt(map['version']);
   }
 }

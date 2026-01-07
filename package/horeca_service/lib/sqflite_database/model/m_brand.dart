@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class Brand {
   int? brandId;
   String? brandCd;
@@ -25,16 +27,16 @@ class Brand {
 
   factory Brand.fromJson(Map<String, dynamic> json) {
     return Brand(
-      brandId: json['brand_id'],
+      brandId: JsonUtils.toInt(json['brand_id']),
       brandCd: json['brand_cd'],
       brandName: json['brand_name'],
       brandImg: json['brand_img'],
       status: json['status'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
 

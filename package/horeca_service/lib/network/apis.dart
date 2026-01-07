@@ -1,6 +1,7 @@
 class APIs {
   // MARK: - Upload file_
   var upload = "/api/uploadFile";
+  static var uploadDatabase = "/api/sync/uploadDatabase";
 
   // MARK: - Sync
   var download = "/api/downloadFile";

@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class CustomerPropertyMapping {
   int? propertyMappingId;
   int? customerPropertyId;
@@ -21,26 +23,26 @@ class CustomerPropertyMapping {
 
   factory CustomerPropertyMapping.fromJson(Map<String, dynamic> json) {
     return CustomerPropertyMapping(
-      propertyMappingId: json['property_mapping_id'],
-      customerPropertyId: json['customer_property_id'],
-      customerId: json['customer_id'],
-      createdBy: json['created_by'],
+      propertyMappingId: JsonUtils.toInt(json['property_mapping_id']),
+      customerPropertyId: JsonUtils.toInt(json['customer_property_id']),
+      customerId: JsonUtils.toInt(json['customer_id']),
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
   factory CustomerPropertyMapping.fromMap(Map<dynamic, dynamic> map) {
     return CustomerPropertyMapping(
-      propertyMappingId: map['property_mapping_id'],
-      customerPropertyId: map['customer_property_id'],
-      customerId: map['customer_id'],
-      createdBy: map['created_by'],
+      propertyMappingId: JsonUtils.toInt(map['property_mapping_id']),
+      customerPropertyId: JsonUtils.toInt(map['customer_property_id']),
+      customerId: JsonUtils.toInt(map['customer_id']),
+      createdBy: JsonUtils.toInt(map['created_by']),
       createdDate: map['created_date'],
-      updatedBy: map['updated_by'],
+      updatedBy: JsonUtils.toInt(map['updated_by']),
       updatedDate: map['updated_date'],
-      version: map['version'],
+      version: JsonUtils.toInt(map['version']),
     );
   }
   Map<String, dynamic> toMap() {

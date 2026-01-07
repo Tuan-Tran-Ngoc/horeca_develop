@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class OrderDetail {
   int? orderDetailId;
   int? orderDetailIdSync;
@@ -37,10 +39,10 @@ class OrderDetail {
 
   factory OrderDetail.fromJson(Map<String, dynamic> json) {
     return OrderDetail(
-      orderDetailId: json['order_dtl_id'],
-      orderDetailIdSync: json['order_dtl_id_sync'],
-      orderId: json['order_id'],
-      productId: json['product_id'],
+      orderDetailId: JsonUtils.toInt(json['order_dtl_id']),
+      orderDetailIdSync: JsonUtils.toInt(json['order_dtl_id_sync']),
+      orderId: JsonUtils.toInt(json['order_id']),
+      productId: JsonUtils.toInt(json['product_id']),
       stockType: json['stock_type'],
       quantity: json['qty'],
       salesPrice: json['sales_price'],
@@ -48,11 +50,11 @@ class OrderDetail {
       totalAmount: json['total_amount'],
       cashBackAmount: json['cash_back_amount'],
       collection: json['collection'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
   factory OrderDetail.fromMap(Map<dynamic, dynamic> map) {

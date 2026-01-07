@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class AccountOffline {
   int? accountOfflineId;
   int? positionId;
@@ -11,8 +13,8 @@ class AccountOffline {
       this.password, this.lastLogin, this.oauthString, this.updatedDate);
 
   AccountOffline.fromJson(Map<String, dynamic> json) {
-    accountOfflineId = json['account_offline_id'];
-    positionId = json['position_id'];
+    accountOfflineId = JsonUtils.toInt(json['account_offline_id']);
+    positionId = JsonUtils.toInt(json['position_id']);
     username = json['username'];
     password = json['password'];
     lastLogin = json['last_login'];
@@ -45,8 +47,8 @@ class AccountOffline {
   }
 
   AccountOffline.fromMap(Map<dynamic, dynamic> map) {
-    accountOfflineId = map['account_offline_id'];
-    positionId = map['position_id'];
+    accountOfflineId = JsonUtils.toInt(map['account_offline_id']);
+    positionId = JsonUtils.toInt(map['position_id']);
     username = map['username'];
     password = map['password'];
     lastLogin = map['last_login'];

@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 // province_id
 // province_name
 // province_code
@@ -39,12 +41,12 @@ class Province {
 
   factory Province.fromJson(Map<String, dynamic> json) {
     return Province(
-      provinceId: json['province_id'],
+      provinceId: JsonUtils.toInt(json['province_id']),
       provinceName: json['province_name'],
       provinceCode: json['province_code'],
-      version: json['version'],
-      updatedBy: json['updated_by'],
-      createdBy: json['created_by'],
+      version: JsonUtils.toInt(json['version']),
+      updatedBy: JsonUtils.toInt(json['updated_by']),
+      createdBy: JsonUtils.toInt(json['created_by']),
       updatedDate: json['updated_date'],
       createdDate: json['created_date'],
     );
@@ -52,12 +54,12 @@ class Province {
 
   factory Province.fromMap(Map<dynamic, dynamic> json) {
     return Province(
-      provinceId: json['province_id'],
+      provinceId: JsonUtils.toInt(json['province_id']),
       provinceName: json['province_name'],
       provinceCode: json['province_code'],
-      version: json['version'],
-      updatedBy: json['updated_by'],
-      createdBy: json['created_by'],
+      version: JsonUtils.toInt(json['version']),
+      updatedBy: JsonUtils.toInt(json['updated_by']),
+      createdBy: JsonUtils.toInt(json['created_by']),
       updatedDate: json['updated_date'],
       createdDate: json['created_date'],
     );

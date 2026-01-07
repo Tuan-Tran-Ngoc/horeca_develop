@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class EmployeePositionLink {
   int? employeePositionLinkId;
   int? employeeId;
@@ -25,17 +27,17 @@ class EmployeePositionLink {
       this.version);
 
   EmployeePositionLink.fromJson(Map<String, dynamic> json) {
-    employeePositionLinkId = json['employee_position_link_id'];
-    employeeId = json['employee_id'];
-    positionId = json['position_id'];
-    areaId = json['area_id'];
+    employeePositionLinkId = JsonUtils.toInt(json['employee_position_link_id']);
+    employeeId = JsonUtils.toInt(json['employee_id']);
+    positionId = JsonUtils.toInt(json['position_id']);
+    areaId = JsonUtils.toInt(json['area_id']);
     startDate = json['start_date'];
     endDate = json['end_date'];
-    createdBy = json['created_by'];
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toJson() {
@@ -71,16 +73,16 @@ class EmployeePositionLink {
   }
 
   EmployeePositionLink.fromMap(Map<dynamic, dynamic> map) {
-    employeePositionLinkId = map['employee_position_link_id'];
-    employeeId = map['employee_id'];
-    positionId = map['position_id'];
-    areaId = map['area_id'];
+    employeePositionLinkId = JsonUtils.toInt(map['employee_position_link_id']);
+    employeeId = JsonUtils.toInt(map['employee_id']);
+    positionId = JsonUtils.toInt(map['position_id']);
+    areaId = JsonUtils.toInt(map['area_id']);
     startDate = map['start_date'];
     endDate = map['end_date'];
-    createdBy = map['created_by'];
+    createdBy = JsonUtils.toInt(map['created_by']);
     createdDate = map['created_date'];
-    updatedBy = map['updated_by'];
+    updatedBy = JsonUtils.toInt(map['updated_by']);
     updatedDate = map['updated_date'];
-    version = map['version'];
+    version = JsonUtils.toInt(map['version']);
   }
 }

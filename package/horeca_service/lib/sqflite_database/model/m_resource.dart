@@ -1,4 +1,5 @@
 import 'package:horeca_service/sqflite_database/model/common_column.dart';
+import 'package:horeca_service/utils/json_utils.dart';
 
 class Resource {
   int? resourceId;
@@ -27,7 +28,7 @@ class Resource {
 
   factory Resource.fromJson(Map<String, dynamic> json) {
     return Resource(
-      resourceId: json['resource_id'],
+      resourceId: JsonUtils.toInt(json['resource_id']),
       categoryCd: json['category_cd'],
       resourceCd: json['resource_cd'],
       value1: json['value1'],
@@ -36,13 +37,13 @@ class Resource {
       value4: json['value4'],
       value5: json['value5'],
       resourceType: json['resource_type'],
-      deleteFlg: json['delete_flg'],
+      deleteFlg: JsonUtils.toInt(json['delete_flg']),
     );
   }
 
   factory Resource.fromMap(Map<dynamic, dynamic> map) {
     return Resource(
-      resourceId: map[columnResourceId],
+      resourceId: JsonUtils.toInt(map[columnResourceId]),
       categoryCd: map[columnCategoryCd] ?? '',
       resourceCd: map[columnResourceCd] ?? '',
       value1: map[columnValue1] ?? '',
@@ -51,7 +52,7 @@ class Resource {
       value4: map[columnValue4] ?? '',
       value5: map[columnValue5] ?? '',
       resourceType: map[columnResourceType] ?? '',
-      deleteFlg: map[columnDeleteFlg] ?? 0,
+      deleteFlg: JsonUtils.toInt(map[columnDeleteFlg]) ?? 0,
     );
   }
   Map<String, dynamic> toMap() {
