@@ -8,7 +8,6 @@ import 'package:horeca/language_setting.dart';
 import 'package:horeca/service/sync_service.dart';
 import 'package:horeca/utils/call_api_utils.dart';
 import 'package:horeca/utils/code_list_utils.dart';
-import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca/utils/constants.dart';
 import 'package:horeca/utils/message_utils.dart';
 import 'package:horeca_service/horeca_service.dart';
@@ -44,8 +43,8 @@ class ShiftCubit extends Cubit<ShiftState> {
 
     prefs = await SharedPreferences.getInstance();
 
-    var shiftReportId = prefs.getInt(Session.shiftReportId.toString());
-    var baPositionId = prefs.getInt(Session.baPositionId.toString());
+    var shiftReportId = prefs.getInt('shiftReportId');
+    var baPositionId = prefs.getInt('baPositionId');
     final listOrderInCurrentShift =
         await shiftReportProvider.getListOrderInCurrentShift(shiftReportId);
     // print('list order in current shift $listOrderInCurrentShift');
@@ -59,7 +58,8 @@ class ShiftCubit extends Cubit<ShiftState> {
       result.add(data.orderCd.toString());
       result.add(data.customerName.toString());
       result.add(data.fullAddress.toString());
-      result.add(CommonUtils.displayCurrency(data.grandTotalAmount ?? 0));
+      result.add(NumberFormat.currency(locale: 'vi')
+          .format(data.grandTotalAmount ?? 0));
       result.add(
           CodeListUtils.getMessage(Constant.clHorecaSts, data.horecaStatus) ??
               '');
@@ -80,7 +80,8 @@ class ShiftCubit extends Cubit<ShiftState> {
       result.add(data.productName.toString());
 
       result.add(NumberFormat.decimalPattern().format(data.quantity));
-      result.add(CommonUtils.displayCurrency(data.totalAmount ?? 0));
+      result.add(
+          NumberFormat.currency(locale: 'vi').format(data.totalAmount ?? 0));
       return result;
     }).toList();
     var shiftReport = await shiftReportProvider.getReport(shiftReportId, null);
@@ -107,18 +108,19 @@ class ShiftCubit extends Cubit<ShiftState> {
   }
 
   Future<void> endShift(ShiftReport? shiftReport) async {
-    emit(ReloadControl());
     AppLocalizations multiLang = AppLocalizations.of(context)!;
     try {
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
+      // Use transaction to ensure atomicity - if API fails, DB changes are rolled back
       await database.transaction((txn) async {
         var connect = await Connectivity().checkConnectivity();
 
         DateTime now = DateTime.now();
         String endTime = DateFormat(Constant.dateTimeFormatter).format(now);
+        // var baPositionId = prefs.getInt('baPositionId');
         prefs = await SharedPreferences.getInstance();
 
-        var baPositionId = prefs.getInt(Session.baPositionId.toString());
+        var baPositionId = prefs.getInt('baPositionId');
 
         // check sync data
         if (await syncService.checkSyncCurrent(
@@ -135,6 +137,14 @@ class ShiftCubit extends Cubit<ShiftState> {
           }
 
           ShiftReport newData = shiftReport;
+          // List<ShiftVisitDto> lstCustomerVisit = await customerVisitProvider
+          //     .getPlanCustomerVisit(newData.shiftReportId, txn);
+          // bool allVisitCheckout =
+          //     lstCustomerVisit.every((element) => element.endTime != null);
+          // if (!allVisitCheckout) {
+          //   throw Exception(
+          //       "Kết thúc ca thất bại, vui lòng hoàn thành viếng thăm");
+          // }
           newData.endTime = endTime;
           await shiftReportProvider.updateEndTime(newData, txn);
           if (connect == ConnectivityResult.wifi ||
@@ -147,9 +157,33 @@ class ShiftCubit extends Cubit<ShiftState> {
                 endTime,
                 newData.shiftReportIdSync ?? 0);
             String requestBodyJson = jsonEncode(requestBody);
+            print('EndShift API Request: $requestBodyJson');
+            
             APIResponseHeader response = await sendRequest.sendRequestAPI(
                 APIs.endShift, requestBodyJson);
+            
+            print('EndShift API Response: ${response.toString()}');
+            print('EndShift API Error: ${response.error?.toString()}');
+
+            // Check if API call failed
+            if (response.error != null) {
+              // Rollback the database changes by throwing an exception
+              String errorMessage = response.error?.message ?? 
+                                   response.error?.code ?? 
+                                   'End shift API call failed';
+              throw Exception('${multiLang.endShift} ${multiLang.failed}: $errorMessage');
+            }
+            
+            // Only proceed if API call was successful
+            message = [multiLang.endShift, multiLang.success].join(" ");
           } else if (connect == ConnectivityResult.none) {
+            // List<CustomerVisit>? lstVisiting = await customerVisitProvider
+            //     .getCustomerVisitByShiftReport(newData.shiftReportId ?? 0, txn);
+            // if (lstVisiting!.isNotEmpty) {
+            //   message =
+            //       MessageUtils.getMessages(code: 'err.ws.shiftreport.0008');
+            //   throw message;
+            // }
             SyncOffline syncOffline = SyncOffline(
                 positionId: newData.baPositionId!,
                 type: SyncType.endShift.toString(),
@@ -157,17 +191,27 @@ class ShiftCubit extends Cubit<ShiftState> {
                 relatedId: newData.shiftReportId,
                 createdDate: endTime);
             await syncOfflineProvider.insert(syncOffline, txn);
-            // emit(EndShiftSucces(message));
+            message = [multiLang.endShift, multiLang.success].join(" ");
           }
-          message = [multiLang.endShift, multiLang.success].join(" ");
+          
+          // Emit success only after all operations complete successfully
           emit(EndShiftSucces(message));
         } else {
           throw 'Thông tin ca không được tìm thấy';
         }
       });
     } catch (error) {
-      // MessageUtils.getMessages(code: e.code);
-      emit(EndShiftFailed(error.toString()));
+      print('EndShift Error: $error');
+      // Ensure any database changes are rolled back
+      String errorMessage = error.toString();
+      if (errorMessage.contains('Exception:')) {
+        errorMessage = errorMessage.replaceFirst('Exception: ', '');
+      }
+      emit(EndShiftFailed(errorMessage));
     }
+  }
+
+  Future<void> clickButtonChangeState() async {
+    emit(ClickEndShiftState());
   }
 }

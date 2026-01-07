@@ -1,11 +1,24 @@
 class Constant {
   //request time out
-  static const int REQUEST_TIMMEOUT = 10;
+  static const int REQUEST_TIMMEOUT = 30;
 
   //show toast time
   static const int SHOW_TOAST_TIME = 2;
 
   static const String SESSION_LOGIN_EXPIRED = 'err.sys.0205';
+
+  // Network error codes
+  static const String ERROR_NO_INTERNET = 'err.network.0001';
+  static const String ERROR_TIMEOUT = 'err.network.0002';
+  static const String ERROR_BAD_REQUEST = 'err.network.0003';
+  static const String ERROR_UNAUTHORIZED = 'err.network.0004';
+  static const String ERROR_FORBIDDEN = 'err.network.0005';
+  static const String ERROR_NOT_FOUND = 'err.network.0006';
+  static const String ERROR_SERVER = 'err.network.0007';
+  static const String ERROR_SERVICE_UNAVAILABLE = 'err.network.0008';
+  static const String ERROR_PARSE = 'err.network.0009';
+  static const String ERROR_UNKNOWN = 'err.network.0010';
+  static const String ERROR_SLOW_RESPONSE = 'err.network.0011';
 
   // shift name
   static const String morningShift = '00';

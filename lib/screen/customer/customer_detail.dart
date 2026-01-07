@@ -76,6 +76,7 @@ class _CustomerDetailBodyState extends State<CustomerDetailBody> {
         'title': multiLang.merchandise,
         'icon': 'assets/icons_app/submenu_stock-allocation.png',
         'route': ProductScreen(
+          key: ValueKey('product_${widget.customerId}_${widget.customerVisitId}'),
           routeId: widget.routeId,
           customerId: widget.customerId,
           customerVisitId: widget.customerVisitId,
@@ -108,6 +109,7 @@ class _CustomerDetailBodyState extends State<CustomerDetailBody> {
         'title': multiLang.purchase,
         'icon': 'assets/icons_app/submenu_order.png',
         'route': BuyScreen(
+          key: ValueKey('buy_${widget.customerId}_${widget.customerVisitId}'),
           customerId: widget.customerId,
           customerVisitId: widget.customerVisitId,
           statusVisit: statusVisit,
@@ -118,6 +120,7 @@ class _CustomerDetailBodyState extends State<CustomerDetailBody> {
         'title': multiLang.summary,
         'icon': 'assets/icons_app/submenu_summary.png',
         'route': SummaryScreen(
+          key: ValueKey('summary_${widget.customerId}_${widget.customerVisitId}'),
           customerVisitId: widget.customerVisitId,
           customerId: widget.customerId,
           customerAddressId: customerAddressId,

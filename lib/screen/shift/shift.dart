@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:horeca/contants/contants.dart';
@@ -9,6 +8,7 @@ import 'package:horeca/screen/shift/cubit/shift_cubit.dart';
 import 'package:horeca/themes/app_color.dart';
 import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca/utils/constants.dart';
+import 'package:horeca/widgets/api_button.dart';
 import 'package:horeca/widgets/button.dart';
 import 'package:horeca_service/horeca_service.dart';
 import 'package:horeca_service/model/shift_report.dart';
@@ -46,7 +46,6 @@ class _ShiftBodyState extends State<ShiftBody> {
   final DatatableController _datatableOrderController = DatatableController(-1);
   ShiftReport? shiftReport;
   ShiftReportHeaderDTO? shiftReportHeader;
-  bool isReloadControl = false;
 
   @override
   void initState() {
@@ -91,11 +90,6 @@ class _ShiftBodyState extends State<ShiftBody> {
     return BlocConsumer<ShiftCubit, ShiftState>(
       listener: (context, state) {
         if (state is EndShiftSucces) {
-          if (isReloadControl) {
-            isReloadControl = false;
-            Navigator.pop(context);
-          }
-
           String messageTemp = [multiLang.endShift, multiLang.failed].join(" ");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Fluttertoast.showToast(
@@ -111,11 +105,6 @@ class _ShiftBodyState extends State<ShiftBody> {
           });
         }
         if (state is EndShiftFailed) {
-          if (isReloadControl) {
-            isReloadControl = false;
-            Navigator.pop(context);
-          }
-
           String messageTemp = [multiLang.endShift, multiLang.failed].join(" ");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Fluttertoast.showToast(
@@ -131,23 +120,6 @@ class _ShiftBodyState extends State<ShiftBody> {
         }
       },
       builder: (context, state) {
-        if (state is ReloadControl) {
-          isReloadControl = true;
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            showDialog(
-              context: context,
-              barrierDismissible:
-                  false, // prevent user from dismissing the dialog
-              builder: (BuildContext context) {
-                return const SpinKitCircle(
-                  color: Colors.blue,
-                  size: 50.0,
-                );
-              },
-            );
-          });
-        }
-
         if (state is ShiftInitSuccess) {
           lstOrder = state.listOrderInShift;
           rowDataOrders = state.rowDataOrders;
@@ -251,14 +223,16 @@ class ButtonEndShift extends StatelessWidget {
         alignment: FractionalOffset.bottomCenter,
         child: Container(
           padding: const EdgeInsets.only(bottom: 10),
-          child: AppButton(
+          child: ApiButton(
+            apiKey: 'endShift',
+            text: multiLang.finishShift,
             backgroundColor: AppColor.mainAppColor,
-            // height: MediaQuery.of(context).size.height * 0.05,
             width: MediaQuery.of(context).size.width / 2 - 50,
             height: Contants.heightButton,
-            title: multiLang.finishShift,
-            onPress: () {
-              context.read<ShiftCubit>().endShift(shiftReport);
+            cooldownDuration: Duration(seconds: 3),
+            onPressed: () async {
+              context.read<ShiftCubit>().clickButtonChangeState();
+              await context.read<ShiftCubit>().endShift(shiftReport);
             },
           ),
         ));
@@ -266,10 +240,10 @@ class ButtonEndShift extends StatelessWidget {
 }
 
 class InformationCell extends StatelessWidget {
-  String title1;
-  String title2;
-  String value1;
-  String value2;
+  final String title1;
+  final String title2;
+  final String value1;
+  final String value2;
   InformationCell({
     Key? key,
     required this.title1,
@@ -325,7 +299,7 @@ class InformationCell extends StatelessWidget {
 }
 
 class InformationView extends StatelessWidget {
-  ShiftReportHeaderDTO? shiftReportHeader;
+  final ShiftReportHeaderDTO? shiftReportHeader;
   InformationView({
     Key? key,
     required this.shiftReportHeader,
@@ -364,8 +338,8 @@ class InformationView extends StatelessWidget {
           title1: multiLang.totalProductPurchase,
           title2: multiLang.totalOrderAmount,
           value1: shiftReportHeader?.totalProductQuantity.toString() ?? '',
-          value2: CommonUtils.formatCurrency(
-              shiftReportHeader?.totalOrderAmount ?? 0),
+          value2: NumberFormat.currency(locale: 'vi')
+              .format(shiftReportHeader?.totalOrderAmount ?? 0),
         ),
       ]),
     );

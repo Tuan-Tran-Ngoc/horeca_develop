@@ -631,10 +631,25 @@ class InitialDataService {
     // provider.insertMultipleRow(lstData);
     final File file = File(filePath);
     if (await file.exists()) {
-      final String jsonString = await file.readAsString();
-      final List<dynamic> jsonData = json.decode(jsonString);
-      List<T> lstData = List<T>.from(jsonData.map((model) => fromJson(model)));
-      provider.insertMultipleRow(lstData, batch);
+      try {
+        print('Processing file: $filePath');
+        final String jsonString = await file.readAsString();
+        final List<dynamic> jsonData = json.decode(jsonString);
+        List<T> lstData = List<T>.from(jsonData.map((model) {
+          try {
+            return fromJson(model);
+          } catch (e) {
+            print('Error parsing model in file $filePath: $e');
+            print('Model data: $model');
+            rethrow;
+          }
+        }));
+        provider.insertMultipleRow(lstData, batch);
+        print('Successfully processed file: $filePath with ${lstData.length} records');
+      } catch (e) {
+        print('Error processing file $filePath: $e');
+        rethrow;
+      }
     } else {
       print('File does not exist: $filePath');
       // Xử lý khi tệp không tồn tại

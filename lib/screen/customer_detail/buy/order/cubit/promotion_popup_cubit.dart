@@ -241,66 +241,125 @@ class PromotionPopupCubit extends Cubit<PromotionPopupState> {
     emit(EventApplyAllPromotionSuccess(lstPromotion));
   }
 
-  Future<void> warningProductAvailable(int customerId,
-      List<PromotionDto> lstPromotion, List<ProductDto> lstProduct) async {
-    emit(ClickBtnSelectStart());
+  Future<void> warningProductAvailable(
+      int customerId,
+      List<SchemePromotionDto> lstPromotion,
+      List<ProductDto> lstProduct) async {
+    try {
+      print('=== warningProductAvailable START ===');
+      print('CustomerId: $customerId');
+      print('Promotions count: ${lstPromotion.length}');
+      print('Products count: ${lstProduct.length}');
 
-    String result = await promotionService.notifyProductAvailable(
-        customerId, lstPromotion, lstProduct);
+      emit(ClickBtnSelectStart());
+      print('Emitted ClickBtnSelectStart');
 
-    emit(ClickBtnSelectSuccess(result));
+      List<ProductDto> lstproductAvailable = await productAvailabelForPromotion(
+          customerId, lstPromotion, lstProduct);
+
+      print('Products available count: ${lstproductAvailable.length}');
+
+      String result = '';
+      List<dynamic> params = [];
+      for (ProductDto productAvailable in lstproductAvailable) {
+        if (params.isNotEmpty) {
+          params.add(',');
+        }
+        params.add(NumberFormat.decimalPattern()
+            .format(productAvailable.quantity ?? 0));
+        params.add(productAvailable.productName);
+      }
+
+      if (params.isNotEmpty) {
+        params.add('chưa được áp dụng khuyên mãi.');
+      }
+
+      result = params.join(' ');
+      print('Warning message: "$result"');
+      print('Emitting ClickBtnSelectSuccess');
+
+      emit(ClickBtnSelectSuccess(result));
+      print('=== warningProductAvailable END ===');
+    } catch (e, stackTrace) {
+      print('!!! ERROR in warningProductAvailable: $e');
+      print('Stack trace: $stackTrace');
+      // Emit success with empty result to allow dialog to proceed
+      emit(ClickBtnSelectSuccess(''));
+    }
   }
 
-  // Future<List<ProductDto>> productAvailabelForPromotion(
-  //     int customerId,
-  //     List<SchemePromotionDto> lstPromotion,
-  //     List<ProductDto> lstProduct) async {
-  //   // List<PromotionResultOrderDto> lstPromotionCanApply =
-  //   //     await orderService.applyPromotionOrder(customerId, lstProduct, txn);
-  //   List<ProductDto> results = [];
-  //   //get product Apply
-  //   List<ProductPromotionDto> lstProductApply = [];
-  //   for (SchemePromotionDto promotion in lstPromotion) {
-  //     for (ProductPromotionDto productApply
-  //         in (promotion.lstProductApply ?? [])) {
-  //       ProductPromotionDto copiedProductApply = ProductPromotionDto(
-  //           productId: productApply.productId,
-  //           productName: productApply.productName,
-  //           totalQuatity: productApply.totalQuatity,
-  //           totalAmount: productApply.totalAmount);
-  //       if (!lstProductApply.any(
-  //           (element) => element.productId == copiedProductApply.productId)) {
-  //         lstProductApply.add(copiedProductApply);
-  //       } else {
-  //         int index = lstProductApply.indexWhere(
-  //             (element) => element.productId == copiedProductApply.productId);
+  Future<List<ProductDto>> productAvailabelForPromotion(
+      int customerId,
+      List<SchemePromotionDto> lstPromotion,
+      List<ProductDto> lstProduct) async {
+    try {
+      print('--- productAvailabelForPromotion START ---');
+      // List<PromotionResultOrderDto> lstPromotionCanApply =
+      //     await orderService.applyPromotionOrder(customerId, lstProduct, txn);
+      List<ProductDto> results = [];
+      //get product Apply
+      List<ProductPromotionDto> lstProductApply = [];
 
-  //         lstProductApply[index].totalQuatity =
-  //             (lstProductApply[index].totalQuatity ?? 0) +
-  //                 (copiedProductApply.totalQuatity ?? 0);
-  //       }
-  //     }
-  //   }
+      for (SchemePromotionDto promotion in lstPromotion) {
+        print('Processing promotion - scheme ID: ${promotion.schemeId}');
+        print(
+            'Products to apply in this scheme: ${promotion.lstProductApply?.length ?? 0}');
 
-  //   for (ProductPromotionDto productApply in lstProductApply) {
-  //     if (lstProduct
-  //         .any((element) => element.productId == productApply.productId)) {
-  //       int index = lstProduct.indexWhere(
-  //           (element) => element.productId == productApply.productId);
-  //       if (((lstProduct[index].quantity ?? 0) -
-  //               (productApply.totalQuatity ?? 0)) !=
-  //           0) {
-  //         ProductDto result = ProductDto(
-  //             productName: lstProduct[index].productName,
-  //             quantity: (lstProduct[index].quantity ?? 0) -
-  //                 (productApply.totalQuatity ?? 0));
+        for (ProductPromotionDto productApply
+            in (promotion.lstProductApply ?? [])) {
+          ProductPromotionDto copiedProductApply = ProductPromotionDto(
+              productId: productApply.productId,
+              productName: productApply.productName,
+              totalQuatity: productApply.totalQuatity,
+              totalAmount: productApply.totalAmount);
+          if (!lstProductApply.any(
+              (element) => element.productId == copiedProductApply.productId)) {
+            lstProductApply.add(copiedProductApply);
+          } else {
+            int index = lstProductApply.indexWhere(
+                (element) => element.productId == copiedProductApply.productId);
 
-  //         results.add(result);
-  //         break;
-  //       }
-  //     }
-  //   }
+            lstProductApply[index].totalQuatity =
+                (lstProductApply[index].totalQuatity ?? 0) +
+                    (copiedProductApply.totalQuatity ?? 0);
+          }
+        }
+      }
 
-  //   return results;
-  // }
+      print(
+          'Total unique products to apply promotions: ${lstProductApply.length}');
+
+      for (ProductPromotionDto productApply in lstProductApply) {
+        if (lstProduct
+            .any((element) => element.productId == productApply.productId)) {
+          int index = lstProduct.indexWhere(
+              (element) => element.productId == productApply.productId);
+          double remainingQty = (lstProduct[index].quantity ?? 0) -
+              (productApply.totalQuatity ?? 0);
+
+          print(
+              'Product: ${lstProduct[index].productName}, Order qty: ${lstProduct[index].quantity}, Applied qty: ${productApply.totalQuatity}, Remaining: $remainingQty');
+
+          if (remainingQty != 0) {
+            ProductDto result = ProductDto(
+                productName: lstProduct[index].productName,
+                quantity: remainingQty);
+
+            results.add(result);
+            print(
+                'Added to warning list: ${result.productName} with qty: ${result.quantity}');
+            // REMOVED break here to check all products
+          }
+        }
+      }
+
+      print('Total products with remaining quantity: ${results.length}');
+      print('--- productAvailabelForPromotion END ---');
+      return results;
+    } catch (e, stackTrace) {
+      print('!!! ERROR in productAvailabelForPromotion: $e');
+      print('Stack trace: $stackTrace');
+      return [];
+    }
+  }
 }

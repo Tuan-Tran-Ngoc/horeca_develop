@@ -1,6 +1,6 @@
 part of 'create_buy_order_cubit.dart';
 
-sealed class CreateBuyOrderState extends Equatable {
+abstract class CreateBuyOrderState extends Equatable {
   const CreateBuyOrderState();
 
   @override

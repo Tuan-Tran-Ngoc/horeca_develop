@@ -99,7 +99,9 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
         index++;
         List<String> result = [];
 
+        // Calculate total quantity
         totalQuantity = totalQuantity + (product.qty ?? 0);
+
         // setting product order detail
         result.add(index.toString());
         result.add(product.productName ?? '');
@@ -115,7 +117,8 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
 
         return result;
       }).toList();
-
+      
+      // Store total quantity in orderHeader
       orderHeader.totalQuantity = totalQuantity;
     }
 
@@ -497,7 +500,8 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                                                     child: Text(
                                                   NumberFormat.decimalPattern()
                                                       .format(orderHeader
-                                                          .totalQuantity),
+                                                              .totalQuantity ??
+                                                          0),
                                                   textAlign: TextAlign.right,
                                                 )),
                                               ],

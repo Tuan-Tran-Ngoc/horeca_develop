@@ -39,3 +39,15 @@ final class UpgradeVersionAppSuccess extends SettingState {
   String filePath;
   UpgradeVersionAppSuccess(this.filePath);
 }
+
+final class ExportDatabaseLoading extends SettingState {}
+
+final class ExportDatabaseSuccess extends SettingState {
+  final String msg;
+  ExportDatabaseSuccess(this.msg);
+}
+
+final class ExportDatabaseFailed extends SettingState {
+  final String error;
+  ExportDatabaseFailed(this.error);
+}

@@ -103,6 +103,49 @@ class _SettingBodyState extends State<SettingBody> {
         if (state is UpgradeVersionAppSuccess) {
           String apkLink = state.filePath;
         }
+
+        if (state is ExportDatabaseLoading) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      Text(multiLang.waiting),
+                    ],
+                  ),
+                );
+              },
+            );
+          });
+        }
+
+        if (state is ExportDatabaseSuccess) {
+          Navigator.of(context).pop(); // Close loading dialog
+          Fluttertoast.showToast(
+              msg: state.msg,
+              toastLength: Toast.LENGTH_SHORT,
+              timeInSecForIosWeb: Constant.SHOW_TOAST_TIME,
+              backgroundColor: AppColor.successColor,
+              textColor: Colors.white,
+              fontSize: 14.0);
+        }
+
+        if (state is ExportDatabaseFailed) {
+          Navigator.of(context).pop(); // Close loading dialog
+          Fluttertoast.showToast(
+              msg: state.error,
+              toastLength: Toast.LENGTH_LONG,
+              timeInSecForIosWeb: Constant.SHOW_TOAST_TIME,
+              backgroundColor: AppColor.errorColor,
+              textColor: Colors.white,
+              fontSize: 14.0);
+        }
       },
       builder: (context, state) {
         return Scaffold(
@@ -395,6 +438,23 @@ class _SettingBodyState extends State<SettingBody> {
                       context
                           .read<SettingCubit>()
                           .changeLanguage(languageController.text);
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                SizedBox(
+                  width: ConstSetting.labelSizeboxLength,
+                  height: 40,
+                  child: AppButton(
+                    backgroundColor: AppColor.mainAppColor,
+                    height: Contants.heightButton,
+                    title: multiLang.exportDatabase,
+                    onPress: () {
+                      context
+                          .read<SettingCubit>()
+                          .exportDatabaseAndUpload();
                     },
                   ),
                 ),

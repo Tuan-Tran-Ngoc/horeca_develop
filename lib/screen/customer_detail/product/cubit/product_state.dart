@@ -21,6 +21,7 @@ final class ProductInitialSuccess extends ProductState {
   List<AddressVisitDto> lstAddress;
   bool isStartVisit;
   int? customerVisitId;
+  String visitStatus;
   ProductInitialSuccess(
       this.selectedAddval,
       this.lstAddress,
@@ -28,7 +29,8 @@ final class ProductInitialSuccess extends ProductState {
       this.listStockBalance,
       this.rowDataDTC,
       this.isStartVisit,
-      this.customerVisitId);
+      this.customerVisitId,
+      this.visitStatus);
 }
 
 final class ClickTabSuccess extends ProductState {

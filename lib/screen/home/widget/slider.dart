@@ -19,11 +19,11 @@ class _SliderViewState extends State<SliderView> {
   CarouselController buttonCarouselController = CarouselController();
 
   List<String> child = [
-    'assets/images/acecook1.png',
-    'assets/images/acecook2.png',
-    'assets/images/acecook3.png',
-    'assets/images/acecook4.png',
-    'assets/images/acecook5.png'
+    'assets/images/acecook1.jpg',
+    'assets/images/acecook2.jpg',
+    'assets/images/acecook3.jpg',
+    'assets/images/acecook4.jpg',
+    'assets/images/acecook5.jpg'
   ];
 
   int _current = 0;

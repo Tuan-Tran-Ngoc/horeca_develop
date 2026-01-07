@@ -86,15 +86,15 @@ class _BuyBodyState extends State<BuyBody> {
           Navigator.of(context)
               .push(MaterialPageRoute(
             builder: (context) => OrderDetailScreen(
-              customerId: customerId,
+              customerId: widget.customerId,
               customerVisitId: (widget.statusVisit == Constant.visiting)
-                  ? customerVisitId
+                  ? widget.customerVisitId
                   : 0,
               orderId: orderId,
             ),
           ))
               .then((result) {
-            context.read<BuyCubit>().init(customerId, customerVisitId);
+            context.read<BuyCubit>().init(widget.customerId, widget.customerVisitId);
           });
         }
         _datatableOrderController.selectIndex.value = -1;
@@ -137,9 +137,17 @@ class _BuyBodyState extends State<BuyBody> {
   List<List<String>> lstOrderStr = [];
   List<SurveyDto> lstSurvey = [];
   List<List<String>> lstSurveyStr = [];
-  late int customerId;
-  late int customerVisitId;
   final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void didUpdateWidget(BuyBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reload data if customer or visit changed
+    if (oldWidget.customerId != widget.customerId ||
+        oldWidget.customerVisitId != widget.customerVisitId) {
+      context.read<BuyCubit>().init(widget.customerId, widget.customerVisitId);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final double width =
@@ -246,8 +254,6 @@ class _BuyBodyState extends State<BuyBody> {
         if (state is BuyInitialSuccess) {
           lstOrder = state.lstOrder;
           lstSurvey = state.lstSurvey;
-          customerId = widget.customerId;
-          customerVisitId = widget.customerVisitId;
           updateLstOrder(lstOrder);
           updateLstSurvey(lstSurvey);
         }

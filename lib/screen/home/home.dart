@@ -72,9 +72,8 @@ class _HomeBodyState extends State<HomeBody> {
       },
     ];
 
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) {
+    return WillPopScope(
+      onWillPop: () async {
         Fluttertoast.showToast(
           msg: "Không thể quay lại màn hình đăng nhập",
           toastLength: Toast.LENGTH_SHORT,
@@ -84,6 +83,7 @@ class _HomeBodyState extends State<HomeBody> {
           fontSize: 16.0,
         );
         // FlutterAppMinimizer.minimize();
+        return false;
       },
       child: Scaffold(
         key: _scaffoldKey,
@@ -191,6 +191,7 @@ class _HomeBodyState extends State<HomeBody> {
             onTap: () async {
               //context.push(menu['route'].toString());
               //print('onClick: ${menu['route'].toString()}');
+              
               isStartShift = await context.read<HomeCubit>().checkStartShift();
               if ((menu['route'].toString() == '/shift' ||
                       menu['route'].toString() == '/customer') &&
