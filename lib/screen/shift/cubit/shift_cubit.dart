@@ -111,6 +111,7 @@ class ShiftCubit extends Cubit<ShiftState> {
     AppLocalizations multiLang = AppLocalizations.of(context)!;
     try {
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
+      // Use transaction to ensure atomicity - if API fails, DB changes are rolled back
       await database.transaction((txn) async {
         var connect = await Connectivity().checkConnectivity();
 
@@ -156,13 +157,25 @@ class ShiftCubit extends Cubit<ShiftState> {
                 endTime,
                 newData.shiftReportIdSync ?? 0);
             String requestBodyJson = jsonEncode(requestBody);
+            print('EndShift API Request: $requestBodyJson');
+            
             APIResponseHeader response = await sendRequest.sendRequestAPI(
                 APIs.endShift, requestBodyJson);
+            
+            print('EndShift API Response: ${response.toString()}');
+            print('EndShift API Error: ${response.error?.toString()}');
 
-            // if (response.error != null) {
-            //   throw Exception(response.error?.code);
-            // }
-            // emit(EndShiftSucces(message));
+            // Check if API call failed
+            if (response.error != null) {
+              // Rollback the database changes by throwing an exception
+              String errorMessage = response.error?.message ?? 
+                                   response.error?.code ?? 
+                                   'End shift API call failed';
+              throw Exception('${multiLang.endShift} ${multiLang.failed}: $errorMessage');
+            }
+            
+            // Only proceed if API call was successful
+            message = [multiLang.endShift, multiLang.success].join(" ");
           } else if (connect == ConnectivityResult.none) {
             // List<CustomerVisit>? lstVisiting = await customerVisitProvider
             //     .getCustomerVisitByShiftReport(newData.shiftReportId ?? 0, txn);
@@ -178,17 +191,23 @@ class ShiftCubit extends Cubit<ShiftState> {
                 relatedId: newData.shiftReportId,
                 createdDate: endTime);
             await syncOfflineProvider.insert(syncOffline, txn);
-            // emit(EndShiftSucces(message));
+            message = [multiLang.endShift, multiLang.success].join(" ");
           }
-          message = [multiLang.endShift, multiLang.success].join(" ");
+          
+          // Emit success only after all operations complete successfully
           emit(EndShiftSucces(message));
         } else {
           throw 'Thông tin ca không được tìm thấy';
         }
       });
     } catch (error) {
-      // MessageUtils.getMessages(code: e.code);
-      emit(EndShiftFailed(error.toString()));
+      print('EndShift Error: $error');
+      // Ensure any database changes are rolled back
+      String errorMessage = error.toString();
+      if (errorMessage.contains('Exception:')) {
+        errorMessage = errorMessage.replaceFirst('Exception: ', '');
+      }
+      emit(EndShiftFailed(errorMessage));
     }
   }
 

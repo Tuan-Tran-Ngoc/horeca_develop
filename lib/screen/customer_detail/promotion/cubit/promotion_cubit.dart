@@ -167,8 +167,7 @@ class PromotionCubit extends Cubit<PromotionState> {
             ];
             if (discountContent.discountType == '00') {
               // result discount is percent
-              params.add(NumberFormat.percentPattern()
-                  .format((discountContent.resultQty ?? 0) / 100));
+                  params.add(discountContent.resultQty.toString() + '%');
             } else {
               // result discount is money
               params.add(NumberFormat.currency(locale: 'vi')
@@ -186,8 +185,7 @@ class PromotionCubit extends Cubit<PromotionState> {
                 ];
                 if (discountContent.discountType == '00') {
                   // result discount is percent
-                  params.add(NumberFormat.percentPattern()
-                      .format((discountContent.resultQty ?? 0) / 100));
+                  params.add(discountContent.resultQty.toString() + '%');
                 } else {
                   // result discount is money
                   params.add(NumberFormat.currency()
@@ -203,8 +201,7 @@ class PromotionCubit extends Cubit<PromotionState> {
                 ];
                 if (discountContent.discountType == '00') {
                   // result discount is percent
-                  params.add(NumberFormat.percentPattern()
-                      .format((discountContent.resultQty ?? 0) / 100));
+                  params.add(discountContent.resultQty.toString() + '%');
                 } else {
                   // result discount is money
                   params.add(NumberFormat.currency()
@@ -223,8 +220,7 @@ class PromotionCubit extends Cubit<PromotionState> {
                 ];
                 if (discountContent.discountType == '00') {
                   // result discount is percent
-                  params.add(NumberFormat.percentPattern()
-                      .format((discountContent.resultQty ?? 0) / 100));
+                  params.add(discountContent.resultQty.toString() + '%');
                 } else {
                   // result discount is money
                   params.add(NumberFormat.currency()
@@ -239,8 +235,7 @@ class PromotionCubit extends Cubit<PromotionState> {
                 ];
                 if (discountContent.discountType == '00') {
                   // result discount is percent
-                  params.add(NumberFormat.percentPattern()
-                      .format((discountContent.resultQty ?? 0) / 100));
+                  params.add(discountContent.resultQty.toString() + '%');
                 } else {
                   // result discount is money
                   params.add(NumberFormat.currency()

@@ -206,7 +206,28 @@ class SyncService {
     List<OrderDiscountResultRequest> lstOrderDiscountResultRequest = [];
     List<OrderPromotionResultRequest> lstOrderPromotionResultRequest = [];
     String message = '';
+    
+    // Helper to validate numeric values
+    double validateDouble(double? value) {
+      if (value == null || value.isNaN || value.isInfinite) {
+        return 0;
+      }
+      return value;
+    }
+    
     for (var orderDtl in lstOrderDtl) {
+      // Validate order detail values
+      double qty = validateDouble(orderDtl.quantity);
+      double salesPrice = validateDouble(orderDtl.salesPrice);
+      double salesInPrice = validateDouble(orderDtl.salesInPrice);
+      double totalAmount = validateDouble(orderDtl.totalAmount);
+      
+      // Skip invalid order details
+      if (qty <= 0) {
+        print('Skipping invalid order detail for product: ${orderDtl.productId}');
+        continue;
+      }
+      
       OrderDtl record = OrderDtl(
           createdBy: orderDtl.createdBy,
           createdDate: orderDtl.createdDate,
@@ -215,23 +236,26 @@ class SyncService {
           orderDtlId: orderDtl.orderDetailId,
           productId: orderDtl.productId,
           stockType: orderDtl.stockType,
-          qty: orderDtl.quantity,
-          salesPrice: orderDtl.salesPrice,
-          salesInPrice: orderDtl.salesInPrice,
-          totalAmount: orderDtl.totalAmount,
+          qty: qty,
+          salesPrice: salesPrice,
+          salesInPrice: salesInPrice,
+          totalAmount: totalAmount,
           orderId: orderDtl.orderId);
 
       lstOrderDtlRequest.add(record);
     }
 
     for (var promotionResult in lstPromotionResult) {
+      // Validate promotion quantity
+      double qty = validateDouble(promotionResult.qty);
+      
       OrderPromotionResultRequest record = OrderPromotionResultRequest(
           promotionResultId: promotionResult.orderPromotionResultId,
           orderId: promotionResult.orderId,
           promotionId: promotionResult.promotionId,
           promotionSchemeId: promotionResult.promotionSchemeId,
           productId: promotionResult.productId,
-          qty: promotionResult.qty,
+          qty: qty,
           description: promotionResult.description,
           createdBy: promotionResult.createdBy,
           createdDate: promotionResult.createdDate,
@@ -242,6 +266,10 @@ class SyncService {
     }
 
     for (var discountResult in lstDiscountResult) {
+      // Validate discount values
+      double discountValue = validateDouble(discountResult.discountValue);
+      double totalDiscount = validateDouble(discountResult.totalDiscount);
+      
       OrderDiscountResultRequest record = OrderDiscountResultRequest(
           discountResultId: discountResult.orderDiscountResultId,
           orderId: discountResult.orderId,
@@ -249,8 +277,8 @@ class SyncService {
           discountSchemeId: discountResult.discountSchemeId,
           productId: discountResult.productId,
           discountType: discountResult.discountType,
-          discountValue: discountResult.discountValue,
-          totalDiscount: discountResult.totalDiscount,
+          discountValue: discountValue,
+          totalDiscount: totalDiscount,
           description: discountResult.description,
           createdBy: discountResult.createdBy,
           createdDate: discountResult.createdDate,
@@ -259,7 +287,18 @@ class SyncService {
 
       lstOrderDiscountResultRequest.add(record);
     }
-
+    
+    // Validate order has valid data
+    if (customerVisitIdSync == 0 || customerVisitIdSync == null) {
+      message = 'Customer visit ID is invalid';
+      throw message;
+    }
+    
+    if (lstOrderDtlRequest.isEmpty) {
+      message = multiLang.cannotSynchronize(multiLang.order);
+      throw message;
+    }
+    
     CreateOrderRequest request = CreateOrderRequest(
       tabletOrderId: orderResult.orderId,
       orderCd: orderResult.orderCd,
@@ -269,16 +308,16 @@ class SyncService {
       baPositionId: baPositionId,
       employeeId: orderResult.employeeId,
       orderDate: orderResult.orderDate,
-      totalAmount: orderResult.totalAmount,
-      totalDiscount: orderResult.totalDiscount,
-      vat: orderResult.vat,
+      totalAmount: validateDouble(orderResult.totalAmount),
+      totalDiscount: validateDouble(orderResult.totalDiscount),
+      vat: validateDouble(orderResult.vat),
       status: orderResult.status,
       horecaStatus: orderResult.horecaStatus,
       remark: orderResult.remark,
       orderDtls: lstOrderDtlRequest,
       orderDiscountResults: lstOrderDiscountResultRequest,
       orderPromotionResults: lstOrderPromotionResultRequest,
-      grandTotalAmount: orderResult.grandTotalAmount,
+      grandTotalAmount: validateDouble(orderResult.grandTotalAmount),
       poNo: orderResult.poNo,
       expectDeliveryDate: orderResult.expectDeliveryDate,
       createdBy: orderResult.createdBy,
@@ -295,6 +334,18 @@ class SyncService {
     APIResponseEntity<CreateOrderResponse> response =
         await callApi.callApiPostMethod(
             APIs.createOrder, json, CreateOrderResponse.fromJson);
+    
+    // Check for API errors
+    if (response.error != null) {
+      print('Create order API error: ${response.error?.code} - ${response.error?.message}');
+      throw Exception(response.error?.message ?? 'Failed to create order');
+    }
+    
+    if (response.data?.orderId == null) {
+      print('Create order API returned null order ID');
+      throw Exception('Failed to get order ID from server');
+    }
+    
     orderResult.orderIdSync = response.data?.orderId;
     orderResult.orderCd = response.data?.orderCd;
     orderResult.supPositionId = response.data?.supPositionId;

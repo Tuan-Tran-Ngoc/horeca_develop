@@ -14,6 +14,7 @@ import 'package:horeca/utils/code_list_utils.dart';
 import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca/utils/constants.dart';
 import 'package:horeca/utils/message_utils.dart';
+import 'package:horeca/widgets/api_button.dart';
 import 'package:horeca/widgets/button.dart';
 import 'package:horeca/widgets/datatable.dart';
 import 'package:horeca/widgets/text_field.dart';
@@ -109,11 +110,17 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
     }
 
     void updateProductOrder(List<ProductDto> results) {
+      // Helper function to round money values
+      double roundMoney(double value) {
+        return value.roundToDouble();
+      }
+
       summaryOrder.totalAmount = 0;
       lstAllProduct = results;
       lstProduct = getProductOrder(results);
       int index = 0;
       double totalAmount = 0;
+      double totalQuantity = 0;
       double discountAmount = 0;
       double promotionAmount = 0;
       double vatAmount = 0;
@@ -121,45 +128,61 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
         index++;
         List<String> result = [];
         print('product_id: ${product.productId}');
-        totalAmount =
-            totalAmount + product.quantity! * (product.priceCostDiscount ?? 0);
+        
+        // Round salesPrice and priceCostDiscount with null safety
+        product.salesPrice = roundMoney(product.salesPrice ?? 0);
+        product.priceCostDiscount = roundMoney(product.priceCostDiscount ?? 0);
+        
+        // Calculate and round line total with validation
+        double quantity = product.quantity ?? 0;
+        double price = product.priceCostDiscount ?? 0;
+        double lineTotal = roundMoney(quantity * price);
+        
+        // Validate lineTotal is not NaN or infinite
+        if (lineTotal.isNaN || lineTotal.isInfinite) {
+          lineTotal = 0;
+        }
+        
+        totalAmount = totalAmount + lineTotal;
+        totalQuantity = totalQuantity + quantity;
         // setting product order detail
         result.add(index.toString());
         result.add(product.productName ?? '');
         result.add(NumberFormat.decimalPattern().format(product.quantity));
         result.add(product.uomName ?? '');
         result.add(NumberFormat.currency(locale: 'vi')
-            .format(product.salesPrice ?? 0));
+            .format(product.salesPrice!));
         result.add(product.discountRate ?? '');
         result.add(NumberFormat.currency(locale: 'vi')
-            .format(product.priceCostDiscount ?? 0));
+            .format(product.priceCostDiscount!));
         result.add(NumberFormat.currency(locale: 'vi')
-            .format(product.quantity! * (product.priceCostDiscount ?? 0)));
+            .format(lineTotal));
 
         return result;
       }).toList();
 
-      // setting summary order
-      summaryOrder.totalAmount = totalAmount;
-      summaryOrder.discountAmount = discountAmount;
-      summaryOrder.promotionAmount = promotionAmount;
-      summaryOrder.vatAmount = vatAmount;
+      // setting summary order with rounding
+      summaryOrder.totalAmount = totalAmount.roundToDouble();
+      summaryOrder.totalQuantity = totalQuantity.roundToDouble();
+      summaryOrder.discountAmount = discountAmount.roundToDouble();
+      summaryOrder.promotionAmount = promotionAmount.roundToDouble();
+      summaryOrder.vatAmount = vatAmount.roundToDouble();
       summaryOrder.grandTotalAmount =
-          totalAmount - discountAmount - promotionAmount + vatAmount;
+          (totalAmount - discountAmount - promotionAmount + vatAmount).roundToDouble();
     }
 
     void updateSummary() {
       if (orderHeader.isTax == 1) {
-        summaryOrder.vatAmount = ((summaryOrder.totalAmount ?? 0) -
+        summaryOrder.vatAmount = (((summaryOrder.totalAmount ?? 0) -
                 (summaryOrder.discountAmount ?? 0)) *
-            (orderHeader.vatValue ?? 0);
+            (orderHeader.vatValue ?? 0)).roundToDouble();
       } else {
         summaryOrder.vatAmount = 0;
       }
-      summaryOrder.grandTotalAmount = (summaryOrder.totalAmount ?? 0) -
+      summaryOrder.grandTotalAmount = ((summaryOrder.totalAmount ?? 0) -
           (summaryOrder.discountAmount ?? 0) -
           (summaryOrder.promotionAmount ?? 0) +
-          (summaryOrder.vatAmount ?? 0);
+          (summaryOrder.vatAmount ?? 0)).roundToDouble();
     }
 
     void updateDiscountOrder(List<DiscountResultOrderDto> lstDiscount) {
@@ -184,7 +207,7 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
 
       print('total discount ${totalDiscount}');
       summaryOrder.discountAmount =
-          (summaryOrder.discountAmount ?? 0) + totalDiscount;
+          ((summaryOrder.discountAmount ?? 0) + totalDiscount).roundToDouble();
       updateSummary();
     }
 
@@ -694,6 +717,36 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
                                               SizedBox(
                                                   width: 200,
                                                   child: Text(
+                                                    multiLang.totalProductPurchase,
+                                                    textAlign: TextAlign.right,
+                                                    style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )),
+                                              const SizedBox(
+                                                width: Contants.spacingRow10,
+                                              ),
+                                              Expanded(
+                                                  child: Text(
+                                                NumberFormat.decimalPattern()
+                                                    .format(summaryOrder
+                                                        .totalQuantity ?? 0),
+                                                textAlign: TextAlign.right,
+                                              )),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 40,
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              SizedBox(
+                                                  width: 200,
+                                                  child: Text(
                                                     multiLang.totalAmount,
                                                     textAlign: TextAlign.right,
                                                     style: const TextStyle(
@@ -853,12 +906,13 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
                   alignment: FractionalOffset.bottomCenter,
                   child: Container(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: AppButton(
+                    child: ApiButton(
+                      apiKey: 'createOrder_${widget.customerId}_${widget.customerVisitId}',
                       backgroundColor: AppColor.mainAppColor,
                       height: 55,
                       width: width / 4,
-                      title: multiLang.finish,
-                      onPress: () {
+                      text: multiLang.finish,
+                      onPressed: () async {
                         context.read<CreateBuyOrderCubit>().createOrder(
                             widget.customerId,
                             widget.customerVisitId,
@@ -980,6 +1034,8 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
         // }
       },
       builder: (context, state) {
+        bool isCalculating = state is StartApplyDiscounPromotion;
+        
         if (state is LoadingInit) {
           orderHeader = state.orderHeader;
           lstProduct = state.lstProduct;
@@ -1005,7 +1061,36 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
             updatePromotionOrder(lstScheme);
           });
         }
-        return OrderContent(context);
+        return Stack(
+          children: [
+            AbsorbPointer(
+              absorbing: isCalculating,
+              child: OrderContent(context),
+            ),
+            if (isCalculating)
+              Container(
+                color: Colors.black.withOpacity(0.3),
+                child: const Center(
+                  child: Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text(
+                            'Vui lòng đợi...',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
       },
     );
     //return OrderContent(context);

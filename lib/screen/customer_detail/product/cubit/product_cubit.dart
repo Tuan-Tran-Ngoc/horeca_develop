@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:connectivity/connectivity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:horeca/service/stock_service.dart';
 import 'package:horeca/service/sync_service.dart';
+import 'package:horeca/utils/api_call_manager.dart';
 import 'package:horeca/utils/call_api_utils.dart';
 import 'package:horeca/utils/constants.dart';
 import 'package:horeca_service/horeca_service.dart';
@@ -47,6 +49,7 @@ class ProductCubit extends Cubit<ProductState> {
       int customerId, int customerVisitId, int customerAddressIdChoose) async {
     bool isStartVisit = false;
     String selectedAddval = '';
+    String visitStatus = Constant.notYetVisit;
     List<ProductDto> listCustomerStock = [];
     prefs = await SharedPreferences.getInstance();
     int? shiftReportId = prefs.getInt('shiftReportId');
@@ -91,15 +94,44 @@ class ProductCubit extends Cubit<ProductState> {
         .getCustomerVisiting(shiftReportId!, customerId, customerVisitId);
 
     if (lstCustomerVisit.isNotEmpty) {
-      //isStartVisit = true;
-      int? customerAddressId = lstCustomerVisit[0].customerAddressId;
+      // Found active visit - use its information
+      CustomerVisit activeVisit = lstCustomerVisit[0];
+      customerVisitId = activeVisit.customerVisitId ?? 0;
+      visitStatus = activeVisit.visitStatus ?? Constant.notYetVisit;
+      isStartVisit = (activeVisit.visitStatus == Constant.visiting);
+      
+      int? customerAddressId = activeVisit.customerAddressId;
       AddressVisitDto addressSelected = lstAddress.firstWhere(
           (address) => address.customerAddressId == customerAddressId);
       selectedAddval = addressSelected.address!;
       customerAddressIdChoose = addressSelected.customerAddressId ?? 0;
 
       print('listCustomerStock $listCustomerStock');
+    } else if (customerVisitId > 0) {
+      // No active visit found from query, but customerVisitId was passed
+      // Check if this specific visit exists and get its status
+      CustomerVisit? currentVisit = await customerVisitProvider.select(customerVisitId, null);
+      if (currentVisit != null) {
+        visitStatus = currentVisit.visitStatus ?? Constant.notYetVisit;
+        isStartVisit = (currentVisit.visitStatus == Constant.visiting);
+        
+        // Set address from the visit
+        int? customerAddressId = currentVisit.customerAddressId;
+        if (customerAddressId != null && customerAddressId > 0) {
+          AddressVisitDto? addressSelected = lstAddress.firstWhere(
+              (address) => address.customerAddressId == customerAddressId,
+              orElse: () => AddressVisitDto(customerAddressId: 0, address: ''));
+          if (addressSelected.customerAddressId != 0) {
+            selectedAddval = addressSelected.address!;
+            customerAddressIdChoose = addressSelected.customerAddressId ?? 0;
+          }
+        }
+      } else {
+        // CustomerVisitId exists but not found in database - reset to 0
+        customerVisitId = 0;
+      }
     } else if (customerAddressIdChoose != 0) {
+      // No visit, but address was pre-selected
       AddressVisitDto addressSelected = lstAddress.firstWhere(
           (address) => address.customerAddressId == customerAddressIdChoose);
       selectedAddval = addressSelected.address!;
@@ -110,7 +142,7 @@ class ProductCubit extends Cubit<ProductState> {
         customerId, customerAddressIdChoose);
 
     emit(ProductInitialSuccess(selectedAddval, lstAddress, listCustomerStock,
-        listStockBalance, rowDataDTC, isStartVisit, customerVisitId));
+        listStockBalance, rowDataDTC, isStartVisit, customerVisitId, visitStatus));
   }
 
   void clickTab(isDTC) {
@@ -242,6 +274,18 @@ class ProductCubit extends Cubit<ProductState> {
           APIResponseEntity<CustomerVisitResponse> response =
               await sendRequest.callApiPostMethod(
                   APIs.checkin, json, CustomerVisitResponse.fromJson);
+          
+          // Check for API errors
+          if (response.error != null) {
+            print('Visit checkin API error: ${response.error?.code} - ${response.error?.message}');
+            throw Exception(response.error?.message ?? 'Failed to check in visit');
+          }
+          
+          if (response.data?.customerVisitId == null) {
+            print('Visit checkin API returned null customer visit ID');
+            throw Exception('Failed to get customer visit ID from server');
+          }
+          
           visit.customerVisitIdSync = response.data?.customerVisitId;
           await customerVisitProvider.updateSyncId(visit, txn);
 
@@ -269,6 +313,13 @@ class ProductCubit extends Cubit<ProductState> {
     try {
       emit(ClickRevisitSuccess());
       AppLocalizations multiLang = AppLocalizations.of(context)!;
+      
+      // Validate customerVisitId before proceeding
+      if (customerVisitId <= 0) {
+        message = multiLang.errorOccur([multiLang.information, multiLang.visit].join(" "));
+        throw message;
+      }
+      
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
       await database.transaction((txn) async {
         DateTime now = DateTime.now();
@@ -429,6 +480,18 @@ class ProductCubit extends Cubit<ProductState> {
           APIResponseEntity<CustomerVisitResponse> response =
               await sendRequest.callApiPostMethod(APIs.revisit, requestBodyJson,
                   CustomerVisitResponse.fromJson);
+          
+          // Check for API errors
+          if (response.error != null) {
+            print('Revisit API error: ${response.error?.code} - ${response.error?.message}');
+            throw Exception(response.error?.message ?? 'Failed to revisit customer');
+          }
+          
+          if (response.data?.reVisit == null) {
+            print('Revisit API returned null reVisit data');
+            throw Exception('Failed to get revisit data from server');
+          }
+          
           CustomerVisitResponse revisitResponse = response.data!.reVisit!;
 
           revisit.customerVisitIdSync = revisitResponse.customerVisitId;

@@ -139,7 +139,7 @@ class UpdateDataService {
       RequestUpdateRequest requestUpdateData = RequestUpdateRequest(
           baPositionId: baPositionId,
           imeiDevice: imeiDevice,
-          dateLastestUpdate: transferUpdateLog.dateLastestUpdate);
+          dateLastestUpdate: transferUpdateLog.dateLastestUpdate!);
 
       Map<String, dynamic> jsonMapping = requestUpdateData.toJson();
       String json = jsonEncode(jsonMapping);

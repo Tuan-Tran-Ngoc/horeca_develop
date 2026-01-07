@@ -8,6 +8,7 @@ import 'package:horeca/screen/shift/cubit/shift_cubit.dart';
 import 'package:horeca/themes/app_color.dart';
 import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca/utils/constants.dart';
+import 'package:horeca/widgets/api_button.dart';
 import 'package:horeca/widgets/button.dart';
 import 'package:horeca_service/horeca_service.dart';
 import 'package:horeca_service/model/shift_report.dart';
@@ -222,15 +223,16 @@ class ButtonEndShift extends StatelessWidget {
         alignment: FractionalOffset.bottomCenter,
         child: Container(
           padding: const EdgeInsets.only(bottom: 10),
-          child: AppButton(
+          child: ApiButton(
+            apiKey: 'endShift',
+            text: multiLang.finishShift,
             backgroundColor: AppColor.mainAppColor,
-            // height: MediaQuery.of(context).size.height * 0.05,
             width: MediaQuery.of(context).size.width / 2 - 50,
             height: Contants.heightButton,
-            title: multiLang.finishShift,
-            onPress: () {
+            cooldownDuration: Duration(seconds: 3),
+            onPressed: () async {
               context.read<ShiftCubit>().clickButtonChangeState();
-              context.read<ShiftCubit>().endShift(shiftReport);
+              await context.read<ShiftCubit>().endShift(shiftReport);
             },
           ),
         ));
@@ -238,10 +240,10 @@ class ButtonEndShift extends StatelessWidget {
 }
 
 class InformationCell extends StatelessWidget {
-  String title1;
-  String title2;
-  String value1;
-  String value2;
+  final String title1;
+  final String title2;
+  final String value1;
+  final String value2;
   InformationCell({
     Key? key,
     required this.title1,
@@ -297,7 +299,7 @@ class InformationCell extends StatelessWidget {
 }
 
 class InformationView extends StatelessWidget {
-  ShiftReportHeaderDTO? shiftReportHeader;
+  final ShiftReportHeaderDTO? shiftReportHeader;
   InformationView({
     Key? key,
     required this.shiftReportHeader,

@@ -14,6 +14,7 @@ import 'package:horeca/themes/app_color.dart';
 import 'package:horeca/utils/constants.dart';
 import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca/utils/message_utils.dart';
+import 'package:horeca/widgets/api_button.dart';
 import 'package:horeca/widgets/button.dart';
 import 'package:horeca/widgets/datatable.dart';
 import 'package:horeca/widgets/dropdown.dart';
@@ -49,6 +50,7 @@ class ProductScreen extends StatelessWidget {
       child: ProductBody(
           routeId: routeId,
           customerId: customerId,
+          customerVisitId: customerVisitId,
           statusVisit: statusVisit,
           onResultCustomerVisitId: onResultCustomerVisitId),
     );
@@ -58,12 +60,14 @@ class ProductScreen extends StatelessWidget {
 class ProductBody extends StatefulWidget {
   final int routeId;
   final int customerId;
+  final int customerVisitId;
   String statusVisit;
   final void Function(int, String, int) onResultCustomerVisitId;
   ProductBody(
       {super.key,
       required this.routeId,
       required this.customerId,
+      required this.customerVisitId,
       required this.statusVisit,
       required this.onResultCustomerVisitId});
 
@@ -100,6 +104,18 @@ class _ProductBodyState extends State<ProductBody> {
         //context.push('/customerdetail', extra: {"customerId": customerId ?? 0});
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(ProductBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Refresh visit status when customerVisitId changes (e.g., after creating an order)
+    if (oldWidget.customerVisitId != widget.customerVisitId) {
+      context.read<ProductCubit>().init(
+          widget.customerId, 
+          widget.customerVisitId,
+          addressChoose?.customerAddressId ?? 0);
+    }
   }
 
   TextEditingController typeController = TextEditingController();
@@ -184,8 +200,21 @@ class _ProductBodyState extends State<ProductBody> {
           customerVisitId = state.customerVisitId;
           typeController.text = chooseAddress!;
           widget.statusVisit = Constant.visiting;
-          widget.onResultCustomerVisitId(state.customerVisitId ?? 0,
-              widget.statusVisit, state.customerAddressId);
+          // Only update if we have a valid customerVisitId
+          if (state.customerVisitId != null && state.customerVisitId! > 0) {
+            widget.onResultCustomerVisitId(state.customerVisitId!,
+                widget.statusVisit, state.customerAddressId);
+          }
+          
+          // Show success message
+          Fluttertoast.showToast(
+            msg: AppLocalizations.of(context)!.startVisitSuccess,
+            toastLength: Toast.LENGTH_SHORT,
+            timeInSecForIosWeb: Constant.SHOW_TOAST_TIME,
+            backgroundColor: AppColor.successColor,
+            textColor: Colors.white,
+            fontSize: 14.0,
+          );
         }
 
         if (state is StartVisitFail) {
@@ -264,13 +293,15 @@ class _ProductBodyState extends State<ProductBody> {
         if (state is EventChangeAddress) {}
 
         if (state is ChangeAddressSuccess) {
-          customerVisitId = state.customerVisit.customerVisitId ?? 0;
+          // Handle case when no visit exists for selected address
+          int visitId = state.customerVisit.customerVisitId ?? 0;
+          customerVisitId = visitId > 0 ? visitId : null;
           typeController.text = chooseAddress!;
           lstCustomerStock = state.listCustomerStock;
           widget.statusVisit =
               state.customerVisit.visitStatus ?? Constant.notYetVisit;
           widget.onResultCustomerVisitId(
-              state.customerVisit.customerVisitId ?? 0,
+              visitId,
               widget.statusVisit,
               state.customerAddressId);
         }
@@ -281,6 +312,7 @@ class _ProductBodyState extends State<ProductBody> {
           lstCustomerStock = state.listCustomerStock;
           rowDataDTC = state.rowDataDTC;
           //isStartVisit = state.isStartVisit;
+          widget.statusVisit = state.visitStatus;
           lstAddress = state.lstAddress;
           lstAddressStr = lstAddress.map((address) => address.address).toList();
           typeController.text = state.selectedAddval;
@@ -548,9 +580,22 @@ class _ProductBodyState extends State<ProductBody> {
                                   title: CommonUtils.firstLetterUpperCase(
                                       multiLang.revisit),
                                   onPress: () {
-                                    context.read<ProductCubit>().revisit(
-                                        widget.customerId,
-                                        customerVisitId ?? 0);
+                                    // Validate customerVisitId before calling revisit
+                                    if (customerVisitId != null && customerVisitId! > 0) {
+                                      context.read<ProductCubit>().revisit(
+                                          widget.customerId,
+                                          customerVisitId!);
+                                    } else {
+                                      Fluttertoast.showToast(
+                                        msg: CommonUtils.firstLetterUpperCase(
+                                            multiLang.errorOccur(multiLang.visit)),
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        timeInSecForIosWeb: Constant.SHOW_TOAST_TIME,
+                                        backgroundColor: AppColor.errorColor,
+                                        textColor: Colors.white,
+                                        fontSize: 14.0,
+                                      );
+                                    }
                                   },
                                 ),
                               ),
@@ -618,14 +663,16 @@ class _ProductBodyState extends State<ProductBody> {
                               child: Padding(
                                 padding:
                                     const EdgeInsets.only(left: 16, right: 16),
-                                child: AppButton(
+                                child: ApiButton(
+                                  apiKey: 'startVisit_${widget.customerId}_${addressChoose?.customerAddressId}',
+                                  text: multiLang.startVisit,
                                   backgroundColor: AppColor.mainAppColor,
                                   height: 55,
-                                  title: multiLang.startVisit,
-                                  onPress: () {
+                                  cooldownDuration: Duration(seconds: 3),
+                                  onPressed: () async {
                                     if (addressChoose != null &&
                                         addressChoose?.customerAddressId != 0) {
-                                      context.read<ProductCubit>().startVisit(
+                                      await context.read<ProductCubit>().startVisit(
                                           widget.routeId,
                                           widget.customerId,
                                           addressChoose?.customerAddressId);

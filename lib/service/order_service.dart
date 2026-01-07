@@ -391,17 +391,31 @@ class OrderService {
             + discount_type: 01 -> Tiền mặt
          */
 
+    print('\n>>> ORDER_SERVICE: applyDiscountSKU() START <<<');
+    print('Customer ID: $customerId');
+    print('Products to process: ${lstProduct.length}');
+
     // all discount
     List<DiscountDto> lstInitialDiscount =
         await discountProvider.selectDiscountByCustomerId(customerId);
     List<int> lstDiscountId =
         lstInitialDiscount.map((e) => e.discountId ?? 0).toList();
+    
+    print('Total discount programs for customer: ${lstInitialDiscount.length}');
 
     // discount folow scheme
     List<DiscountInfoDto> lstDiscount = await discountProvider
         .selectDiscountSchemeByCustomerId(lstDiscountId, '01', txn);
+    
+    print('SKU-level discount schemes (condition_type=01): ${lstDiscount.length}');
 
     for (ProductDto product in lstProduct) {
+      print('\n  ===== Processing Product =====');
+      print('  Product ID: ${product.productId}');
+      print('  Product Name: ${product.productName}');
+      print('  Quantity: ${product.quantity}');
+      print('  Sales Price: ${product.salesPrice}');
+      
       // setting initial for discount
       product.discountPercent = 0;
       product.discountAmount = 0;
@@ -417,56 +431,88 @@ class OrderService {
           .where((discount) => (discount.productId == product.productId ||
               discount.productId == 0))
           .toList();
+      
+      print('  Found ${canAppliedDiscounts.length} potential discount schemes for this product');
 
       double salesPrice = product.salesPrice ?? 0;
       double priceCostDiscount = 0;
+      
       for (var canAppliedDiscount in canAppliedDiscounts) {
+        print('\n    --- Checking Discount Scheme ---');
+        print('    Discount ID: ${canAppliedDiscount.discountId}');
+        print('    Product ID filter: ${canAppliedDiscount.productId} (0=all products)');
+        print('    Total Type: ${canAppliedDiscount.totalType} (00=quantity, 01=value)');
+        print('    Condition Qty/Value: ${canAppliedDiscount.conditionQty}');
+        print('    Discount Type: ${canAppliedDiscount.discountType} (00=percent, 01=cash)');
+        print('    Result Qty/Value: ${canAppliedDiscount.resultQty}');
+        
         if (canAppliedDiscount.totalType == '00' &&
             product.quantity! >= canAppliedDiscount.conditionQty!) {
+          print('    ✓ APPLIES: Quantity ${product.quantity} >= ${canAppliedDiscount.conditionQty}');
           appliedDiscounts.add(canAppliedDiscount);
         } else if (canAppliedDiscount.totalType == '01' &&
             (product.quantity! * (product.salesPrice ?? 0)) >=
                 canAppliedDiscount.conditionQty!) {
+          double totalValue = product.quantity! * (product.salesPrice ?? 0);
+          print('    ✓ APPLIES: Total value $totalValue >= ${canAppliedDiscount.conditionQty}');
           appliedDiscounts.add(canAppliedDiscount);
+        } else {
+          print('    ✗ DOES NOT APPLY: Condition not met');
         }
       }
 
       //setting discount result
+      print('\n  Applied Discounts: ${appliedDiscounts.length}');
       for (var appliedDiscount in appliedDiscounts) {
         if (appliedDiscount.discountType == '00') {
           // priceCostDiscount =
           //     priceCostDiscount * (100 - appliedDiscount.resultQty!) / 100;
           //discountRates.add('${appliedDiscount.resultQty}%');
+          double percentBefore = product.discountPercent ?? 0;
           product.discountPercent =
               (product.discountPercent ?? 0) + (appliedDiscount.resultQty ?? 0);
+          print('    + Percent Discount: ${appliedDiscount.resultQty}% (accumulated: $percentBefore% -> ${product.discountPercent}%)');
         } else if (appliedDiscount.discountType == '01') {
           // priceCostDiscount = priceCostDiscount - appliedDiscount.resultQty!;
           // discountRates.add(NumberFormat.currency(locale: 'vi')
           //     .format(appliedDiscount.resultQty));
+          double amountBefore = product.discountAmount ?? 0;
           product.discountAmount =
               (product.discountAmount ?? 0) + (appliedDiscount.resultQty ?? 0);
+          print('    + Cash Discount: ${appliedDiscount.resultQty} (accumulated: $amountBefore -> ${product.discountAmount})');
         }
       }
 
       // calculate last price
-      priceCostDiscount = salesPrice -
-          (salesPrice * (product.discountPercent ?? 0) / 100 +
-              (product.discountAmount ?? 0));
+      double percentDiscount = salesPrice * (product.discountPercent ?? 0) / 100;
+      double cashDiscount = product.discountAmount ?? 0;
+      priceCostDiscount = salesPrice - (percentDiscount + cashDiscount);
+      
+      print('\n  === FINAL CALCULATION ===');
+      print('  Sales Price: $salesPrice');
+      print('  Percent Discount: ${product.discountPercent}% = $percentDiscount');
+      print('  Cash Discount: $cashDiscount');
+      print('  Formula: $salesPrice - ($percentDiscount + $cashDiscount)');
+      print('  FINAL PRICE: $priceCostDiscount');
+      
       product.priceCostDiscount = priceCostDiscount;
 
       // setting discount rate
       if ((product.discountPercent ?? 0) > 0) {
-        discountRates.add(NumberFormat.percentPattern()
-            .format((product.discountPercent ?? 0) / 100));
+        // Show exact percentage without rounding
+        discountRates.add('${product.discountPercent}%');
       }
 
       if ((product.discountAmount ?? 0) > 0) {
-        discountRates.add(NumberFormat.currency(locale: 'vi')
-            .format((product.discountAmount ?? 0)));
+        // Show exact amount without rounding
+        discountRates.add('${product.discountAmount}₫');
       }
       product.discountRate = discountRates.join('+');
+      print('  Discount Rate Display: "${product.discountRate}"');
+      print('  ===========================\n');
     }
 
+    print('\n>>> ORDER_SERVICE: applyDiscountSKU() END <<<\n');
     return lstProduct;
   }
 

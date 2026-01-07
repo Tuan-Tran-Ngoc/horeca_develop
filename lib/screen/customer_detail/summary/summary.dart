@@ -9,6 +9,7 @@ import 'package:horeca/themes/app_color.dart';
 import 'package:horeca/utils/code_list_utils.dart';
 import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca/utils/constants.dart';
+import 'package:horeca/widgets/api_button.dart';
 import 'package:horeca/widgets/button.dart';
 import 'package:horeca/widgets/datatable.dart';
 import 'package:horeca_service/horeca_service.dart';
@@ -349,14 +350,16 @@ class ButtonFinishVisit extends StatelessWidget {
         alignment: FractionalOffset.bottomCenter,
         child: Container(
           padding: const EdgeInsets.only(bottom: 10),
-          child: AppButton(
+          child: ApiButton(
+            apiKey: 'endVisit_${customerVisit?.customerVisitId}',
+            text: multiLang.endVisit,
             backgroundColor: AppColor.mainAppColor,
             height: 55,
             width: MediaQuery.of(context).size.width / 2 - 50,
-            title: multiLang.endVisit,
-            onPress: () {
+            cooldownDuration: Duration(seconds: 3),
+            onPressed: () async {
               context.read<SummaryCubit>().clickButtonChangeState();
-              context.read<SummaryCubit>().checkout(customerVisit);
+              await context.read<SummaryCubit>().checkout(customerVisit);
             },
           ),
         ));

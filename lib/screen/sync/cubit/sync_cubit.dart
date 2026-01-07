@@ -394,6 +394,18 @@ class SyncCubit extends Cubit<SyncState> {
         APIResponseEntity<CustomerVisitResponse> response =
             await sendRequestAPI.callApiPostMethod(
                 APIs.checkin, requestBodyJson, CustomerVisitResponse.fromJson);
+        
+        // Check for API errors
+        if (response.error != null) {
+          print('Sync checkin API error: ${response.error?.code} - ${response.error?.message}');
+          throw Exception(response.error?.message ?? 'Failed to sync checkin visit');
+        }
+        
+        if (response.data?.customerVisitId == null) {
+          print('Sync checkin API returned null customer visit ID');
+          throw Exception('Failed to get customer visit ID from server during sync');
+        }
+        
         customerVisitExisted?.customerVisitIdSync =
             response.data?.customerVisitId;
         customerVisitProvider.updateSyncId(customerVisitExisted!, null);
@@ -425,6 +437,12 @@ class SyncCubit extends Cubit<SyncState> {
         APIResponseEntity<CustomerVisitResponse> response =
             await sendRequestAPI.callApiPostMethod(
                 APIs.checkout, requestBodyJson, CustomerVisitResponse.fromJson);
+        
+        // Check for API errors
+        if (response.error != null) {
+          print('Sync checkout API error: ${response.error?.code} - ${response.error?.message}');
+          throw Exception(response.error?.message ?? 'Failed to sync checkout visit');
+        }
       }
       //cancel
       else if (customerVisitOffline.type == SyncType.cancelVisit.toString()) {

@@ -35,8 +35,8 @@ class GeneratePdfOrderCreate {
   Future<Uint8List> generatePdf(String title) async {
     AppLocalizations multiLang = AppLocalizations.of(context)!;
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
-    final font = await PdfGoogleFonts.robotoRegular();
-    final boldFont = await PdfGoogleFonts.robotoBold();
+    final font = await PdfGoogleFonts.sourceSans3Regular();
+    final boldFont = await PdfGoogleFonts.sourceSans3Bold();
     int index = 0;
 
     pdf.addPage(
@@ -168,7 +168,7 @@ class GeneratePdfOrderCreate {
                           pw.Text('Số lượng',
                               style:
                                   pw.TextStyle(font: boldFont, fontSize: 12)),
-                          pw.Text('Chú thich',
+                          pw.Text('Chú thích',
                               style:
                                   pw.TextStyle(font: boldFont, fontSize: 12)),
                         ],
@@ -234,7 +234,7 @@ class GeneratePdfOrderCreate {
                           pw.Text('Tổng chiết khấu',
                               style:
                                   pw.TextStyle(font: boldFont, fontSize: 12)),
-                          pw.Text('Chú thich',
+                          pw.Text('Chú thích',
                               style:
                                   pw.TextStyle(font: boldFont, fontSize: 12)),
                         ],
@@ -253,7 +253,8 @@ class GeneratePdfOrderCreate {
                                 NumberFormat.currency(locale: 'vi')
                                     .format(lstDiscount[i].totalDiscount ?? 0),
                                 style: pw.TextStyle(font: font, fontSize: 12)),
-                            pw.Text(lstDiscount[i].remark ?? ''),
+                            pw.Text(lstDiscount[i].remark ?? '',
+                                style: pw.TextStyle(font: font, fontSize: 12)),
                           ],
                         ),
                     ],
@@ -275,6 +276,12 @@ class GeneratePdfOrderCreate {
                 pw.Padding(
                     padding: const pw.EdgeInsets.fromLTRB(20, 5, 20, 20),
                     child: pw.Column(children: [
+                      buildInformationCellSingle(
+                          title: 'Tổng số lượng',
+                          value: NumberFormat.decimalPattern()
+                              .format(summaryOrder.totalQuantity ?? 0),
+                          font: font,
+                          boldFont: boldFont),
                       buildInformationCellSingle(
                           title: 'Tổng tiền mua hàng',
                           value: NumberFormat.currency(locale: 'vi')
@@ -316,8 +323,11 @@ class GeneratePdfOrderCreate {
     return pdf.save();
   }
 
-  pw.Widget buildInformationViewPdf(OrderHeaderDto orderHeader,
-      AppLocalizations multiLang, pw.Font font, pw.Font boldFont) {
+  pw.Widget buildInformationViewPdf(
+      OrderHeaderDto orderHeader,
+      AppLocalizations multiLang,
+      pw.Font font,
+      pw.Font boldFont) {
     return pw.Container(
       padding: const pw.EdgeInsets.only(left: 32, right: 32),
       child: pw.Column(children: [
@@ -361,7 +371,7 @@ class GeneratePdfOrderCreate {
             value1: orderHeader.pOnumber ?? '',
             value2: orderHeader.remark ?? '',
             font: font,
-            boldFont: boldFont),
+            boldFont: boldFont)
       ]),
     );
   }
@@ -383,8 +393,10 @@ class GeneratePdfOrderCreate {
             children: [
               pw.Text(title1,
                   style: pw.TextStyle(
-                      font: boldFont, fontWeight: pw.FontWeight.bold)),
-              pw.Text(value1, style: pw.TextStyle(font: font)),
+                      font: boldFont,
+                      fontWeight: pw.FontWeight.bold)),
+              pw.Text(value1,
+                  style: pw.TextStyle(font: font)),
             ],
           ),
         ),
@@ -394,8 +406,10 @@ class GeneratePdfOrderCreate {
             children: [
               pw.Text(title2,
                   style: pw.TextStyle(
-                      font: boldFont, fontWeight: pw.FontWeight.bold)),
-              pw.Text(value2, style: pw.TextStyle(font: font)),
+                      font: boldFont,
+                      fontWeight: pw.FontWeight.bold)),
+              pw.Text(value2,
+                  style: pw.TextStyle(font: font)),
             ],
           ),
         )
@@ -418,9 +432,11 @@ class GeneratePdfOrderCreate {
             children: [
               pw.Text(title,
                   style: pw.TextStyle(
-                      font: boldFont, fontWeight: pw.FontWeight.bold)),
+                      font: boldFont,
+                      fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(width: 10),
-              pw.Text(value, style: pw.TextStyle(font: font)),
+              pw.Text(value,
+                  style: pw.TextStyle(font: font)),
             ],
           ),
         ),
@@ -428,3 +444,5 @@ class GeneratePdfOrderCreate {
     );
   }
 }
+
+

@@ -237,12 +237,25 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
           throw message;
         }
 
-        // set init summary
-        double totalAmount = summaryOrder.totalAmount ?? 0;
-        double discountAmount = summaryOrder.discountAmount ?? 0;
-        double promotionAmount = summaryOrder.promotionAmount ?? 0;
-        double vatAmount = summaryOrder.vatAmount ?? 0;
-        double grandTotalAmount = summaryOrder.grandTotalAmount ?? 0;
+        // Helper function to round money values and ensure they're valid
+        double roundAndValidate(double? value) {
+          if (value == null || value.isNaN || value.isInfinite) {
+            return 0;
+          }
+          return value.roundToDouble();
+        }
+
+        // set init summary with rounding and validation
+        double totalAmount = roundAndValidate(summaryOrder.totalAmount);
+        double discountAmount = roundAndValidate(summaryOrder.discountAmount);
+        double promotionAmount = roundAndValidate(summaryOrder.promotionAmount);
+        double vatAmount = roundAndValidate(summaryOrder.vatAmount);
+        double grandTotalAmount = roundAndValidate(summaryOrder.grandTotalAmount);
+        
+        // Validate that at least totalAmount is greater than 0
+        if (totalAmount <= 0) {
+          throw multiLang.errorBadRequest;
+        }
 
         // get info employee
         List<Employee> lstEmployInfo =
@@ -407,10 +420,9 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
             orderType: orderHeader.selectedTypeOrder,
             visitTimes: 1,
             status: Constant.orderStatusInComplete,
-            horecaStatus: (orderHeader.planShippingDate == null ||
-                    orderHeader.planShippingDate == '')
-                ? Constant.horecaStsReceived
-                : Constant.horecaStsDraft,
+            horecaStatus: (orderHeader.orderStatus ?? false)
+                ? Constant.horecaStsDraft
+                : Constant.horecaStsReceived,
             createdBy: baPositionId,
             createdDate: dateTimeStr,
             updatedBy: baPositionId,
@@ -423,15 +435,26 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
         List<OrderDetail> lstOrderDtl = [];
         if (orderResult.orderId != null) {
           for (var product in lstProduct) {
+            // Round product prices with validation
+            double roundedSalesPrice = roundAndValidate(product.salesPrice);
+            double roundedPriceCostDiscount = roundAndValidate(product.priceCostDiscount);
+            double quantity = product.quantity ?? 0;
+            double roundedTotalAmount = roundAndValidate(quantity * roundedPriceCostDiscount);
+            
+            // Skip products with invalid data
+            if (quantity <= 0 || roundedPriceCostDiscount < 0) {
+              print('Skipping invalid product: ${product.productId}');
+              continue;
+            }
+            
             OrderDetail orderDetailDto = OrderDetail(
                 orderId: orderResult.orderId,
                 productId: product.productId,
                 stockType: Constant.stockTypeDTC,
                 quantity: product.quantity,
-                salesPrice: product.salesPrice,
-                salesInPrice: product.priceCostDiscount,
-                totalAmount:
-                    product.quantity! * (product.priceCostDiscount ?? 0),
+                salesPrice: roundedSalesPrice,
+                salesInPrice: roundedPriceCostDiscount,
+                totalAmount: roundedTotalAmount,
                 createdBy: baPositionId,
                 createdDate: dateTimeStr,
                 updatedBy: baPositionId,
@@ -475,13 +498,17 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
         List<OrderDiscountResult> lstDiscountResult = [];
         if (orderResult.orderId != null) {
           for (var discount in lstDiscount) {
+            // Round discount values with validation
+            double roundedDiscountValue = roundAndValidate(discount.discountValue);
+            double roundedTotalDiscount = roundAndValidate(discount.totalDiscount);
+            
             OrderDiscountResult orderDiscountResult = OrderDiscountResult(
                 orderId: orderResult.orderId,
                 discountId: discount.discountId,
                 discountSchemeId: discount.schemeId,
                 discountType: discount.discountType,
-                discountValue: discount.discountValue,
-                totalDiscount: discount.totalDiscount,
+                discountValue: roundedDiscountValue,
+                totalDiscount: roundedTotalDiscount,
                 description: discount.remark,
                 createdBy: baPositionId,
                 createdDate: dateTimeStr,
@@ -587,13 +614,59 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
   Future<void> applyDiscountAndPromotion(
       int customerId, List<ProductDto> lstProduct) async {
     // get promotion current applied for this customer
+    print('\n========== APPLY DISCOUNT AND PROMOTION START ==========');
+    print('Customer ID: $customerId');
+    print('Number of products: ${lstProduct.length}');
+    
+    for (var product in lstProduct) {
+      print('\n--- Product BEFORE discount ---');
+      print('  Product ID: ${product.productId}');
+      print('  Product Name: ${product.productName}');
+      print('  Quantity: ${product.quantity}');
+      print('  Sales Price: ${product.salesPrice}');
+      print('  Discount Percent: ${product.discountPercent}');
+      print('  Discount Amount: ${product.discountAmount}');
+      print('  Price After Discount: ${product.priceCostDiscount}');
+    }
+    
     emit(StartApplyDiscounPromotion());
     lstProduct =
         await orderService.applyDiscountSKU(customerId, lstProduct, null);
+    
+    print('\n--- Products AFTER discount calculation ---');
+    for (var product in lstProduct) {
+      print('\n  Product ID: ${product.productId}');
+      print('  Product Name: ${product.productName}');
+      print('  Sales Price: ${product.salesPrice}');
+      print('  Discount Percent: ${product.discountPercent}%');
+      print('  Discount Amount: ${product.discountAmount}');
+      print('  Price After Discount: ${product.priceCostDiscount}');
+      print('  Discount Rate Display: ${product.discountRate}');
+      print('  Total Line Amount: ${(product.quantity ?? 0) * (product.priceCostDiscount ?? 0)}');
+    }
     List<DiscountResultOrderDto> lstDiscountOrder =
         await orderService.applyDiscountOrder(customerId, lstProduct, null);
+    
+    print('\n--- Order-Level Discounts ---');
+    print('Number of order discounts: ${lstDiscountOrder.length}');
+    for (var discount in lstDiscountOrder) {
+      print('  Discount ID: ${discount.discountId}');
+      print('  Condition Type: ${discount.conditionType}');
+      print('  Discount Type: ${discount.discountType}');
+      print('  Total Discount: ${discount.totalDiscount}');
+    }
+    
     List<PromotionResultOrderDto> lstPromotion =
         await orderService.applyPromotionOrder(customerId, lstProduct, null);
+    
+    print('\n--- Promotions ---');
+    print('Number of promotions: ${lstPromotion.length}');
+    for (var promo in lstPromotion) {
+      print('  Promotion ID: ${promo.promotionId}');
+      print('  Scheme ID: ${promo.schemeId}');
+    }
+    
+    print('\n========== APPLY DISCOUNT AND PROMOTION END ==========\n');
     // List<DiscountResultOrderDto> lstDiscountOrder = [];
     // List<PromotionResultOrderDto> lstPromotion = [];
 

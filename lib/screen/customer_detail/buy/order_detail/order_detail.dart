@@ -94,9 +94,13 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
 
     void updateProductOrder(List<SapOrderDtl> lstProduct) {
       int index = 0;
+      double totalQuantity = 0;
       rowDataProduct = lstProduct.map((product) {
         index++;
         List<String> result = [];
+
+        // Calculate total quantity
+        totalQuantity = totalQuantity + (product.qty ?? 0);
 
         // setting product order detail
         result.add(index.toString());
@@ -115,6 +119,9 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
 
         return result;
       }).toList();
+      
+      // Store total quantity in orderHeader
+      orderHeader.totalQuantity = totalQuantity;
     }
 
     void updatePromotionOrder(List<SchemeDto> lstPromotion) {
@@ -471,6 +478,38 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                                         child: ListView(children: [
                                           const SizedBox(
                                             height: Contants.spacingRow10,
+                                          ),
+                                          SizedBox(
+                                            height: 40,
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                SizedBox(
+                                                    width: 200,
+                                                    child: Text(
+                                                      multiLang.totalProductPurchase,
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )),
+                                                const SizedBox(
+                                                  width: Contants.spacingRow10,
+                                                ),
+                                                Expanded(
+                                                    child: Text(
+                                                  NumberFormat.decimalPattern()
+                                                      .format(orderHeader
+                                                              .totalQuantity ??
+                                                          0),
+                                                  textAlign: TextAlign.right,
+                                                )),
+                                              ],
+                                            ),
                                           ),
                                           SizedBox(
                                             height: 40,

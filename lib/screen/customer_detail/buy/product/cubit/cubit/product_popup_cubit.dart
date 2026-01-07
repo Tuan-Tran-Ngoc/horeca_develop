@@ -65,14 +65,16 @@ class ProductPopupCubit extends Cubit<ProductPopupState> {
 
   void replaceElements(
       List<ProductDto> lstAllProduct, List<ProductDto> availableProduct) {
-    lstAllProduct.asMap().forEach((index, elementA) {
-      ProductDto matchingElement = availableProduct.firstWhere(
-        (elementB) => elementB.productId == elementA.productId,
-        orElse: () => ProductDto(),
-      );
+    // Create a map for faster lookup and to track already processed products
+    Map<int, ProductDto> availableMap = {
+      for (var product in availableProduct) 
+        if (product.productId != null) product.productId!: product
+    };
 
-      if (matchingElement.productId != null) {
-        //lstAllProduct[index] = matchingElement;
+    lstAllProduct.asMap().forEach((index, elementA) {
+      if (elementA.productId != null && availableMap.containsKey(elementA.productId)) {
+        ProductDto matchingElement = availableMap[elementA.productId]!;
+        
         lstAllProduct[index].customerPriceId = matchingElement.customerPriceId;
         lstAllProduct[index].customerStockId = matchingElement.customerStockId;
         lstAllProduct[index].priceCustomer = matchingElement.priceCustomer;
@@ -83,6 +85,8 @@ class ProductPopupCubit extends Cubit<ProductPopupState> {
 
   List<ProductDto> assignStock(
       List<ProductDto> lstProductDto, List<ProductStock> lstProductStock) {
+    List<ProductDto> filteredProducts = [];
+    
     for (var productDto in lstProductDto) {
       var productStock = lstProductStock.firstWhere(
           (stock) => stock.productId == productDto.productId,
@@ -91,12 +95,11 @@ class ProductPopupCubit extends Cubit<ProductPopupState> {
         productDto.stockBalance = (productStock.availableStock ?? 0) -
             ((productStock.orderUsedStock ?? 0) +
                 (productStock.promotionUsedStock ?? 0));
-      } else {
-        // Handle the case where no matching product stock is found
-        // For example, you might want to set stock to a default value
-        productDto.stockBalance = 0;
+        filteredProducts.add(productDto);
       }
+      // If no matching product stock is found, the product is not added to filteredProducts
+      // This removes products that don't exist in w_stock_balance
     }
-    return lstProductDto;
+    return filteredProducts;
   }
 }
