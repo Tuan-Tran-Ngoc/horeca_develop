@@ -155,15 +155,6 @@ class _CustomerDetailBodyState extends State<CustomerDetailBody> {
           ),
         ),
         actions: [
-          // Padding(
-          //   padding: const EdgeInsets.only(right: 16),
-          //   child: InkWell(
-          //       onTap: () {},
-          //       child: const Icon(
-          //         Icons.filter_alt_outlined,
-          //         size: 32,
-          //       )),
-          // ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: InkWell(

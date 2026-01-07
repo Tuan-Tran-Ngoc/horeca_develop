@@ -74,111 +74,136 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
 
   Future<void> init(
       int customerId, int customerVisitId, int orderIdCopy) async {
-    //log init
-    FlutterLogs.logThis(
-      tag: 'CREATE_BUY_ORDER',
-      subTag: 'build',
-      logMessage: 'Start init create buy order screen',
-      level: LogLevel.INFO,
-    );
+    try {
+      //check get customer visit exist
+      CustomerVisit? customerVisit =
+          await customerVisitProvider.select(customerVisitId, null);
 
-    DateTime now = DateTime.now();
-    String dateTimeStr = DateFormat(Constant.dateTimeStr).format(now);
-    String dateStr = DateFormat(Constant.dateFormatterYYYYMMDD).format(now);
-    List<ProductDto> lstProduct = [];
-    OrderHeaderDto orderHeader = OrderHeaderDto();
-    Customer customer = Customer();
-    AddressVisitDto customerAddress = AddressVisitDto();
-    // create order_no
-    String orderCd = Constant.ORDER_CD_HEADER.replaceAll('?', dateTimeStr);
-    orderHeader.orderCd = orderCd;
+      AppLocalizations multiLang = AppLocalizations.of(context)!;
+      if (customerVisit == null) {
+        // throw Exception('Thông tin viếng thăm không tìm thấy');
 
-    // get Customer information
-    List<Customer> lstCustomer =
-        await customerProvider.select(customerId, null);
-    //List<Customer> lstCustomer = [];
+        message = multiLang
+            .notFound([multiLang.information, multiLang.visit].join(" "));
+        throw message;
+      }
 
-    if (lstCustomer.isNotEmpty) {
-      customer = lstCustomer[0];
-      orderHeader.customerCode = customer.customerCode;
-      orderHeader.customerName = customer.customerName;
-      orderHeader.isTax = customer.isTax;
-      if (customer.isTax == 1) {
-        List<Resource> lstVatValue =
-            await resourceProvider.getResourceByCategoryCd(Constant.clVatValue);
+      if (!(await CommonUtils.checkShiftForToday())) {
+        throw multiLang.mandatoryFinishShift;
+      }
 
-        if (lstVatValue.isNotEmpty) {
-          orderHeader.vatValue =
-              (double.tryParse(lstVatValue[0].value1 ?? '0') ?? 0) / 100;
+      //log init
+      FlutterLogs.logThis(
+        tag: 'CREATE_BUY_ORDER',
+        subTag: 'build',
+        logMessage: 'Start init create buy order screen',
+        level: LogLevel.INFO,
+      );
+
+      DateTime now = DateTime.now();
+      String dateTimeStr = DateFormat(Constant.dateTimeStr).format(now);
+      String dateStr = DateFormat(Constant.dateFormatterYYYYMMDD).format(now);
+      List<ProductDto> lstProduct = [];
+      OrderHeaderDto orderHeader = OrderHeaderDto();
+      Customer customer = Customer();
+      AddressVisitDto customerAddress = AddressVisitDto();
+      // create order_no
+      String orderCd = Constant.ORDER_CD_HEADER.replaceAll('?', dateTimeStr);
+      orderHeader.orderCd = orderCd;
+
+      // get Customer information
+      List<Customer> lstCustomer =
+          await customerProvider.select(customerId, null);
+      //List<Customer> lstCustomer = [];
+
+      if (lstCustomer.isNotEmpty) {
+        customer = lstCustomer[0];
+        orderHeader.customerCode = customer.customerCode;
+        orderHeader.customerName = customer.customerName;
+        orderHeader.isTax = customer.isTax;
+        if (customer.isTax == 1) {
+          List<Resource> lstVatValue = await resourceProvider
+              .getResourceByCategoryCd(Constant.clVatValue);
+
+          if (lstVatValue.isNotEmpty) {
+            orderHeader.vatValue =
+                (double.tryParse(lstVatValue[0].value1 ?? '0') ?? 0) / 100;
+          }
         }
       }
+
+      //setting order date
+      orderHeader.orderDate = dateStr;
+
+      //setting address
+      List<AddressVisitDto> lstCustomerAddress = await customerAddressProvider
+          .getAddressCustomerVistting(customerVisitId);
+
+      //setting order type
+      List<Resource> lstTypeOrder =
+          await resourceProvider.getResourceByCategoryCd(Constant.clTypeOrder);
+      orderHeader.lstTypeOrder = lstTypeOrder;
+      orderHeader.selectedTypeOrder = lstTypeOrder[0].resourceCd;
+
+      if (lstCustomerAddress.isNotEmpty) {
+        customerAddress = lstCustomerAddress[0];
+        orderHeader.address = customerAddress.address;
+      }
+
+      //setting liabilities
+      List<CustomerLiabilities> lstCustomerLiabilities =
+          await customerLiabilitiesProvider.select(
+              customer.customerCode!, null);
+
+      //default value
+      orderHeader.planShippingDate = null;
+      orderHeader.pOnumber = null;
+      orderHeader.remark = null;
+      orderHeader.orderStatus = false;
+
+      if (lstCustomerLiabilities.isNotEmpty) {
+        double sumGrandOrder =
+            await orderProvider.sumGrandOrder(customerId, null);
+        CustomerLiabilities customerLiabilities = lstCustomerLiabilities[0];
+        orderHeader.orderDebtLimit = customerLiabilities.orderDebtLimit;
+        orderHeader.remainDebtLimit =
+            (customerLiabilities.remainDebtLimit ?? 0) + sumGrandOrder.toInt();
+      }
+
+      //log init
+      FlutterLogs.logThis(
+        tag: 'CREATE_BUY_ORDER',
+        subTag: 'build',
+        logMessage: 'End init create buy order screen',
+        level: LogLevel.INFO,
+      );
+
+      final directory = await getApplicationDocumentsDirectory();
+      print('Creating log directory: $directory');
+      // exportFileLogs();
+
+      // copy order
+      if (orderIdCopy != 0) {
+        prefs = await SharedPreferences.getInstance();
+        var baPositionId = prefs.getInt(Session.baPositionId.toString());
+        List<ProductDto> lstProductDto = await productProvider
+            .getAllInfoProduct(customerId, baPositionId ?? 0);
+
+        List<OrderDetail> lstProductOrderDtl =
+            await orderDetailProvider.selectByOrderId(orderIdCopy);
+
+        lstProduct = lstProductOrderDtl
+            .map(
+                (e) => ProductDto(productId: e.productId, quantity: e.quantity))
+            .toList();
+
+        lstProduct = orderService.replaceElements(lstProductDto, lstProduct);
+      }
+
+      emit(LoadingInitSuccess(orderHeader, lstProduct));
+    } catch (err) {
+      emit(LoadingInitFail(err.toString()));
     }
-
-    //setting order date
-    orderHeader.orderDate = dateStr;
-
-    //setting address
-    List<AddressVisitDto> lstCustomerAddress = await customerAddressProvider
-        .getAddressCustomerVistting(customerVisitId);
-
-    //setting order type
-    List<Resource> lstTypeOrder =
-        await resourceProvider.getResourceByCategoryCd(Constant.clTypeOrder);
-    orderHeader.lstTypeOrder = lstTypeOrder;
-    orderHeader.selectedTypeOrder = lstTypeOrder[0].resourceCd;
-
-    if (lstCustomerAddress.isNotEmpty) {
-      customerAddress = lstCustomerAddress[0];
-      orderHeader.address = customerAddress.address;
-    }
-
-    //setting liabilities
-    List<CustomerLiabilities> lstCustomerLiabilities =
-        await customerLiabilitiesProvider.select(customer.customerCode!, null);
-
-    //default value
-    orderHeader.planShippingDate = null;
-    orderHeader.pOnumber = null;
-    orderHeader.remark = null;
-    orderHeader.orderStatus = false;
-
-    if (lstCustomerLiabilities.isNotEmpty) {
-      double sumGrandOrder =
-          await orderProvider.sumGrandOrder(customerId, null);
-      CustomerLiabilities customerLiabilities = lstCustomerLiabilities[0];
-      orderHeader.orderDebtLimit = customerLiabilities.orderDebtLimit;
-      orderHeader.remainDebtLimit =
-          (customerLiabilities.remainDebtLimit ?? 0) + sumGrandOrder.toInt();
-    }
-
-    //log init
-    FlutterLogs.logThis(
-      tag: 'CREATE_BUY_ORDER',
-      subTag: 'build',
-      logMessage: 'End init create buy order screen',
-      level: LogLevel.INFO,
-    );
-
-    final directory = await getApplicationDocumentsDirectory();
-    print('Creating log directory: $directory');
-    // exportFileLogs();
-
-    // copy order
-    if (orderIdCopy != 0) {
-      List<ProductDto> lstProductDto =
-          await productProvider.getAllInfoProduct(customerId);
-
-      List<OrderDetail> lstProductOrderDtl =
-          await orderDetailProvider.selectByOrderId(orderIdCopy);
-
-      lstProduct = lstProductOrderDtl
-          .map((e) => ProductDto(productId: e.productId, quantity: e.quantity))
-          .toList();
-
-      lstProduct = orderService.replaceElements(lstProductDto, lstProduct);
-    }
-
-    emit(LoadingInit(orderHeader, lstProduct));
   }
 
   void exportFileLogs() {
@@ -199,9 +224,12 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
     AppLocalizations multiLang = AppLocalizations.of(context)!;
 
     try {
+      emit(ReloadControl());
+      if (!(await CommonUtils.checkShiftForToday())) {
+        throw multiLang.mandatoryFinishShift;
+      }
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
       await database.transaction((txn) async {
-        emit(ClickButtonSave());
         OrderProvider orderProvider = OrderProvider();
         OrderDetailProvider orderDetailProvider = OrderDetailProvider();
         StockBalanceProvider stockBalanceProvider = StockBalanceProvider();
@@ -217,8 +245,8 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
         }
         prefs = await SharedPreferences.getInstance();
 
-        var shiftReportId = prefs.getInt('shiftReportId');
-        var baPositionId = prefs.getInt('baPositionId');
+        var shiftReportId = prefs.getInt(Session.shiftReportId.toString());
+        var baPositionId = prefs.getInt(Session.baPositionId.toString());
 
         // check sync data
         if (await syncService.checkSyncCurrent(
@@ -253,8 +281,6 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
         if (lstEmployInfo.isEmpty) {
           // throw Exception(
           //     'Thông tin nhân viên không tìm thấy. Vui lòng đăng nhập lại');
-          // message =
-          // '${multiLang.notFound('${multiLang.information} ${multiLang.employee}')}.\n${multiLang.loginAgain}';
           message = [
             multiLang.notFound(
                 [multiLang.information, multiLang.employee].join(" ")),
@@ -267,8 +293,6 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
         if (orderHeader.orderStatus! && orderHeader.planShippingDate == null) {
           // throw Exception(
           //     'Tạo đơn hàng không thành công. Nhập ngày dự kiến giao hàng cho đơn Nháp.');
-          // message =
-          // '${multiLang.createOrder} ${multiLang.unsucess}.\n${multiLang.enter(multiLang.planDeliveryDate)}';
           message = [
             [multiLang.createOrder, multiLang.unsucess].join(" "),
             multiLang.enter(multiLang.planDeliveryDate)
@@ -407,10 +431,9 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
             orderType: orderHeader.selectedTypeOrder,
             visitTimes: 1,
             status: Constant.orderStatusInComplete,
-            horecaStatus: (orderHeader.planShippingDate == null ||
-                    orderHeader.planShippingDate == '')
-                ? Constant.horecaStsReceived
-                : Constant.horecaStsDraft,
+            horecaStatus: (orderHeader.orderStatus ?? false)
+                ? Constant.horecaStsDraft
+                : Constant.horecaStsReceived,
             createdBy: baPositionId,
             createdDate: dateTimeStr,
             updatedBy: baPositionId,
@@ -522,7 +545,6 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
         emit(CreateOrderSuccess(true, message));
       });
     } catch (error) {
-      print('Tạo đơn hàng không thành công ERROR-003: $error');
       if (error.toString() ==
           MessageUtils.getMessages(code: Constant.SESSION_LOGIN_EXPIRED)) {
         await CommonUtils.logout();
@@ -634,18 +656,6 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
         }
       }
     }
-    // for (ProductDto product in lstProductTarget) {
-    //   int index = lstProductResult
-    //       .indexWhere((element) => element.productId == product.productId);
-    //   if (index >= 0) {
-    //     product.quantity = (product.quantity ?? 0) +
-    //         (lstProductResult[index].totalQuatity ?? 0);
-    //   } else {
-    //     ProductDto newProduct = ProductDto(
-    //       productId:
-    //     )
-    //   }
-    // }
 
     // merge product order anf product promotion
     for (ProductPromotionDto promotion in lstProductResult) {
@@ -686,7 +696,7 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
 
   Future<void> calculatePromotion(
       int customerId, List<ProductDto> lstProduct) async {
-    emit(EventCalculatePromotion());
+    emit(ReloadControl());
     // List<PromotionDto> lstPromotion =
     //     await promotionService.getSchemeContentPromotion(customerId);
     // object target
@@ -737,6 +747,10 @@ class CreateBuyOrderCubit extends Cubit<CreateBuyOrderState> {
 
     lstPromotion = await promotionService.applyAllPromotion(
         customerId, lstPromotion, lstProduct);
-    emit(EventCalculatePromotionSuccess(lstPromotion));
+
+    String notify = await promotionService.notifyProductAvailable(
+        customerId, lstPromotion, lstProduct);
+
+    emit(EventCalculatePromotionSuccess(lstPromotion, notify));
   }
 }

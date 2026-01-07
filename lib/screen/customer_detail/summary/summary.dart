@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:horeca/contants/contants.dart';
@@ -68,6 +69,7 @@ class _SummaryBodyState extends State<SummaryBody> {
   CustomerLiabilities? customerLiabilities = CustomerLiabilities();
   final DatatableController _datatableController = DatatableController(-1);
   final DatatableController _datatableOrderController = DatatableController(-1);
+  bool isReloadControl = false;
 
   @override
   void initState() {
@@ -158,6 +160,11 @@ class _SummaryBodyState extends State<SummaryBody> {
     return BlocConsumer<SummaryCubit, SummaryState>(
       listener: (context, state) {
         if (state is CheckoutSuccess) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             Fluttertoast.showToast(
                 // msg: 'Kết thúc viếng thăm thành công',
@@ -171,6 +178,11 @@ class _SummaryBodyState extends State<SummaryBody> {
           });
         }
         if (state is CheckoutFailed) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             Fluttertoast.showToast(
                 msg: CommonUtils.firstLetterUpperCase(state.error),
@@ -184,6 +196,23 @@ class _SummaryBodyState extends State<SummaryBody> {
         }
       },
       builder: (context, state) {
+        if (state is ReloadControl) {
+          isReloadControl = true;
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            showDialog(
+              context: context,
+              barrierDismissible:
+                  false, // prevent user from dismissing the dialog
+              builder: (BuildContext context) {
+                return const SpinKitCircle(
+                  color: Colors.blue,
+                  size: 50.0,
+                );
+              },
+            );
+          });
+        }
+
         if (state is LoadingInit) {
           customerVisit = state.customerVisit;
           lstProduct = state.lstProduct;
@@ -197,8 +226,7 @@ class _SummaryBodyState extends State<SummaryBody> {
             result.add(product.productCd ?? '');
             result.add(product.productName ?? '');
             result.add(product.totalQty.toString());
-            result.add(NumberFormat.currency(locale: 'vi')
-                .format(product.totalAmount));
+            result.add(CommonUtils.displayCurrency(product.totalAmount));
             return result;
           }).toList();
 
@@ -209,8 +237,7 @@ class _SummaryBodyState extends State<SummaryBody> {
             result.add(indexOrder.toString());
             result.add(order.orderCd ?? '');
             result.add(order.fullAddress ?? '');
-            result.add(NumberFormat.currency(locale: 'vi')
-                .format(order.grandTotalAmount));
+            result.add(CommonUtils.displayCurrency(order.grandTotalAmount));
             result.add(CodeListUtils.getMessage(
                     Constant.clHorecaSts, order.horecaStatus) ??
                 '');
@@ -329,10 +356,10 @@ class InformationView extends StatelessWidget {
           title1: multiLang.totalProductPurchase,
           title2: multiLang.totalOrderAmount,
           value1: countProduct(lstProduct).toInt().toString(),
-          value2: NumberFormat.currency(locale: 'vi').format(lstOrder.fold(
+          value2: CommonUtils.displayCurrency(lstOrder.fold(
               0.0,
               (previousValue, element) =>
-                  previousValue + (element.grandTotalAmount ?? 0))),
+                  (previousValue ?? 0) + (element.grandTotalAmount ?? 0))),
         ),
       ]),
     );
@@ -355,7 +382,6 @@ class ButtonFinishVisit extends StatelessWidget {
             width: MediaQuery.of(context).size.width / 2 - 50,
             title: multiLang.endVisit,
             onPress: () {
-              context.read<SummaryCubit>().clickButtonChangeState();
               context.read<SummaryCubit>().checkout(customerVisit);
             },
           ),

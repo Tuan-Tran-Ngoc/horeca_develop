@@ -13,13 +13,13 @@ import 'package:horeca/service/initial_data_service.dart';
 import 'package:horeca/service/update_data_service.dart';
 import 'package:horeca/utils/call_api_utils.dart';
 import 'package:horeca/utils/code_list_utils.dart';
+import 'package:horeca/utils/constants.dart';
 import 'package:horeca/utils/message_utils.dart';
 import 'package:horeca_service/contants/network.dart';
 import 'package:horeca_service/horeca_service.dart';
-import 'package:horeca_service/model/request/update_latest_request.dart';
-import 'package:horeca_service/model/response/api_response_header.dart';
 import 'package:horeca_service/network/apis.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:bcrypt/bcrypt.dart';
@@ -43,14 +43,6 @@ class LoginCubit extends Cubit<LoginState> {
   RouteAssignmentProvider routeAssignmentProvider = RouteAssignmentProvider();
   Future<void> initLogin() async {
     emit(ReloadForm());
-    // isExistDb = await db.isExistDatabase();
-    // InitialDataService initialDataService = InitialDataService();
-    // print(isExistDb);
-    // if (isExistDb) {
-    //   connectDatabase();
-    // } else {
-    //   initialDataService.createTable();
-    // }
 
     prefs = await SharedPreferences.getInstance();
     TargetPlatform platform = defaultTargetPlatform;
@@ -88,9 +80,9 @@ class LoginCubit extends Cubit<LoginState> {
     AppLocalizations multiLang = AppLocalizations.of(context)!;
     AccountProvider accountProvider = AccountProvider();
     print(
-        'prefs.getString().toString(): ${prefs.getString('username').toString()}');
-    List<Account> accountLogin = await accountProvider
-        .getAccountByUsername(prefs.getString('username').toString());
+        'prefs.getString().toString(): ${prefs.getString(Session.username.toString()).toString()}');
+    List<Account> accountLogin = await accountProvider.getAccountByUsername(
+        prefs.getString(Session.username.toString()).toString());
     if (accountLogin.isEmpty) {
       emit(ReloadControl(multiLang.initializingData));
 
@@ -116,7 +108,7 @@ class LoginCubit extends Cubit<LoginState> {
 
   Future<void> downloadUnzip(String masterUrlFile, String type) async {
     final headers = <String, String>{
-      'Authorization': 'Bearer ${prefs.getString('token')}',
+      'Authorization': 'Bearer ${prefs.getString(Session.token.toString())}',
       // Add other headers as needed
     };
     final getDownloadResponse = await http.get(
@@ -151,7 +143,6 @@ class LoginCubit extends Cubit<LoginState> {
     AccountProvider accountProvider = AccountProvider();
 
     prefs = await SharedPreferences.getInstance();
-    print('refresh token ${prefs.get('refresh_token')}');
 
     if (connect == ConnectivityResult.none) {
       print('connect wifi: none');
@@ -192,8 +183,8 @@ class LoginCubit extends Cubit<LoginState> {
           return;
         }
         AccountPositionLink accPos = lstAccPos[0];
-        prefs.setInt("baPositionId", accPos.positionId ?? 0);
-        prefs.setString('username', accLgn.username ?? '');
+        prefs.setInt(Session.baPositionId.toString(), accPos.positionId ?? 0);
+        prefs.setString(Session.username.toString(), accLgn.username ?? '');
         message = [multiLang.login, multiLang.success].join(" ");
         await saveCredentials(username, password);
         emit(LoginSuccess(message));
@@ -222,18 +213,24 @@ class LoginCubit extends Cubit<LoginState> {
         LoginResponse? credential = await callApiUtils
             .callApiPostMethodWithUrlencoded(APIs.oauth, params);
 
-        if (credential != null) {
+        if (credential != null && credential.accessToken != null) {
           print(credential.accessToken);
 
-          prefs.setString("token", credential.accessToken!);
-          if (prefs.get('refresh_token') == null) {
-            prefs.setString("refresh_token", credential.refreshToken!);
+          prefs.setString(Session.token.toString(), credential.accessToken!);
+          prefs.setString(
+              Session.dateLogin.toString(),
+              DateFormat(Constant.dateFormatterYYYYMMDD)
+                  .format(DateTime.now()));
+
+          if (prefs.get(Session.refreshToken.toString()) == null) {
+            prefs.setString(
+                Session.refreshToken.toString(), credential.refreshToken!);
           }
           if (credential.authenResponse?.baPositionId != null) {
-            prefs.setInt(
-                "baPositionId", credential.authenResponse!.baPositionId!);
-            prefs.setString(
-                'username', credential.authenResponse!.userName ?? '');
+            prefs.setInt(Session.baPositionId.toString(),
+                credential.authenResponse!.baPositionId!);
+            prefs.setString(Session.username.toString(),
+                credential.authenResponse!.userName ?? '');
             NetworkService.addAuthorizationHeader(
                 'Bearer ${credential.accessToken}');
 

@@ -34,7 +34,7 @@ class SurveyCubit extends Cubit<SurveyState> {
 
   Future<void> init(int surveyId) async {
     prefs = await SharedPreferences.getInstance();
-    String username = prefs.getString('username') ?? '';
+    String username = prefs.getString(Session.username.toString()) ?? '';
     var databasesPath = await getDatabasesPath();
     String pathFolder = '$databasesPath/$username/genHtml/';
     // String pathFolder = '/data/user/0/com.example.horeca/files/genHtml/';
@@ -59,7 +59,7 @@ class SurveyCubit extends Cubit<SurveyState> {
       await database.transaction((txn) async {
         prefs = await SharedPreferences.getInstance();
         SurveyResult surveyResult = SurveyResult();
-        var baPositionId = prefs.getInt('baPositionId');
+        var baPositionId = prefs.getInt(Session.baPositionId.toString());
 
         // check sync data
         if (await syncService.checkSyncCurrent(

@@ -94,10 +94,12 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
 
     void updateProductOrder(List<SapOrderDtl> lstProduct) {
       int index = 0;
+      double totalQuantity = 0;
       rowDataProduct = lstProduct.map((product) {
         index++;
         List<String> result = [];
 
+        totalQuantity = totalQuantity + (product.qty ?? 0);
         // setting product order detail
         result.add(index.toString());
         result.add(product.productName ?? '');
@@ -106,15 +108,15 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
         result
             .add(NumberFormat.decimalPattern().format(product.shippedQty ?? 0));
         result.add(product.unit ?? '');
+        result.add(CommonUtils.displayCurrency(product.unitPrice ?? 0));
         result.add(
-            NumberFormat.currency(locale: 'vi').format(product.unitPrice ?? 0));
-        result.add(NumberFormat.currency(locale: 'vi')
-            .format(product.unitPriceAfterDiscount ?? 0));
-        result.add(
-            NumberFormat.currency(locale: 'vi').format(product.netValue ?? 0));
+            CommonUtils.displayCurrency(product.unitPriceAfterDiscount ?? 0));
+        result.add(CommonUtils.displayCurrency(product.netValue ?? 0));
 
         return result;
       }).toList();
+
+      orderHeader.totalQuantity = totalQuantity;
     }
 
     void updatePromotionOrder(List<SchemeDto> lstPromotion) {
@@ -144,8 +146,7 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
         result.add(CodeListUtils.getMessage(
                 'cl.discount.type', discount.conditionType) ??
             '');
-        result.add(
-            NumberFormat.currency(locale: 'vi').format(discount.totalDiscount));
+        result.add(CommonUtils.displayCurrency(discount.totalDiscount));
         result.add(discount.remark ?? '');
 
         return result;
@@ -237,7 +238,6 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                       child: InkWell(
                         onTap: () async {
                           // Navigator.of(context).pop();
-                          print('click copy order');
                           Navigator.of(context)
                               .push(MaterialPageRoute(
                             builder: (context) => CreateBuyOrderScreen(
@@ -247,7 +247,6 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                             ),
                           ))
                               .then((result) {
-                            print('back to back');
                             Navigator.of(context).pop();
                           });
                         },
@@ -483,6 +482,38 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                                                 SizedBox(
                                                     width: 200,
                                                     child: Text(
+                                                      multiLang
+                                                          .totalQuantityProduct,
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                      style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )),
+                                                const SizedBox(
+                                                  width: Contants.spacingRow10,
+                                                ),
+                                                Expanded(
+                                                    child: Text(
+                                                  NumberFormat.decimalPattern()
+                                                      .format(orderHeader
+                                                          .totalQuantity),
+                                                  textAlign: TextAlign.right,
+                                                )),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 40,
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                SizedBox(
+                                                    width: 200,
+                                                    child: Text(
                                                       multiLang.totalAmount,
                                                       textAlign:
                                                           TextAlign.right,
@@ -495,11 +526,8 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                                                 ),
                                                 Expanded(
                                                     child: Text(
-                                                  NumberFormat.currency(
-                                                          locale: 'vi')
-                                                      .format(orderHeader
-                                                              .totalAmount ??
-                                                          0),
+                                                  CommonUtils.displayCurrency(
+                                                      orderHeader.totalAmount),
                                                   textAlign: TextAlign.right,
                                                 )),
                                               ],
@@ -528,9 +556,8 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                                                 ),
                                                 Expanded(
                                                     child: Text(
-                                                  NumberFormat.currency(
-                                                          locale: 'vi')
-                                                      .format(orderHeader
+                                                  CommonUtils.displayCurrency(
+                                                      orderHeader
                                                               .discountAmount ??
                                                           0),
                                                   textAlign: TextAlign.right,
@@ -562,9 +589,8 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                                                 ),
                                                 Expanded(
                                                     child: Text(
-                                                  NumberFormat.currency(
-                                                          locale: 'vi')
-                                                      .format(orderHeader
+                                                  CommonUtils.displayCurrency(
+                                                      orderHeader
                                                               .promotionAmount ??
                                                           0),
                                                   textAlign: TextAlign.right,
@@ -595,10 +621,8 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                                                 ),
                                                 Expanded(
                                                     child: Text(
-                                                  NumberFormat.currency(
-                                                          locale: 'vi')
-                                                      .format(orderHeader
-                                                              .vatAmount ??
+                                                  CommonUtils.displayCurrency(
+                                                      orderHeader.vatAmount ??
                                                           0),
                                                   textAlign: TextAlign.right,
                                                 )),
@@ -629,9 +653,8 @@ class _OrderDetailBodyState extends State<OrderDetailBody> {
                                                 ),
                                                 Expanded(
                                                     child: Text(
-                                                  NumberFormat.currency(
-                                                          locale: 'vi')
-                                                      .format(orderHeader
+                                                  CommonUtils.displayCurrency(
+                                                      orderHeader
                                                               .grandTotalAmount ??
                                                           0),
                                                   textAlign: TextAlign.right,

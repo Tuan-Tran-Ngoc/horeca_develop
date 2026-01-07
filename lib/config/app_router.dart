@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:horeca/date_login_observer.dart';
 import 'package:horeca/screen/customer/customer.dart';
 import 'package:horeca/screen/customer/customer_detail.dart';
 import 'package:horeca/screen/customer_detail/buy/order/create_buy_order.dart';
@@ -14,7 +15,6 @@ import 'package:horeca/screen/store/store/store.dart';
 import 'package:horeca/screen/store/store_detail/store_detail.dart';
 import 'package:horeca/screen/survey/survey.dart';
 import 'package:horeca/screen/sync/sync.dart';
-import 'package:horeca/service/navigation_service.dart';
 
 const String rLoginScreen = '/';
 const String nLoginScreen = 'LoginScreen';
@@ -49,9 +49,12 @@ const String nGallaryScreen = 'Gallery';
 const String rOrderDetailScreen = '/orderdetail';
 const String nOrderDetailScreen = 'OrderDetail';
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 final GoRouter appRoute = GoRouter(
   // main routes that can be accessed directly at app launch
-  navigatorKey: NavigationService.navigatorKey,
+  navigatorKey: navigatorKey,
+  observers: [DateLoginObserver()],
   routes: <GoRoute>[
     GoRoute(
       path: rLoginScreen,

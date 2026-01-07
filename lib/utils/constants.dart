@@ -84,3 +84,15 @@ enum SyncType {
   customerStock,
   survey
 }
+
+enum Session {
+  shiftReportId,
+  shiftCode,
+  workingDate,
+  token,
+  dateLogin,
+  refreshToken,
+  baPositionId,
+  username,
+  languageCode
+}

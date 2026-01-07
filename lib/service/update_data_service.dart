@@ -110,8 +110,8 @@ class UpdateDataService {
     String? imeiDevice = await UniqueIdentifier.serial;
     String message = '';
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
-    String username = prefs.getString('username') ?? '';
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
+    String username = prefs.getString(Session.username.toString()) ?? '';
     print('imeiDevice: ${imeiDevice}');
     if (imeiDevice == null) {
       message = multiLang
@@ -119,56 +119,59 @@ class UpdateDataService {
       return message;
     }
 
-    var connect = await Connectivity().checkConnectivity();
-    if (connect == ConnectivityResult.wifi ||
-        connect == ConnectivityResult.mobile) {
-      // request call API: requestUpdateData
-      CallApiUtils<RequestUpdateResponse> callApiRequestUpdateData =
-          CallApiUtils();
+    try {
+      var connect = await Connectivity().checkConnectivity();
+      if (connect == ConnectivityResult.wifi ||
+          connect == ConnectivityResult.mobile) {
+        // request call API: requestUpdateData
+        CallApiUtils<RequestUpdateResponse> callApiRequestUpdateData =
+            CallApiUtils();
 
-      // get date lastest update
-      TransferUpdateLog? transferUpdateLog =
-          await transferUpdateLogProvider.select(baPositionId ?? 0);
+        // get date lastest update
+        TransferUpdateLog? transferUpdateLog =
+            await transferUpdateLogProvider.select(baPositionId ?? 0);
 
-      if (transferUpdateLog == null ||
-          transferUpdateLog.dateLastestUpdate == null) {
-        message = multiLang.msgGetInfoLastestUpdate;
-        return message;
-      }
+        if (transferUpdateLog == null ||
+            transferUpdateLog.dateLastestUpdate == null) {
+          message = multiLang.msgGetInfoLastestUpdate;
+          return message;
+        }
 
-      RequestUpdateRequest requestUpdateData = RequestUpdateRequest(
-          baPositionId: baPositionId,
-          imeiDevice: imeiDevice,
-          dateLastestUpdate: transferUpdateLog.dateLastestUpdate);
+        RequestUpdateRequest requestUpdateData = RequestUpdateRequest(
+            baPositionId: baPositionId,
+            imeiDevice: imeiDevice,
+            dateLastestUpdate: transferUpdateLog.dateLastestUpdate);
 
-      Map<String, dynamic> jsonMapping = requestUpdateData.toJson();
-      String json = jsonEncode(jsonMapping);
-      print('requestUpdateData $json');
+        Map<String, dynamic> jsonMapping = requestUpdateData.toJson();
+        String json = jsonEncode(jsonMapping);
+        print('requestUpdateData $json');
 
-      APIResponseEntity<RequestUpdateResponse> responseRequestUpdateData =
-          await callApiRequestUpdateData.callApiPostMethod(
-              APIs.syncRequestUpdateData, json, RequestUpdateResponse.fromJson);
-      RequestUpdateResponse? response = responseRequestUpdateData.data;
+        APIResponseEntity<RequestUpdateResponse> responseRequestUpdateData =
+            await callApiRequestUpdateData.callApiPostMethod(
+                APIs.syncRequestUpdateData,
+                json,
+                RequestUpdateResponse.fromJson);
+        RequestUpdateResponse? response = responseRequestUpdateData.data;
 
-      // request call API: getUpdateData
-      if (response == null) {
-        message = [
-          multiLang.sendRequest,
-          multiLang.updateData,
-          multiLang.failed
-        ].join(" ");
-        return message;
-      }
+        // request call API: getUpdateData
+        if (response == null) {
+          message = [
+            multiLang.sendRequest,
+            multiLang.updateData,
+            multiLang.failed
+          ].join(" ");
+          return message;
+        }
 
-      int countCallUpdateData = 0;
-      late APIResponseEntity<GetUpdateDataResponse> getInitResponse;
-      CallApiUtils<GetUpdateDataResponse> callApiUtils = CallApiUtils();
-      try {
+        int countCallUpdateData = 0;
+        late APIResponseEntity<GetUpdateDataResponse> getInitResponse;
+        CallApiUtils<GetUpdateDataResponse> callApiUtils = CallApiUtils();
         while (countCallUpdateData < 3) {
           print('countCallUpdateData $countCallUpdateData');
           sleep(const Duration(seconds: 5));
           Map<String, dynamic> queryParams = {};
-          queryParams['baPositionId'] = prefs.getInt('baPositionId').toString();
+          queryParams['baPositionId'] =
+              prefs.getInt(Session.baPositionId.toString()).toString();
           queryParams['imeiDevice'] = imeiDevice;
           queryParams['dateCreate'] = response.dateCreateFile ?? '';
           queryParams['jobSeqId'] = response.jobSeqId.toString();
@@ -184,105 +187,104 @@ class UpdateDataService {
           }
           countCallUpdateData++;
         }
-      } catch (error) {
-        return error.toString();
-      }
 
-      print(getInitResponse);
+        print(getInitResponse);
 
-      if (getInitResponse.data != null) {
-        final GetUpdateDataResponse response = getInitResponse.data!;
-        if (response.fileName == null) {
-          message = multiLang
-              .notFound([multiLang.information, multiLang.update].join(" "));
-          return message;
-        }
-        await downloadUnzip(response.fileName.toString(), 'updatedata')
-            .then((value) async {
-          // write log update data
-          try {
-            UpdateDataService updateDataService = UpdateDataService();
-            bool isUpdateData = await updateDataService.updateData();
-
-            if (!isUpdateData) {
-              message = [multiLang.updateData, multiLang.unsucess].join(" ");
-              throw message;
-            }
-
-            //copy file
-            final Directory tempDir = await getTemporaryDirectory();
-            final String tempPathUpdateData = '${tempDir.path}/updatedata';
-            var databasesPath = await getDatabasesPath();
-            await copyDirectory('$tempPathUpdateData/genHtml',
-                '$databasesPath/$username/genHtml');
-            await copyDirectory('$tempPathUpdateData/masterPhoto',
-                '$databasesPath/$username/masterPhoto');
-            await copyDirectory(
-                '$tempPathUpdateData/lib', '$databasesPath/$username/lib');
-
-            // write log update data
+        if (getInitResponse.data != null) {
+          final GetUpdateDataResponse response = getInitResponse.data!;
+          if (response.fileName == null) {
+            message = multiLang
+                .notFound([multiLang.information, multiLang.update].join(" "));
+            return message;
+          }
+          await downloadUnzip(response.fileName.toString(), 'updatedata')
+              .then((value) async {
             try {
-              MappingErrorObject errorLog = const MappingErrorObject(
-                  objectFail: 'getUpdatedata', log: 'success');
+              UpdateDataService updateDataService = UpdateDataService();
+              bool isUpdateData = await updateDataService.updateData();
+
+              if (!isUpdateData) {
+                message = [multiLang.updateData, multiLang.unsucess].join(" ");
+                throw message;
+              }
+
+              //copy file
+              final Directory tempDir = await getTemporaryDirectory();
+              final String tempPathUpdateData = '${tempDir.path}/updatedata';
+              var databasesPath = await getDatabasesPath();
+              await copyDirectory('$tempPathUpdateData/genHtml',
+                  '$databasesPath/$username/genHtml');
+              await copyDirectory('$tempPathUpdateData/masterPhoto',
+                  '$databasesPath/$username/masterPhoto');
+              await copyDirectory(
+                  '$tempPathUpdateData/lib', '$databasesPath/$username/lib');
+
+              // write log update data
+              try {
+                MappingErrorObject errorLog = const MappingErrorObject(
+                    objectFail: 'getUpdatedata', log: 'success');
+                UpdateLatestRequest requestLastest = UpdateLatestRequest(
+                    positionId: baPositionId,
+                    imei: imeiDevice,
+                    updateDate: response.dateCreateFile,
+                    updateStatus: '01',
+                    mappingErrorObject: errorLog);
+                String requestBodyJson = jsonEncode(requestLastest);
+                CallApiUtils<dynamic> sendRequestAPI = CallApiUtils<dynamic>();
+                APIResponseHeader responseLatest = await sendRequestAPI
+                    .sendRequestAPI(APIs.syncLogging, requestBodyJson);
+              } catch (err) {
+                print('${APIs.syncLogging} error line 628: ${err.toString()}');
+              }
+
+              // get date lastest update
+              TransferUpdateLog? transferUpdateLog =
+                  await transferUpdateLogProvider.select(baPositionId ?? 0);
+              String lastestUpdate = transferUpdateLog?.dateLastestUpdate ?? '';
+              if (lastestUpdate != '') {
+                lastestUpdate = CommonUtils.convertDate(
+                    lastestUpdate, Constant.dateFormatterYYYYMMDDHHMM);
+              }
+
+              message = [multiLang.updateData, multiLang.success].join(" ");
+              //emit(UpdateDataSuccess(message, lastestUpdate));
+            } catch (err) {
+              // write log update data
+              MappingErrorObject errorLog = MappingErrorObject(
+                  objectFail: 'getUpdatedata', log: err.toString());
               UpdateLatestRequest requestLastest = UpdateLatestRequest(
                   positionId: baPositionId,
                   imei: imeiDevice,
                   updateDate: response.dateCreateFile,
-                  updateStatus: '01',
+                  updateStatus: '00',
                   mappingErrorObject: errorLog);
               String requestBodyJson = jsonEncode(requestLastest);
               CallApiUtils<dynamic> sendRequestAPI = CallApiUtils<dynamic>();
               APIResponseHeader responseLatest = await sendRequestAPI
                   .sendRequestAPI(APIs.syncLogging, requestBodyJson);
-            } catch (err) {
-              print('${APIs.syncLogging} error line 628: ${err.toString()}');
+
+              return err.toString();
             }
+          });
 
-            // get date lastest update
-            TransferUpdateLog? transferUpdateLog =
-                await transferUpdateLogProvider.select(baPositionId ?? 0);
-            String lastestUpdate = transferUpdateLog?.dateLastestUpdate ?? '';
-            if (lastestUpdate != '') {
-              lastestUpdate = CommonUtils.convertDate(
-                  lastestUpdate, Constant.dateFormatterYYYYMMDDHHMM);
-            }
-
-            message = [multiLang.updateData, multiLang.success].join(" ");
-            //emit(UpdateDataSuccess(message, lastestUpdate));
-          } catch (err) {
-            // write log update data
-            MappingErrorObject errorLog = MappingErrorObject(
-                objectFail: 'getUpdatedata', log: err.toString());
-            UpdateLatestRequest requestLastest = UpdateLatestRequest(
-                positionId: baPositionId,
-                imei: imeiDevice,
-                updateDate: response.dateCreateFile,
-                updateStatus: '00',
-                mappingErrorObject: errorLog);
-            String requestBodyJson = jsonEncode(requestLastest);
-            CallApiUtils<dynamic> sendRequestAPI = CallApiUtils<dynamic>();
-            APIResponseHeader responseLatest = await sendRequestAPI
-                .sendRequestAPI(APIs.syncLogging, requestBodyJson);
-
-            return err.toString();
-          }
-        });
-
-        //init data
+          //init data
+        } else {
+          message = [multiLang.updateData, multiLang.failed].join(" ");
+          return message;
+        }
+        return '';
       } else {
-        message = [multiLang.updateData, multiLang.failed].join(" ");
+        message = multiLang.turnOnInternet(multiLang.updateData);
         return message;
       }
-      return '';
-    } else {
-      message = multiLang.turnOnInternet(multiLang.updateData);
-      return message;
+    } catch (error) {
+      return error.toString();
     }
   }
 
   Future<void> downloadUnzip(String masterUrlFile, String type) async {
     final headers = <String, String>{
-      'Authorization': 'Bearer ${prefs.getString('token')}',
+      'Authorization': 'Bearer ${prefs.getString(Session.token.toString())}',
       // Add other headers as needed
     };
     final getDownloadResponse = await http.get(
@@ -576,6 +578,16 @@ class UpdateDataService {
           customersGroupProvider,
           batch);
 
+      //sap_order
+      filePath = tempPathUpdateData + DefTableConstant.JSON_SAP_ORDER;
+      await insertAll<SapOrder>(
+          filePath, (json) => SapOrder.fromJson(json), sapOrderProvider, batch);
+
+      //sap_order_dtl
+      filePath = tempPathUpdateData + DefTableConstant.JSON_SAP_ORDER_DTL;
+      await insertAll<SapOrderDtl>(filePath,
+          (json) => SapOrderDtl.fromJson(json), sapOrderDtlProvider, batch);
+
       //s_sap_order_delivery
       filePath = tempPathUpdateData + DefTableConstant.JSON_SAP_ORDER_DELIVERY;
       await insertAll<SapOrderDelivery>(
@@ -663,11 +675,11 @@ class UpdateDataService {
 
       // write log lastest update data
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      int? baPositionId = prefs.getInt('baPositionId');
+      int? baPositionId = prefs.getInt(Session.baPositionId.toString());
       String nowTime =
           DateFormat(Constant.dateTimeFormatter).format(DateTime.now());
       TransferUpdateLog transferUpdateLog = TransferUpdateLog(
-          baPositionId: prefs.getInt('baPositionId'),
+          baPositionId: prefs.getInt(Session.baPositionId.toString()),
           dateLastestUpdate: nowTime,
           status: '01',
           createdBy: baPositionId,

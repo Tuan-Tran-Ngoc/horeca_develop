@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:connectivity/connectivity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:horeca/service/stock_service.dart';
 import 'package:horeca/service/sync_service.dart';
 import 'package:horeca/utils/call_api_utils.dart';
+import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca/utils/constants.dart';
 import 'package:horeca_service/horeca_service.dart';
 import 'package:horeca_service/model/product_stock.dart';
@@ -49,8 +51,8 @@ class ProductCubit extends Cubit<ProductState> {
     String selectedAddval = '';
     List<ProductDto> listCustomerStock = [];
     prefs = await SharedPreferences.getInstance();
-    int? shiftReportId = prefs.getInt('shiftReportId');
-    int? baPositionId = prefs.getInt('baPositionId');
+    int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
 
     //get address
     List<AddressVisitDto> lstAddress =
@@ -72,8 +74,7 @@ class ProductCubit extends Cubit<ProductState> {
       result.add(data.productName.toString());
       result.add(data.type.toString());
       result.add(data.uom.toString());
-      result
-          .add(NumberFormat.currency(locale: 'vi').format(data.priceCost ?? 0));
+      result.add(CommonUtils.displayCurrency(data.priceCost ?? 0));
       result
           .add(NumberFormat.decimalPattern().format(data.allocationStock ?? 0));
       result.add(NumberFormat.decimalPattern()
@@ -109,6 +110,13 @@ class ProductCubit extends Cubit<ProductState> {
     listCustomerStock = await customerStockProvider.getAllCustomerStock(
         customerId, customerAddressIdChoose);
 
+    //get lat/long
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
     emit(ProductInitialSuccess(selectedAddval, lstAddress, listCustomerStock,
         listStockBalance, rowDataDTC, isStartVisit, customerVisitId));
   }
@@ -125,8 +133,11 @@ class ProductCubit extends Cubit<ProductState> {
   Future<void> startVisit(
       int routeId, int customerId, int? customerAddressId) async {
     try {
-      emit(ClickStartVisit());
+      emit(ReloadControl());
       AppLocalizations multiLang = AppLocalizations.of(context)!;
+      if (!(await CommonUtils.checkShiftForToday())) {
+        throw multiLang.mandatoryFinishShift;
+      }
 
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
       await database.transaction((txn) async {
@@ -137,9 +148,9 @@ class ProductCubit extends Cubit<ProductState> {
 
         // get global var
         prefs = await SharedPreferences.getInstance();
-        int? shiftReportId = prefs.getInt('shiftReportId');
-        int? baPositionId = prefs.getInt('baPositionId');
-        String? shiftCode = prefs.getString('shiftCode');
+        int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
+        int? baPositionId = prefs.getInt(Session.baPositionId.toString());
+        String? shiftCode = prefs.getString(Session.shiftCode.toString());
 
         // check sync data
         if (await syncService.checkSyncCurrent(
@@ -172,6 +183,10 @@ class ProductCubit extends Cubit<ProductState> {
           throw message;
         }
 
+        //get lat long
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+
         employInfo = lstEmployInfo[0];
 
         CustomerVisit visitDto = CustomerVisit(
@@ -185,6 +200,8 @@ class ProductCubit extends Cubit<ProductState> {
             visitDate: dateTimeStr,
             startTime: dateTimeStr,
             shiftCode: shiftCode,
+            latitude: position.latitude,
+            longitude: position.longitude,
             createdBy: baPositionId,
             createdDate: dateTimeStr,
             updatedBy: baPositionId,
@@ -226,14 +243,15 @@ class ProductCubit extends Cubit<ProductState> {
             throw message;
           }
           CustomerVisitCheckinRequest request = CustomerVisitCheckinRequest(
-            customerId,
-            customerAddressId,
-            baPositionId,
-            dateTimeStr,
-            dateTimeStr,
-            shiftReportExisted!.shiftReportIdSync!,
-            shiftCode!,
-          );
+              customerId,
+              customerAddressId,
+              baPositionId,
+              dateTimeStr,
+              dateTimeStr,
+              shiftReportExisted!.shiftReportIdSync!,
+              shiftCode!,
+              visitDto.latitude,
+              visitDto.longitude);
 
           Map<String, dynamic> jsonMapping = request.toJson();
           String json = jsonEncode(jsonMapping);
@@ -267,8 +285,11 @@ class ProductCubit extends Cubit<ProductState> {
 
   Future<void> revisit(int customerId, int customerVisitId) async {
     try {
-      emit(ClickRevisitSuccess());
+      emit(ReloadControl());
       AppLocalizations multiLang = AppLocalizations.of(context)!;
+      if (!(await CommonUtils.checkShiftForToday())) {
+        throw multiLang.mandatoryFinishShift;
+      }
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
       await database.transaction((txn) async {
         DateTime now = DateTime.now();
@@ -277,9 +298,9 @@ class ProductCubit extends Cubit<ProductState> {
 
         // get global var
         prefs = await SharedPreferences.getInstance();
-        int? shiftReportId = prefs.getInt('shiftReportId');
-        int? baPositionId = prefs.getInt('baPositionId');
-        String? shiftCode = prefs.getString('shiftCode');
+        int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
+        int? baPositionId = prefs.getInt(Session.baPositionId.toString());
+        String? shiftCode = prefs.getString(Session.shiftCode.toString());
 
         // check sync data
         if (await syncService.checkSyncCurrent(
@@ -314,6 +335,11 @@ class ProductCubit extends Cubit<ProductState> {
               .errorOccur([multiLang.information, multiLang.visit].join(" "));
           throw message;
         }
+
+        //get lat long
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+
         int maxVisitTimes = await customerVisitProvider
             .selectMaxVisitTimesByParent(customerVisit.customerVisitId!, txn);
         CustomerVisit visitDto = CustomerVisit.copyWith(customerVisit);
@@ -332,6 +358,8 @@ class ProductCubit extends Cubit<ProductState> {
         visitDto.visitTimes = maxVisitTimes + 1;
         visitDto.isStockCheckCompleted = null;
         visitDto.isSurveyCompleted = null;
+        visitDto.latitude = position.latitude;
+        visitDto.longitude = position.longitude;
 
         // int isVisit = await customerVisitProvider.revisit(visitDto, txn);
         CustomerVisit revisit =
@@ -344,50 +372,6 @@ class ProductCubit extends Cubit<ProductState> {
           throw message;
         }
 
-        // // get customer stock available
-        // List<CustomerStock> lstCustomerStockAvailable =
-        //     await customerStockProvider.getAllCustomerStockByVisit(
-        //         customerVisitId, txn);
-
-        // List<CustomerStock> lstCustomerStock = [];
-        // for (var customerStock in lstCustomerStockAvailable) {
-        //   lstCustomerStock.add(CustomerStock.copyWith(
-        //       customerStock, revisit.customerVisitId ?? 0));
-        // }
-
-        // // reset lastest customerStock
-        // lstCustomerStock = lstCustomerStock.map((e) {
-        //   e.lastUpdate = dateTimeStr;
-        //   return e;
-        // }).toList();
-
-        // // get customer price available
-        // List<CustomerPrice> lstCustomerPriceAvailable =
-        //     await customerPriceProvider.getAllCustomerPriceByVisit(
-        //         customerVisitId, txn);
-
-        // List<CustomerPrice> lstCustomerPrice = [];
-
-        // for (var customerPrice in lstCustomerPriceAvailable) {
-        //   lstCustomerPrice.add(CustomerPrice.copyWith(
-        //       customerPrice, revisit.customerVisitId ?? 0));
-        // }
-
-        // // reset lastest customerPrice
-        // lstCustomerPrice = lstCustomerPrice.map((e) {
-        //   e.lastUpdate = dateTimeStr;
-        //   return e;
-        // }).toList();
-
-        // // insert local s_customer_price
-        // for (CustomerPrice customerPrice in lstCustomerPrice) {
-        //   await customerPriceProvider.insert(customerPrice, txn);
-        // }
-
-        // // insert local s_customer_stock
-        // for (CustomerStock customerStock in lstCustomerStock) {
-        //   await customerStockProvider.insert(customerStock, txn);
-        // }
         CustomerStockPriceDto customerStockPriceDto =
             await stockService.copyStockIntoNewVisit(
                 customerVisitId, revisit.customerVisitId, dateTimeStr, txn);
@@ -419,7 +403,9 @@ class ProductCubit extends Cubit<ProductState> {
               baPositionId: baPositionId,
               reVisit: {
                 "startTime": dateTimeStr,
-                "visitDate": "${customerVisit.visitDate} 00:00:00.000"
+                "visitDate": "${customerVisit.visitDate} 00:00:00.000",
+                "latitude": position.latitude,
+                "longitude": position.longitude
               });
 
           Map<String, dynamic> requestBody = request.toJson();
@@ -457,11 +443,14 @@ class ProductCubit extends Cubit<ProductState> {
   Future<void> saveCustomerStock(
       List<ProductDto> lstProduct, int customerId, int? customerVisitId) async {
     try {
-      emit(ClickConfirmStockCustomer());
+      emit(ReloadControl());
       AppLocalizations multiLang = AppLocalizations.of(context)!;
+      if (!(await CommonUtils.checkShiftForToday())) {
+        throw multiLang.mandatoryFinishShift;
+      }
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
       await database.transaction((txn) async {
-        saveCustomerStockImpl(
+        await saveCustomerStockImpl(
             lstProduct, customerId, customerVisitId, txn, multiLang);
         message = [multiLang.update, multiLang.customerStock, multiLang.success]
             .join(" ");
@@ -493,7 +482,7 @@ class ProductCubit extends Cubit<ProductState> {
 
     // get global var
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
 
     if (baPositionId == null) {
       // throw Exception('Thông tin đăng nhập không được tìm thấy');
@@ -602,9 +591,6 @@ class ProductCubit extends Cubit<ProductState> {
         connect == ConnectivityResult.mobile) {
       await syncService.syncStock(lstCustomerPrice, lstCustomerStock,
           customerVisit.customerVisitIdSync, txn, multiLang);
-      // if (response.error != null) {
-      //   throw Exception(response.error?.code);
-      // }
     }
   }
 
@@ -614,7 +600,7 @@ class ProductCubit extends Cubit<ProductState> {
     List<ProductDto> listCustomerStock = [];
     if (address != null) {
       prefs = await SharedPreferences.getInstance();
-      int? shiftReportId = prefs.getInt('shiftReportId');
+      int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
       List<CustomerVisit> lstCustomerVisit =
           await customerVisitProvider.selectByAddress(
               shiftReportId, customerId, address.customerAddressId);

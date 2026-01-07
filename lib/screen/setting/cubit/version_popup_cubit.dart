@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:horeca/utils/call_api_utils.dart';
+import 'package:horeca/utils/constants.dart';
 import 'package:horeca_service/horeca_service.dart';
 import 'package:horeca_service/model/response/version_response.dart';
 import 'package:horeca_service/network/apis.dart';
@@ -58,7 +59,7 @@ class VersionPopupCubit extends Cubit<VersionPopupState> {
     prefs = await SharedPreferences.getInstance();
     String filePath = '';
     final headers = <String, String>{
-      'Authorization': 'Bearer ${prefs.getString('token')}',
+      'Authorization': 'Bearer ${prefs.getString(Session.token.toString())}',
     };
     final getDownloadResponse =
         await http.get(Uri.parse(url), headers: headers);

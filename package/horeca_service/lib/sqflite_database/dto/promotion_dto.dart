@@ -8,6 +8,7 @@ class PromotionDto {
   String? startDate;
   String? endDate;
   String? promotionType;
+  String? remark;
   List<SchemePromotionDto>? lstSchemeOrder;
 
   PromotionDto(
@@ -18,7 +19,8 @@ class PromotionDto {
       this.startDate,
       this.endDate,
       this.lstSchemeOrder,
-      this.promotionType});
+      this.promotionType,
+      this.remark});
 
   factory PromotionDto.fromMap(Map<dynamic, dynamic> map) {
     return PromotionDto(
@@ -28,6 +30,7 @@ class PromotionDto {
         conditionType: map['condition_type'],
         startDate: map['start_date'],
         endDate: map['end_date'],
-        promotionType: map['promotion_type']);
+        promotionType: map['promotion_type'],
+        remark: map['remark']);
   }
 }

@@ -24,6 +24,10 @@ class CustomerVisitCancelRequest extends Equatable {
   final String startTime;
   @JsonKey(name: 'endTime')
   final String endTime;
+  @JsonKey(name: 'latitude')
+  final double? latitude;
+  @JsonKey(name: 'longitude')
+  final double? longitude;
 
   const CustomerVisitCancelRequest(
       {required this.shiftCode,
@@ -34,7 +38,9 @@ class CustomerVisitCancelRequest extends Equatable {
       required this.customerAddressId,
       required this.visitDate,
       required this.startTime,
-      required this.endTime});
+      required this.endTime,
+      required this.latitude,
+      required this.longitude});
 
   factory CustomerVisitCancelRequest.fromJson(Map<String, dynamic> json) =>
       _$CustomerVisitCancelRequestFromJson(json);
@@ -42,6 +48,14 @@ class CustomerVisitCancelRequest extends Equatable {
   Map<String, dynamic> toJson() => _$CustomerVisitCancelRequestToJson(this);
 
   @override
-  List<Object?> get props =>
-      [baPositionId, shiftCode, customerId, visitDate, shiftReportId, reasonId];
+  List<Object?> get props => [
+        baPositionId,
+        shiftCode,
+        customerId,
+        visitDate,
+        shiftReportId,
+        reasonId,
+        latitude,
+        longitude
+      ];
 }

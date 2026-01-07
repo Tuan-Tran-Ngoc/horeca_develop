@@ -16,6 +16,8 @@ CustomerVisitCheckinRequest _$CustomerVisitCheckinRequestFromJson(
       json['startTime'] as String,
       json['shiftReportId'] as int,
       json['shiftCode'] as String,
+      (json['latitude'] as num?)?.toDouble(),
+      (json['longitude'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$CustomerVisitCheckinRequestToJson(
@@ -28,4 +30,6 @@ Map<String, dynamic> _$CustomerVisitCheckinRequestToJson(
       'startTime': instance.startTime,
       'shiftReportId': instance.shiftReportId,
       'shiftCode': instance.shiftCode,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
     };

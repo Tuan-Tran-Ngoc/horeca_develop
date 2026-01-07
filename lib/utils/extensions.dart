@@ -21,7 +21,12 @@ extension CurrencyFormat on double {
 
   String get _asVNCurrency => '${this.asMoney()}₫';
 
-
   String get asCurrency => _asVNCurrency;
   String get asDoubleFormatCurrency => this.asMoney();
+}
+
+extension DateOnlyCompare on DateTime {
+  bool isSameDate(DateTime other) {
+    return year == other.year && month == other.month && day == other.day;
+  }
 }

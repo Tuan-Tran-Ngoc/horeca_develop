@@ -1,3 +1,4 @@
+import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca_service/horeca_service.dart';
 import 'package:horeca_service/sqflite_database/dto/discount_dto.dart';
 import 'package:horeca_service/sqflite_database/dto/discount_info_dto.dart';
@@ -452,17 +453,17 @@ class OrderService {
       priceCostDiscount = salesPrice -
           (salesPrice * (product.discountPercent ?? 0) / 100 +
               (product.discountAmount ?? 0));
-      product.priceCostDiscount = priceCostDiscount;
+      product.priceCostDiscount = priceCostDiscount.roundToDouble();
 
       // setting discount rate
       if ((product.discountPercent ?? 0) > 0) {
-        discountRates.add(NumberFormat.percentPattern()
-            .format((product.discountPercent ?? 0) / 100));
+        discountRates
+            .add(CommonUtils.formatQtyPercent(product.discountPercent ?? 0));
       }
 
       if ((product.discountAmount ?? 0) > 0) {
-        discountRates.add(NumberFormat.currency(locale: 'vi')
-            .format((product.discountAmount ?? 0)));
+        discountRates
+            .add(CommonUtils.displayCurrency((product.discountAmount ?? 0)));
       }
       product.discountRate = discountRates.join('+');
     }
@@ -512,13 +513,13 @@ class OrderService {
           .reduce((quantity1, quantity2) => quantity1! + quantity2!);
     }
 
-    List<DiscountInfoDto> lstDiscountTotalSKU =
-        lstDiscount.where((discount) => discount.totalType == '00').toList();
+    // List<DiscountInfoDto> lstDiscountTotalSKU =
+    //     lstDiscount.where((discount) => discount.totalType == '00').toList();
 
     double? conditionAmount = 0;
     double? conditionQty = 0;
 
-    for (var discount in lstDiscountTotalSKU) {
+    for (var discount in lstDiscount) {
       conditionAmount = discount.conditionQty;
       conditionQty = lstDiscount
           .firstWhere(
@@ -553,8 +554,7 @@ class OrderService {
       params
           .add(NumberFormat.decimalPattern().format(conditionQty)); //san luong
       params.add('sản phẩm và trị giá đạt');
-      params.add(NumberFormat.currency(locale: 'vi')
-          .format(discount.conditionQty)); // tri gia
+      params.add(CommonUtils.displayCurrency(discount.conditionQty)); // tri gia
       params.add('\nNhận');
 
       if (discount.discountType == '00') {
@@ -563,11 +563,11 @@ class OrderService {
             conditionType: discount.conditionType,
             schemeId: discount.discountSchemeId,
             discountValue: discount.resultQty,
-            totalDiscount: totalAmount * (discount.resultQty ?? 0) / 100,
+            totalDiscount:
+                (totalAmount * (discount.resultQty ?? 0) / 100).roundToDouble(),
             discountType: discount.discountType);
 
-        params.add(NumberFormat.percentPattern()
-            .format((discount.resultQty ?? 0) / 100));
+        params.add(CommonUtils.formatQtyPercent(discount.resultQty ?? 0));
         result.remark = params.join(' ');
         results.add(result);
       } else if (discount.discountType == '01') {
@@ -579,8 +579,7 @@ class OrderService {
             totalDiscount: totalAmount - discount.resultQty!,
             discountType: discount.discountType);
 
-        params.add(
-            NumberFormat.currency(locale: 'vi').format(discount.resultQty));
+        params.add(CommonUtils.displayCurrency(discount.resultQty));
         result.remark = params.join(' ');
         results.add(result);
       }

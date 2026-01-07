@@ -56,7 +56,7 @@ class ShiftPopupCubit extends Cubit<ShiftPopupState> {
 
         prefs = await SharedPreferences.getInstance();
 
-        int? baPositionId = prefs.getInt('baPositionId');
+        int? baPositionId = prefs.getInt(Session.baPositionId.toString());
 
         // check sync data
         if (await syncService.checkSyncCurrent(
@@ -158,8 +158,9 @@ class ShiftPopupCubit extends Cubit<ShiftPopupState> {
         }
 
         //setting shiftReportId into global varibale
-        prefs.setInt('shiftReportId', shiftReport?.shiftReportId ?? 0);
-        prefs.setString('shiftCode', shiftCode);
+        prefs.setInt(
+            Session.shiftReportId.toString(), shiftReport?.shiftReportId ?? 0);
+        prefs.setString(Session.shiftCode.toString(), shiftCode);
 
         //setting state
         emit(StartShiftSuccess(shiftReport?.shiftReportId));

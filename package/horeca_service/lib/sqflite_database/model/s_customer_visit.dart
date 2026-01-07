@@ -18,8 +18,8 @@ class CustomerVisit {
   int? newMembership;
   String? signature;
   String? visitStatus;
-  int? longitude;
-  int? latitude;
+  double? longitude;
+  double? latitude;
   String? reason;
   int? createdBy;
   String? createdDate;

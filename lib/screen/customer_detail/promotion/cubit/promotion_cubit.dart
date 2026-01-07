@@ -1,11 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:horeca/service/order_service.dart';
 import 'package:horeca/service/promotion_service.dart';
+import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca_service/horeca_service.dart';
 import 'package:horeca_service/sqflite_database/dto/discount_content_dto.dart';
 import 'package:horeca_service/sqflite_database/dto/discount_dto.dart';
-import 'package:horeca_service/sqflite_database/dto/promotion_content_dto.dart';
 import 'package:horeca_service/sqflite_database/dto/promotion_dto.dart';
 import 'package:horeca_service/sqflite_database/dto/scheme_dto.dart';
 import 'package:horeca_service/sqflite_database/dto/scheme_promotion_dto.dart';
@@ -18,127 +17,10 @@ class PromotionCubit extends Cubit<PromotionState> {
   PromotionProvider promotionProvider = PromotionProvider();
   DiscountProvider discountProvider = DiscountProvider();
   PromotionService promotionService = PromotionService();
+
   Future<void> init(int customerId) async {
     List<PromotionDto> lstPromotion =
         await promotionService.getSchemeContentPromotion(customerId);
-    // select info promotion
-    // List<PromotionDto> lstPromotion =
-    //     await promotionProvider.selectPromotionByCustomerId(customerId, null);
-
-    // for (var promotion in lstPromotion) {
-    //   List<PromotionContentDto> lstPromotionContent = await promotionProvider
-    //       .selectPromotionContent(promotion.promotionId!);
-
-    //   List<SchemePromotionDto> lstSchemeOrder = [];
-    //   for (PromotionContentDto promotionContent in lstPromotionContent) {
-    //     int indexSchemeExist = checkSchemePromotionIsExist(
-    //         promotionContent.promotionSchemeId!, lstSchemeOrder);
-    //     // first condition
-    //     if (indexSchemeExist == -1) {
-    //       SchemePromotionDto schemeOrder = SchemePromotionDto();
-    //       List<String> params = [];
-
-    //       // difference promotion total order
-    //       if (promotionContent.conditionProductId != null) {
-    //         params = [
-    //           'Mua',
-    //           NumberFormat.decimalPattern()
-    //               .format(promotionContent.conditionQty),
-    //           promotionContent.conditionProductName!,
-    //           'Nhận',
-    //           NumberFormat.decimalPattern().format(promotionContent.resultQty),
-    //           promotionContent.resultProductName!,
-    //         ];
-    //       } else {
-    //         if (promotionContent.totalType == '00') {
-    //           params = [
-    //             'Đơn hàng đạt',
-    //             NumberFormat.currency(locale: 'vi')
-    //                 .format(promotionContent.conditionQty),
-    //             'Nhận',
-    //             NumberFormat.decimalPattern()
-    //                 .format(promotionContent.resultQty),
-    //             promotionContent.resultProductName!,
-    //           ];
-    //         } else if (promotionContent.totalType == '01') {
-    //           params = [
-    //             'Đơn hàng đạt',
-    //             NumberFormat.decimalPattern()
-    //                 .format(promotionContent.conditionQty),
-    //             'sản phẩm',
-    //             'Nhận',
-    //             NumberFormat.decimalPattern()
-    //                 .format(promotionContent.resultQty),
-    //             promotionContent.resultProductName!,
-    //           ];
-    //         }
-    //       }
-
-    //       schemeOrder.schemeContent = params.join(' ');
-    //       schemeOrder.schemeId = promotionContent.promotionSchemeId;
-    //       lstSchemeOrder.add(schemeOrder);
-    //     } else {
-    //       // promotion has multi condition
-    //       SchemePromotionDto schemeExist = lstSchemeOrder[indexSchemeExist];
-    //       List<String> params = [];
-    //       List<String> conditionStr = [];
-
-    //       if (promotionContent.conditionProductId != null) {
-    //         String conditionOld =
-    //             getSubStringBetween(schemeExist.schemeContent!, 'Mua', 'Nhận');
-
-    //         conditionStr = [
-    //           conditionOld,
-    //           [
-    //             NumberFormat.decimalPattern()
-    //                 .format(promotionContent.conditionQty),
-    //             promotionContent.conditionProductName!
-    //           ].join(' ')
-    //         ];
-
-    //         params = [
-    //           'Mua',
-    //           conditionStr.join(', '),
-    //           'Nhận',
-    //           NumberFormat.decimalPattern().format(promotionContent.resultQty),
-    //           promotionContent.resultProductName!,
-    //         ];
-    //       } else {
-    //         String conditionOld = getSubStringBetween(
-    //             schemeExist.schemeContent!, 'Đơn hàng đạt', 'Nhận');
-
-    //         if (promotionContent.totalType == '00') {
-    //           conditionStr = [
-    //             conditionOld,
-    //             NumberFormat.currency(locale: 'vi')
-    //                 .format(promotionContent.conditionQty)
-    //           ];
-    //         } else if (promotionContent.totalType == '01') {
-    //           conditionStr = [
-    //             conditionOld,
-    //             [
-    //               NumberFormat.decimalPattern()
-    //                   .format(promotionContent.conditionQty),
-    //               'sản phẩm'
-    //             ].join(' ')
-    //           ];
-    //         }
-
-    //         params = [
-    //           'Đơn hàng đạt',
-    //           conditionStr.join(', '),
-    //           'Nhận',
-    //           NumberFormat.decimalPattern().format(promotionContent.resultQty),
-    //           promotionContent.resultProductName!,
-    //         ];
-    //       }
-
-    //       lstSchemeOrder[indexSchemeExist].schemeContent = params.join(' ');
-    //     }
-    //   }
-
-    //   promotion.lstSchemeOrder = lstSchemeOrder;
-    // }
 
     // select info discount
     List<DiscountDto> lstDiscount =
@@ -167,12 +49,12 @@ class PromotionCubit extends Cubit<PromotionState> {
             ];
             if (discountContent.discountType == '00') {
               // result discount is percent
-              params.add(NumberFormat.percentPattern()
-                  .format((discountContent.resultQty ?? 0) / 100));
+              params.add(
+                  CommonUtils.formatQtyPercent(discountContent.resultQty ?? 0));
             } else {
               // result discount is money
-              params.add(NumberFormat.currency(locale: 'vi')
-                  .format(discountContent.resultQty));
+              params
+                  .add(CommonUtils.displayCurrency(discountContent.resultQty));
             }
           } else {
             if (discountContent.conditionType == '00') {
@@ -180,18 +62,17 @@ class PromotionCubit extends Cubit<PromotionState> {
               if (discountContent.totalType == '00') {
                 params = [
                   'Đơn hàng đạt',
-                  NumberFormat.currency(locale: 'vi')
-                      .format(discountContent.conditionQty),
+                  CommonUtils.displayCurrency(discountContent.conditionQty),
                   'Nhận'
                 ];
                 if (discountContent.discountType == '00') {
                   // result discount is percent
-                  params.add(NumberFormat.percentPattern()
-                      .format((discountContent.resultQty ?? 0) / 100));
+                  params.add(CommonUtils.formatQtyPercent(
+                      discountContent.resultQty ?? 0));
                 } else {
                   // result discount is money
-                  params.add(NumberFormat.currency()
-                      .format(discountContent.resultQty));
+                  params.add(
+                      CommonUtils.displayCurrency(discountContent.resultQty));
                 }
               } else if (discountContent.totalType == '01') {
                 params = [
@@ -203,12 +84,12 @@ class PromotionCubit extends Cubit<PromotionState> {
                 ];
                 if (discountContent.discountType == '00') {
                   // result discount is percent
-                  params.add(NumberFormat.percentPattern()
-                      .format((discountContent.resultQty ?? 0) / 100));
+                  params.add(CommonUtils.formatQtyPercent(
+                      discountContent.resultQty ?? 0));
                 } else {
                   // result discount is money
-                  params.add(NumberFormat.currency()
-                      .format(discountContent.resultQty));
+                  params.add(
+                      CommonUtils.displayCurrency(discountContent.resultQty));
                 }
               }
             } else {
@@ -223,28 +104,27 @@ class PromotionCubit extends Cubit<PromotionState> {
                 ];
                 if (discountContent.discountType == '00') {
                   // result discount is percent
-                  params.add(NumberFormat.percentPattern()
-                      .format((discountContent.resultQty ?? 0) / 100));
+                  params.add(CommonUtils.formatQtyPercent(
+                      discountContent.resultQty ?? 0));
                 } else {
                   // result discount is money
-                  params.add(NumberFormat.currency()
-                      .format(discountContent.resultQty));
+                  params.add(
+                      CommonUtils.displayCurrency(discountContent.resultQty));
                 }
               } else if (discountContent.totalType == '01') {
                 params = [
                   'Đơn hàng đạt',
-                  NumberFormat.currency(locale: 'vi')
-                      .format(discountContent.conditionQty),
+                  CommonUtils.displayCurrency(discountContent.conditionQty),
                   'Nhận'
                 ];
                 if (discountContent.discountType == '00') {
                   // result discount is percent
-                  params.add(NumberFormat.percentPattern()
-                      .format((discountContent.resultQty ?? 0) / 100));
+                  params.add(CommonUtils.formatQtyPercent(
+                      discountContent.resultQty ?? 0));
                 } else {
                   // result discount is money
-                  params.add(NumberFormat.currency()
-                      .format(discountContent.resultQty));
+                  params.add(
+                      CommonUtils.displayCurrency(discountContent.resultQty));
                 }
               }
             }
@@ -273,10 +153,8 @@ class PromotionCubit extends Cubit<PromotionState> {
             } else {
               conditionStr = [
                 conditionOld,
-                [
-                  NumberFormat.currency(locale: 'vi')
-                      .format(discountContent.conditionQty)
-                ].join(' ')
+                [CommonUtils.displayCurrency(discountContent.conditionQty)]
+                    .join(' ')
               ];
             }
 
@@ -285,15 +163,14 @@ class PromotionCubit extends Cubit<PromotionState> {
                 'Đơn hàng đạt',
                 conditionStr.join(', '),
                 'Nhận',
-                NumberFormat.percentPattern()
-                    .format((discountContent.resultQty ?? 0) / 100),
+                CommonUtils.formatQtyPercent(discountContent.resultQty ?? 0),
               ];
             } else {
               params = [
                 'Đơn hàng đạt',
                 conditionStr.join(', '),
                 'Nhận',
-                NumberFormat.currency().format(discountContent.resultQty),
+                CommonUtils.displayCurrency(discountContent.resultQty),
               ];
             }
             lstSchemeOrder[indexSchemeExist].schemeContent = params.join(' ');

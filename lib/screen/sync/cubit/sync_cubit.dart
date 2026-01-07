@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:archive/archive.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:horeca/screen/sync/cubit/sync_state.dart';
 import 'package:horeca/service/create_data_service.dart';
 import 'package:horeca/service/initial_data_service.dart';
@@ -58,7 +59,7 @@ class SyncCubit extends Cubit<SyncState> {
 
   Future<void> init() async {
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
     // AppLocalizations multiLang = AppLocalizations.of(context)!;
     List<SyncOffline> lstSyncOffline =
         await syncOfflineProvider.selectForDisplay();
@@ -167,12 +168,6 @@ class SyncCubit extends Cubit<SyncState> {
         emit(SynchronizeDataSuccess(message));
         //emit(LoadingInit(lstDataSynchronize));
       } catch (error) {
-        // if (error.toString() ==
-        //     MessageUtils.getMessages(code: Constant.SESSION_LOGIN_EXPIRED)) {
-        //   await CommonUtils.logout();
-        //   GoRouter.of(context).go('/');
-        // }
-        // emit(SynchronizeDataFail(error.toString()));
         message = [
           multiLang.sync,
           multiLang.data,
@@ -187,7 +182,7 @@ class SyncCubit extends Cubit<SyncState> {
 
   Future<void> synchronizeSurvey(SyncOffline surveyOffline) async {
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
     try {
       AppLocalizations multiLang = AppLocalizations.of(context)!;
       SurveyResult? surveyResultExisted =
@@ -239,7 +234,7 @@ class SyncCubit extends Cubit<SyncState> {
 
   Future<void> synchronizeShiftReport(SyncOffline shiftReportOffline) async {
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
     ShiftReport? shiftExisted =
         await shiftReportProvider.getReport(shiftReportOffline.relatedId, null);
 
@@ -286,20 +281,10 @@ class SyncCubit extends Cubit<SyncState> {
     }
   }
 
-  //sync revisit
-  // Future<void> synchroinizeRevisit(SyncOffline offlineData) async {
-  //   prefs = await SharedPreferences.getInstance();
-  //   int? baPositionId = prefs.getInt('baPositionId');
-  //   CustomerVisit? customerVisitExisted =
-  //       await customerVisitProvider.select(offlineData.relatedId!, null);
-  //   ShiftReport? shiftReportExisted = await shiftReportProvider.getReport(
-  //       customerVisitExisted?.shiftReportId, null);
-  // }
-
   //sycn stock
   Future<void> synchronizeCustomerCheckStock(SyncOffline offlineData) async {
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
     AppLocalizations multiLang = AppLocalizations.of(context)!;
 
     try {
@@ -330,7 +315,7 @@ class SyncCubit extends Cubit<SyncState> {
 
   Future<void> synchronizeOrder(SyncOffline orderOffline) async {
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
     AppLocalizations multiLang = AppLocalizations.of(context)!;
 
     try {
@@ -371,7 +356,7 @@ class SyncCubit extends Cubit<SyncState> {
   Future<void> synchronizeCustomerVisit(
       SyncOffline customerVisitOffline) async {
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
     CustomerVisit? customerVisitExisted = await customerVisitProvider.select(
         customerVisitOffline.relatedId!, null);
     ShiftReport? shiftReportExisted = await shiftReportProvider.getReport(
@@ -386,7 +371,9 @@ class SyncCubit extends Cubit<SyncState> {
             '${customerVisitExisted?.visitDate!} 00:00:00.000',
             customerVisitExisted?.startTime ?? '',
             shiftReportExisted?.shiftReportIdSync ?? 0,
-            shiftReportExisted?.shiftCode ?? '');
+            shiftReportExisted?.shiftCode ?? '',
+            customerVisitExisted?.latitude,
+            customerVisitExisted?.longitude);
         String requestBodyJson = jsonEncode(requestBody);
 
         CallApiUtils<CustomerVisitResponse> sendRequestAPI = CallApiUtils();
@@ -437,7 +424,9 @@ class SyncCubit extends Cubit<SyncState> {
             customerAddressId: customerVisitExisted?.customerAddressId ?? 0,
             visitDate: customerVisitExisted?.visitDate ?? '',
             startTime: customerVisitExisted?.startTime ?? '',
-            endTime: customerVisitExisted?.endTime ?? '');
+            endTime: customerVisitExisted?.endTime ?? '',
+            latitude: customerVisitExisted?.latitude,
+            longitude: customerVisitExisted?.longitude);
 
         String requestBodyJson = jsonEncode(requestBody);
 
@@ -455,7 +444,9 @@ class SyncCubit extends Cubit<SyncState> {
             baPositionId: baPositionId!,
             reVisit: {
               "startTime": customerVisitExisted?.startTime ?? '',
-              "visitDate": "${customerVisitExisted?.visitDate!} 00:00:00.000"
+              "visitDate": "${customerVisitExisted?.visitDate!} 00:00:00.000",
+              "latitude": customerVisitExisted?.latitude,
+              "longitude": customerVisitExisted?.longitude
             });
         String requestBodyJson = jsonEncode(requestBody);
 
@@ -520,7 +511,7 @@ class SyncCubit extends Cubit<SyncState> {
     emit(OnClickUpdateData());
     emit(ReloadControl(multiLang.updatingData));
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
     UpdateDataService updateDataService = UpdateDataService();
     String message = await updateDataService.syncUpdateData(multiLang);
 
@@ -542,7 +533,7 @@ class SyncCubit extends Cubit<SyncState> {
 
   Future<void> downloadUnzip(String masterUrlFile, String type) async {
     final headers = <String, String>{
-      'Authorization': 'Bearer ${prefs.getString('token')}',
+      'Authorization': 'Bearer ${prefs.getString(Session.token.toString())}',
       // Add other headers as needed
     };
     final getDownloadResponse = await http.get(

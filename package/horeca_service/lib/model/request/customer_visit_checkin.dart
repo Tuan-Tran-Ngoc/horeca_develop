@@ -19,6 +19,10 @@ class CustomerVisitCheckinRequest extends Equatable {
   final int shiftReportId;
   @JsonKey(name: 'shiftCode')
   final String shiftCode;
+  @JsonKey(name: 'latitude')
+  final double? latitude;
+  @JsonKey(name: 'longitude')
+  final double? longitude;
 
   const CustomerVisitCheckinRequest(
       this.customerId,
@@ -27,7 +31,9 @@ class CustomerVisitCheckinRequest extends Equatable {
       this.visitDate,
       this.startTime,
       this.shiftReportId,
-      this.shiftCode);
+      this.shiftCode,
+      this.latitude,
+      this.longitude);
 
   factory CustomerVisitCheckinRequest.fromJson(Map<String, dynamic> json) =>
       _$CustomerVisitCheckinRequestFromJson(json);
@@ -43,5 +49,7 @@ class CustomerVisitCheckinRequest extends Equatable {
         startTime,
         shiftReportId,
         shiftCode,
+        latitude,
+        longitude
       ];
 }

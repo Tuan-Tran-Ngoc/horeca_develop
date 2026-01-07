@@ -58,10 +58,6 @@ final class SaveCustomerPriceSuccess extends ProductState {
   SaveCustomerPriceSuccess(this.msg);
 }
 
-final class ClickConfirmStockCustomer extends ProductState {}
-
-final class ClickStartVisit extends ProductState {}
-
 final class ClickRevisitSuccess extends ProductState {}
 
 final class RevisitSuccess extends ProductState {
@@ -90,3 +86,5 @@ final class ChangeAddressSuccess extends ProductState {
   ChangeAddressSuccess(
       this.customerVisit, this.listCustomerStock, this.customerAddressId);
 }
+
+class ReloadControl extends ProductState {}

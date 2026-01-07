@@ -205,8 +205,9 @@ and date(order_date) = date('now')''';
                 tb05.parent_customer_visit_id
                 FROM s_shift_report tb01
                 inner join m_shift tb02 ON tb02.shift_code = tb01.shift_code
-                inner join m_route_assignment tb03 ON tb03.shift_code = tb01.shift_code
-                AND tb03.day_of_week = (strftime('%w', tb01.working_date) + 1)
+                inner join m_route_assignment tb03 ON tb03.shift_code = tb01.shift_code 
+                                                  and tb03.ba_position_id = tb01.ba_position_id
+                                                  AND tb03.day_of_week = (strftime('%w', tb01.working_date) + 1)
                 inner join m_customer tb04 ON tb04.customer_id = tb03.customer_id
                                            AND tb04.status = '01'
                 left join s_customer_visit tb05 ON tb05.shift_report_id = tb01.shift_report_id
@@ -215,6 +216,7 @@ and date(order_date) = date('now')''';
                 and (tb03.frequency = '00'
                 or  (strftime('%W', tb01.working_date) % 2  = 0  and tb03.frequency = '01')
                 or  (strftime('%W', tb01.working_date) % 2  = 1  and tb03.frequency = '02'))
+                and date(tb01.working_date) BETWEEN date(tb03.start_date) AND date(tb03.end_date)
               union
                 SELECT
                       0 as route_id,
@@ -241,12 +243,14 @@ and date(order_date) = date('now')''';
                         SELECT ra.customer_id
                         FROM s_shift_report sr
                         INNER JOIN m_route_assignment ra ON ra.shift_code = sr.shift_code
+                                                        AND ra.ba_position_id = sr.ba_position_id
                         WHERE ra.day_of_week = (strftime('%w', sr.working_date) + 1)
                         AND (ra.frequency = '00'
                           OR (strftime('%W', sr.working_date) % 2 = 0 AND ra.frequency = '01')
                           OR (strftime('%W', sr.working_date) % 2 = 1 AND ra.frequency = '02')) 
                         AND sr.shift_report_id = tb01.shift_report_id
                         AND ra.customer_id = tb04.customer_id
+                        and date(sr.working_date) BETWEEN date(ra.start_date) AND date(ra.end_date)
                       )
           ''';
 
@@ -310,6 +314,7 @@ and date(order_date) = date('now')''';
        inner join m_shift tb02 ON tb02.shift_code = tb01.shift_code
        inner join m_route_assignment tb03 ON tb03.shift_code = tb01.shift_code
        AND tb03.day_of_week = (strftime('%w', tb01.working_date) + 1)
+       AND date(tb01.working_date) between date(tb03.start_date) and date(tb03.end_date)
        inner join m_customer tb04 ON tb04.customer_id = tb03.customer_id
        WHERE tb01.shift_report_id = ?
        and (tb03.frequency = '00'
@@ -367,7 +372,8 @@ and visit_status = ?''';
         tb03.uom_name,
         grp02.latest_price AS price_cost
     FROM
-        m_product tb01
+      w_stock_balance sb
+    inner join m_product tb01 on sb.product_id = tb01.product_id
     INNER JOIN
         m_product_type tb02 ON tb02.product_type_id = tb01.product_type_id
     INNER JOIN
@@ -463,9 +469,11 @@ and visit_status = ?''';
 			  ) grp01
     ) AS grp02 ON tb01.product_id = grp02.product_id AND grp02.rn = 1
     WHERE
-        tb01.is_salable = 1
+        date(sb.allocate_date) = date('now')
+		    and sb.position_id = ?
+        and tb01.is_salable = 1
         and tb01.status = '01'
-    ORDER BY tb01.priority asc''';
+    ORDER BY sb.available_stock desc, tb01.priority asc''';
 
   // s_customer_stock
   // static String SQL_CUS_PRI_001 = '''select
@@ -542,6 +550,7 @@ and visit_status = ?''';
 			      , tb01.promotion_type
             , strftime('%d/%m/%Y', substr(tb01.start_date, 1, 10)) as start_date
             , strftime('%d/%m/%Y', substr(tb01.end_date, 1, 10)) as end_date
+            , tb01.remark
               FROM
                   m_promotion tb01
               INNER JOIN
@@ -562,6 +571,7 @@ and visit_status = ?''';
 			      , tb01.promotion_type
             , strftime('%d/%m/%Y', substr(tb01.start_date, 1, 10)) as start_date
             , strftime('%d/%m/%Y', substr(tb01.end_date, 1, 10)) as end_date
+            , tb01.remark
               FROM
                   m_promotion tb01
               INNER JOIN
@@ -584,6 +594,7 @@ and visit_status = ?''';
 			      , tb01.promotion_type
             , strftime('%d/%m/%Y', substr(tb01.start_date, 1, 10)) as start_date
             , strftime('%d/%m/%Y', substr(tb01.end_date, 1, 10)) as end_date
+            , tb01.remark
               FROM
                   m_promotion tb01
               INNER JOIN
@@ -606,6 +617,7 @@ and visit_status = ?''';
 			      , tb01.promotion_type
             , strftime('%d/%m/%Y', substr(tb01.start_date, 1, 10)) as start_date
             , strftime('%d/%m/%Y', substr(tb01.end_date, 1, 10)) as end_date
+            , tb01.remark
               FROM
                   m_promotion tb01
               INNER JOIN
@@ -1097,4 +1109,19 @@ where tb01.customer_id = ?''';
         inner join m_product mp on mb.brand_id = mp.brand_id
         where mb.status = ?
         order by mp.priority asc''';
+
+  // m_brand
+  static String SQL_BRAND_002 = '''SELECT
+        DISTINCT mb.brand_id, mb.brand_cd, mb.brand_name, mb.brand_img
+    FROM
+	w_stock_balance sb
+    inner join m_product mp on sb.product_id = mp.product_id
+    inner join m_brand mb on mb.brand_id = mp.brand_id
+    WHERE
+		date(sb.allocate_date) = date('now')
+		and sb.position_id = ?
+        and mp.is_salable = 1
+        and mp.status = ?
+		    and mb.status = ?
+    ORDER BY  sb.available_stock desc, mp.priority asc''';
 }

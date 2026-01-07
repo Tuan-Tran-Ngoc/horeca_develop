@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 
@@ -73,6 +74,7 @@ class ProductBody extends StatefulWidget {
 
 class _ProductBodyState extends State<ProductBody> {
   List<List<String>> rowDataProduct = [];
+  bool isReloadControl = false;
 
   Key dataTableKey = UniqueKey();
 
@@ -159,8 +161,7 @@ class _ProductBodyState extends State<ProductBody> {
         result.add(product.productName ?? '');
         result.add(product.typeName ?? '');
         result.add(product.uomName ?? '');
-        result.add(
-            NumberFormat.currency(locale: 'vi').format(product.priceCustomer));
+        result.add(CommonUtils.displayCurrency(product.priceCustomer));
         result.add(NumberFormat.decimalPattern().format(product.quantity));
         return result;
       }).toList();
@@ -180,6 +181,10 @@ class _ProductBodyState extends State<ProductBody> {
     return BlocConsumer<ProductCubit, ProductState>(
       listener: (context, state) {
         if (state is StartVisitSuccess) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
           //isStartVisit = state.isStartVisit;
           customerVisitId = state.customerVisitId;
           typeController.text = chooseAddress!;
@@ -194,6 +199,10 @@ class _ProductBodyState extends State<ProductBody> {
             CommonUtils.logout();
             GoRouter.of(context).go('/');
           }
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
           Fluttertoast.showToast(
             msg: CommonUtils.firstLetterUpperCase(state.error.toString()),
             toastLength: Toast.LENGTH_SHORT,
@@ -205,10 +214,11 @@ class _ProductBodyState extends State<ProductBody> {
         }
 
         if (state is RevisitSuccess) {
-          // widget.statusVisit = state.statusVisit;
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
 
-          // widget.onResultCustomerVisitId(
-          //     customerVisitId ?? 0, widget.statusVisit);
           customerVisitId = state.customerVisitId;
           widget.statusVisit = Constant.visiting;
           widget.onResultCustomerVisitId(state.customerVisitId,
@@ -226,6 +236,11 @@ class _ProductBodyState extends State<ProductBody> {
         }
 
         if (state is RevisitFail) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
           Fluttertoast.showToast(
             msg: CommonUtils.firstLetterUpperCase(state.error.toString()),
             toastLength: Toast.LENGTH_SHORT,
@@ -237,6 +252,11 @@ class _ProductBodyState extends State<ProductBody> {
         }
 
         if (state is SaveCustomerPriceSuccess) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
           Fluttertoast.showToast(
             // msg: 'Xác nhận tồn kho thành công',
             msg: CommonUtils.firstLetterUpperCase(state.msg),
@@ -249,6 +269,11 @@ class _ProductBodyState extends State<ProductBody> {
         }
 
         if (state is SaveCustomerPriceFail) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
           Fluttertoast.showToast(
             msg: CommonUtils.firstLetterUpperCase(state.error.toString()),
             toastLength: Toast.LENGTH_SHORT,
@@ -258,8 +283,6 @@ class _ProductBodyState extends State<ProductBody> {
             fontSize: 14.0,
           );
         }
-
-        if (state is ClickConfirmStockCustomer) {}
 
         if (state is EventChangeAddress) {}
 
@@ -276,6 +299,23 @@ class _ProductBodyState extends State<ProductBody> {
         }
       },
       builder: (context, state) {
+        if (state is ReloadControl) {
+          isReloadControl = true;
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            showDialog(
+              context: context,
+              barrierDismissible:
+                  false, // prevent user from dismissing the dialog
+              builder: (BuildContext context) {
+                return const SpinKitCircle(
+                  color: Colors.blue,
+                  size: 50.0,
+                );
+              },
+            );
+          });
+        }
+
         if (state is ProductInitialSuccess) {
           isLoadingScreen = false;
           lstCustomerStock = state.listCustomerStock;
@@ -301,10 +341,6 @@ class _ProductBodyState extends State<ProductBody> {
           isDTC = state.isDTC;
         }
         if (state is ModifyProductSucess) {}
-
-        if (state is ClickStartVisit) {}
-
-        if (state is ClickRevisitSuccess) {}
 
         return SizedBox(
           width: width,
@@ -547,10 +583,25 @@ class _ProductBodyState extends State<ProductBody> {
                                   width: width / 3,
                                   title: CommonUtils.firstLetterUpperCase(
                                       multiLang.revisit),
-                                  onPress: () {
-                                    context.read<ProductCubit>().revisit(
-                                        widget.customerId,
-                                        customerVisitId ?? 0);
+                                  onPress: () async {
+                                    if (!(await CommonUtils
+                                        .checkShiftForToday())) {
+                                      Fluttertoast.showToast(
+                                        msg: CommonUtils.firstLetterUpperCase(
+                                            multiLang.mandatoryFinishShift),
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        timeInSecForIosWeb:
+                                            Constant.SHOW_TOAST_TIME,
+                                        backgroundColor: AppColor.errorColor,
+                                        textColor: Colors.white,
+                                        fontSize: 14.0,
+                                      );
+                                    } else {
+                                      if (!mounted) return;
+                                      context.read<ProductCubit>().revisit(
+                                          widget.customerId,
+                                          customerVisitId ?? 0);
+                                    }
                                   },
                                 ),
                               ),
@@ -572,8 +623,24 @@ class _ProductBodyState extends State<ProductBody> {
                                   backgroundColor: AppColor.mainAppColor,
                                   height: 55,
                                   title: multiLang.cancelVisit,
-                                  onPress: () {
-                                    if (addressChoose != null) {
+                                  onPress: () async {
+                                    if (!(await CommonUtils
+                                        .checkShiftForToday())) {
+                                      Fluttertoast.showToast(
+                                        msg: CommonUtils.firstLetterUpperCase(
+                                            multiLang.mandatoryFinishShift),
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        timeInSecForIosWeb:
+                                            Constant.SHOW_TOAST_TIME,
+                                        backgroundColor: AppColor.errorColor,
+                                        textColor: Colors.white,
+                                        fontSize: 14.0,
+                                      );
+                                    } else if (addressChoose != null &&
+                                        addressChoose?.customerAddressId !=
+                                            null &&
+                                        addressChoose?.customerAddressId != 0) {
+                                      if (!mounted) return;
                                       showDialog(
                                           barrierDismissible: false,
                                           context: context,
@@ -622,9 +689,22 @@ class _ProductBodyState extends State<ProductBody> {
                                   backgroundColor: AppColor.mainAppColor,
                                   height: 55,
                                   title: multiLang.startVisit,
-                                  onPress: () {
-                                    if (addressChoose != null &&
+                                  onPress: () async {
+                                    if (!(await CommonUtils
+                                        .checkShiftForToday())) {
+                                      Fluttertoast.showToast(
+                                        msg: CommonUtils.firstLetterUpperCase(
+                                            multiLang.mandatoryFinishShift),
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        timeInSecForIosWeb:
+                                            Constant.SHOW_TOAST_TIME,
+                                        backgroundColor: AppColor.errorColor,
+                                        textColor: Colors.white,
+                                        fontSize: 14.0,
+                                      );
+                                    } else if (addressChoose != null &&
                                         addressChoose?.customerAddressId != 0) {
+                                      if (!mounted) return;
                                       context.read<ProductCubit>().startVisit(
                                           widget.routeId,
                                           widget.customerId,
@@ -669,25 +749,41 @@ class _ProductBodyState extends State<ProductBody> {
                                   backgroundColor: AppColor.mainAppColor,
                                   height: 55,
                                   title: multiLang.addNew,
-                                  onPress: () {
-                                    showDialog(
-                                        barrierDismissible: false,
-                                        context: context,
-                                        builder: (context) {
-                                          return ProductPopup(
-                                            width: width,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.9,
-                                            customerId: widget.customerId,
-                                            isCheckStock: true,
-                                            availableProduct: lstCustomerStock,
-                                            onResultProduct: (result) {
-                                              updateCustomerStock(result);
-                                            },
-                                          );
-                                        });
+                                  onPress: () async {
+                                    if (!(await CommonUtils
+                                        .checkShiftForToday())) {
+                                      Fluttertoast.showToast(
+                                        msg: CommonUtils.firstLetterUpperCase(
+                                            multiLang.mandatoryFinishShift),
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        timeInSecForIosWeb:
+                                            Constant.SHOW_TOAST_TIME,
+                                        backgroundColor: AppColor.errorColor,
+                                        textColor: Colors.white,
+                                        fontSize: 14.0,
+                                      );
+                                    } else {
+                                      if (!mounted) return;
+                                      showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder: (context) {
+                                            return ProductPopup(
+                                              width: width,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.9,
+                                              customerId: widget.customerId,
+                                              isCheckStock: true,
+                                              availableProduct:
+                                                  lstCustomerStock,
+                                              onResultProduct: (result) {
+                                                updateCustomerStock(result);
+                                              },
+                                            );
+                                          });
+                                    }
                                   },
                                 ),
                               ),
@@ -702,11 +798,28 @@ class _ProductBodyState extends State<ProductBody> {
                                   backgroundColor: AppColor.mainAppColor,
                                   height: 55,
                                   title: multiLang.submit,
-                                  onPress: () {
-                                    context
-                                        .read<ProductCubit>()
-                                        .saveCustomerStock(lstCustomerStock,
-                                            widget.customerId, customerVisitId);
+                                  onPress: () async {
+                                    if (!(await CommonUtils
+                                        .checkShiftForToday())) {
+                                      Fluttertoast.showToast(
+                                        msg: CommonUtils.firstLetterUpperCase(
+                                            multiLang.mandatoryFinishShift),
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        timeInSecForIosWeb:
+                                            Constant.SHOW_TOAST_TIME,
+                                        backgroundColor: AppColor.errorColor,
+                                        textColor: Colors.white,
+                                        fontSize: 14.0,
+                                      );
+                                    } else {
+                                      if (!mounted) return;
+                                      context
+                                          .read<ProductCubit>()
+                                          .saveCustomerStock(
+                                              lstCustomerStock,
+                                              widget.customerId,
+                                              customerVisitId);
+                                    }
                                   },
                                 ),
                               ),

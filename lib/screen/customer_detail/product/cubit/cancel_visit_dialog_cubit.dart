@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:chopper/chopper.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:horeca/screen/customer_detail/product/cubit/cancel_visit_dialog_state.dart';
 import 'package:horeca/utils/call_api_utils.dart';
 import 'package:horeca/utils/common_utils.dart';
@@ -41,13 +41,16 @@ class CancelVisitDialogCubit extends Cubit<CancelVisitDialogState> {
 
   Future<void> cancelVisit(
       int routeId, int customerId, int customerAddressId, int reasonId) async {
-    emit(ClickCancelVisit());
+    emit(ReloadControl());
     AppLocalizations multiLang = AppLocalizations.of(context)!;
     prefs = await SharedPreferences.getInstance();
-    int? shiftReportId = prefs.getInt('shiftReportId');
-    int? baPositionId = prefs.getInt('baPositionId');
-    String? shiftCode = prefs.getString('shiftCode');
+    int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
+    String? shiftCode = prefs.getString(Session.shiftCode.toString());
     try {
+      if (!(await CommonUtils.checkShiftForToday())) {
+        throw multiLang.mandatoryFinishShift;
+      }
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
 
       print('path: $path');
@@ -65,26 +68,30 @@ class CancelVisitDialogCubit extends Cubit<CancelVisitDialogState> {
                 [multiLang.information, multiLang.employee].join(" ")),
             multiLang.loginAgain
           ].join(".\n");
-          throw  message;
+          throw message;
         }
+
+        if (customerAddressId == 0) {
+          // throw Exception('Vui lòng chọn địa chỉ viếng thăm');
+          message = multiLang.enter(multiLang.customerVisitAddress);
+          throw message;
+        }
+
         employInfo = lstEmployInfo[0];
 
         DateTime now = DateTime.now();
         String endTime = DateFormat(Constant.dateTimeFormatter).format(now);
         String startTime = endTime;
 
-        //get route id choose
-        // RouteAssignment? routeAss;
-        // List<RouteAssignment> lstRouteAss =
-        //     await routeAssignmentProvider.select(routeId, txn);
+        //get lat/long
+        LocationPermission permission = await Geolocator.checkPermission();
 
-        // if (lstRouteAss.isEmpty) {
-        //   throw Exception('Thông tin viếng thăm không tìm thấy');
-        // }
-        // routeAss = lstRouteAss[0];
-        // // get work date of this route
-        // DateTime workDate = getSpecificDayOfWeek(now, routeAss.dayOfWeek ?? 0);
-        // print('workDate $workDate');
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
 
         CustomerVisit customerVisit = CustomerVisit(
             shiftReportId: shiftReportId,
@@ -96,6 +103,8 @@ class CancelVisitDialogCubit extends Cubit<CancelVisitDialogState> {
             visitDate: startTime,
             startTime: startTime,
             shiftCode: shiftCode,
+            latitude: position.latitude,
+            longitude: position.longitude,
             createdBy: baPositionId,
             createdDate: startTime,
             updatedBy: baPositionId,
@@ -116,7 +125,7 @@ class CancelVisitDialogCubit extends Cubit<CancelVisitDialogState> {
             // throw Exception(
             // 'Thông tin ca làm việc chưa được đồng bộ, vui lòng đồng bộ ca làm việc');
             message = multiLang.syncNotYetAndDo(multiLang.shift);
-            throw  message;
+            throw message;
           }
           CallApiUtils<CustomerVisitResponse> sendRequest =
               CallApiUtils<CustomerVisitResponse>();
@@ -127,22 +136,17 @@ class CancelVisitDialogCubit extends Cubit<CancelVisitDialogState> {
               reasonId: reasonId,
               customerId: customerId,
               customerAddressId: customerAddressId,
+              latitude: position.latitude,
+              longitude: position.longitude,
               visitDate: startTime,
               startTime: startTime,
               endTime: startTime);
           String requestBodyJson = jsonEncode(requestBody);
-          // try {
-          // await sendRequest.sendRequestAPI(APIs.cancel, requestBodyJson);
           APIResponseEntity<CustomerVisitResponse> response =
               await sendRequest.callApiPostMethod(
                   APIs.cancel, requestBodyJson, CustomerVisitResponse.fromJson);
           customerVisit.customerVisitIdSync = response.data?.customerVisitId;
           await customerVisitProvider.updateSyncId(customerVisit, txn);
-          // emit(CancelVisitSuccessfully());
-          // } catch (error) {
-          //   print(error.toString());
-          //   rethrow;
-          // }
         }
         if (connect == ConnectivityResult.none) {
           SyncOffline syncOffline = SyncOffline(
@@ -155,7 +159,6 @@ class CancelVisitDialogCubit extends Cubit<CancelVisitDialogState> {
         }
       });
       message = [multiLang.cancelVisit, multiLang.success].join(" ");
-      print('message cancel $message');
       emit(CancelVisitSuccessfully(message));
     } catch (error) {
       emit(CancelVisitFailed(error));

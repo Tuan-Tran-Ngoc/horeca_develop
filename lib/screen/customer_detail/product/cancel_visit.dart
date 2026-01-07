@@ -1,6 +1,7 @@
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:horeca/contants/contants.dart';
 import 'package:horeca/screen/customer/customer.dart';
@@ -76,6 +77,7 @@ class _CancelVisitDialogBodyState extends State<CancelVisitDialogBody> {
   // String selectedValue = '';
   List<int> items = [];
   int selectedValue = -1;
+  bool isReloadControl = false;
   @override
   Widget build(BuildContext context) {
     void updateReasonCancel(int? value) {
@@ -219,6 +221,10 @@ class _CancelVisitDialogBodyState extends State<CancelVisitDialogBody> {
           selectedValue = items.first;
         }
         if (state is CancelVisitSuccessfully) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Fluttertoast.showToast(
               // msg: "Hủy viếng thăm thành công.",
@@ -237,6 +243,10 @@ class _CancelVisitDialogBodyState extends State<CancelVisitDialogBody> {
           });
         }
         if (state is CancelVisitFailed) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Fluttertoast.showToast(
               msg: CommonUtils.firstLetterUpperCase(state.error.toString()),
@@ -248,10 +258,24 @@ class _CancelVisitDialogBodyState extends State<CancelVisitDialogBody> {
             );
           });
         }
-
-        if (state is ClickCancelVisit) {}
       },
       builder: (context, state) {
+        if (state is ReloadControl) {
+          isReloadControl = true;
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            showDialog(
+              context: context,
+              barrierDismissible:
+                  false, // prevent user from dismissing the dialog
+              builder: (BuildContext context) {
+                return const SpinKitCircle(
+                  color: Colors.blue,
+                  size: 50.0,
+                );
+              },
+            );
+          });
+        }
         return Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),

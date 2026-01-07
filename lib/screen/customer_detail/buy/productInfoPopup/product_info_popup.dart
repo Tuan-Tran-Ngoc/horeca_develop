@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca_service/sqflite_database/dto/product_dto.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -67,8 +68,7 @@ class _ProductPopupState extends State<ProductInfoPopup> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('${multiLang.price}:'),
-                  Text(NumberFormat.currency(locale: 'vi')
-                      .format(widget.product.salesPrice ?? 0))
+                  Text(CommonUtils.displayCurrency(widget.product.salesPrice))
                 ],
               ),
               const SizedBox(height: 10),

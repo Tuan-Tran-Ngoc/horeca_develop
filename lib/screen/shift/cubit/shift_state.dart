@@ -39,4 +39,4 @@ final class EndShiftFailed extends ShiftState {
   EndShiftFailed(this.error);
 }
 
-final class ClickEndShiftState extends ShiftState {}
+class ReloadControl extends ShiftState {}

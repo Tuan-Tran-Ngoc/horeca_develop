@@ -36,7 +36,7 @@ class SettingCubit extends Cubit<SettingState> {
     //emit(LoadingInit(lstDataSynchornize))
     prefs = await SharedPreferences.getInstance();
 
-    String? userName = prefs.getString('username');
+    String? userName = prefs.getString(Session.username.toString());
     String? serverName = Network.url;
     String? indApp = await UniqueIdentifier.serial;
     List<String> lstLayoutType = [AppLocalizations.of(context)!.defaultSetting];
@@ -78,7 +78,7 @@ class SettingCubit extends Cubit<SettingState> {
       } else if (connect == ConnectivityResult.mobile ||
           connect == ConnectivityResult.wifi) {
         prefs = await SharedPreferences.getInstance();
-        String? userName = prefs.getString('username');
+        String? userName = prefs.getString(Session.username.toString());
         List<Account> lstAccount =
             await accountProvider.getAccountByUsername(userName!);
         if (lstAccount.isEmpty) {
@@ -145,7 +145,7 @@ class SettingCubit extends Cubit<SettingState> {
     Locale newLocale;
     AppLocalizations multiLang = AppLocalizations.of(context)!;
     prefs = await SharedPreferences.getInstance();
-    prefs.setString('languageCode', languageCode);
+    prefs.setString(Session.languageCode.toString(), languageCode);
     if (languageCode == 'vi') {
       newLocale = const Locale('vi', 'VN');
     } else {
