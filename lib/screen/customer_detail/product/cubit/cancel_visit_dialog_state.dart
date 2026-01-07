@@ -23,7 +23,7 @@ final class CancelVisitSuccessfully extends CancelVisitDialogState {
   CancelVisitSuccessfully(this.msg);
 }
 
-final class ClickCancelVisit extends CancelVisitDialogState {}
+final class ReloadControl extends CancelVisitDialogState {}
 
 final class CancelVisitFailed extends CancelVisitDialogState {
   dynamic error;

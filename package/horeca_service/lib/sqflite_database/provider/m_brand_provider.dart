@@ -59,19 +59,14 @@ class BrandProvider {
     return null;
   }
 
-  Future<List<Brand>> getBrandByStatus(String status) async {
+  Future<List<Brand>> getBrandByStatus(String status, int baPositionId) async {
     List<Brand> lstBrand = [];
     database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
-    // List<Map> maps = await database.query(tableBrand,
-    //     columns: [
-    //       columnBrandId,
-    //       columnBrandCd,
-    //       columnBrandName,
-    //       columnBrandImg
-    //     ],
-    //     where: '$columnStatus = ?',
-    //     whereArgs: [status]);
-    List<Map> maps = await database.rawQuery(SQLQuery.SQL_BRAND_001, [status]);
+    List<dynamic>? arg = [];
+    arg.add(baPositionId);
+    arg.add(status);
+    arg.add(status);
+    List<Map> maps = await database.rawQuery(SQLQuery.SQL_BRAND_002, arg);
     if (maps.isNotEmpty) {
       for (final item in maps) {
         lstBrand.add(Brand.fromMap(item));

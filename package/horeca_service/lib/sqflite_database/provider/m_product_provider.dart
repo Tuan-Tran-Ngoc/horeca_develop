@@ -82,7 +82,8 @@ class ProductProvider {
     return [];
   }
 
-  Future<List<ProductDto>> getAllInfoProduct(int customerId) async {
+  Future<List<ProductDto>> getAllInfoProduct(
+      int customerId, int baPositionId) async {
     database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
     List<ProductDto> results = [];
     List<int>? arg = [];
@@ -90,6 +91,7 @@ class ProductProvider {
     arg.add(customerId);
     arg.add(customerId);
     arg.add(customerId);
+    arg.add(baPositionId);
 
     List<Map> resultDBs = await database.rawQuery(SQLQuery.SQL_PRD_001, arg);
 

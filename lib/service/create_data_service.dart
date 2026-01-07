@@ -5,6 +5,7 @@ import 'package:archive/archive.dart';
 import 'package:horeca/service/initial_data_service.dart';
 import 'package:horeca/utils/call_api_utils.dart';
 import 'package:horeca/utils/code_list_utils.dart';
+import 'package:horeca/utils/constants.dart';
 import 'package:horeca/utils/message_utils.dart';
 import 'package:horeca_service/contants/network.dart';
 import 'package:horeca_service/model/request/update_latest_request.dart';
@@ -26,7 +27,8 @@ class CreateDataService {
       CallApiUtils<InitDataResponse> callApiUtils = CallApiUtils();
       Map<String, dynamic> queryParams = {};
       prefs = await SharedPreferences.getInstance();
-      queryParams['baPositionId'] = prefs.getInt('baPositionId').toString();
+      queryParams['baPositionId'] =
+          prefs.getInt(Session.baPositionId.toString()).toString();
       APIResponseEntity<InitDataResponse> getInitResponse = APIResponseEntity();
       getInitResponse = await callApiUtils.callApiGetMethod(
           APIs.getInitData, queryParams, InitDataResponse.fromJson);
@@ -44,7 +46,8 @@ class CreateDataService {
                         .initData(response.dateCreateFile ?? '');
 
                     prefs = await SharedPreferences.getInstance();
-                    String username = prefs.getString('username') ?? '';
+                    String username =
+                        prefs.getString(Session.username.toString()) ?? '';
                     //copy file
                     final Directory tempDir = await getTemporaryDirectory();
                     final String tempPathMaster = '${tempDir.path}/masterdata';
@@ -64,7 +67,8 @@ class CreateDataService {
                     MappingErrorObject errorLog = MappingErrorObject(
                         objectFail: 'initialData', log: err.toString());
                     UpdateLatestRequest requestLastest = UpdateLatestRequest(
-                        positionId: prefs.getInt('baPositionId'),
+                        positionId:
+                            prefs.getInt(Session.baPositionId.toString()),
                         imei: imeiDevice,
                         updateDate: response.dateCreateFile,
                         updateStatus: '01',
@@ -91,7 +95,7 @@ class CreateDataService {
 
   Future<void> downloadUnzip(String masterUrlFile, String type) async {
     final headers = <String, String>{
-      'Authorization': 'Bearer ${prefs.getString('token')}',
+      'Authorization': 'Bearer ${prefs.getString(Session.token.toString())}',
       // Add other headers as needed
     };
     final getDownloadResponse = await http.get(

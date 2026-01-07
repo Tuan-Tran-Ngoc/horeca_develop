@@ -66,6 +66,8 @@ class DataDeleteProvide {
     'm_sales_in_price_target',
     'm_customers_group',
     'm_customers_group_detail',
+    's_sap_order',
+    's_sap_order_dtl',
     's_sap_order_delivery',
     'm_product_branch_mapping'
   ];

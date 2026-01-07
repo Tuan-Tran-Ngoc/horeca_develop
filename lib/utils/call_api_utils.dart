@@ -16,7 +16,7 @@ class CallApiUtils<T> {
     APIResponseEntity<T> result = APIResponseEntity();
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
+      String? token = prefs.getString(Session.token.toString());
       String uri = Network.url + pathApi;
 
       final response = await http
@@ -61,7 +61,7 @@ class CallApiUtils<T> {
     try {
       print('jsonBodyRequest $jsonBodyRequest');
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
+      String? token = prefs.getString(Session.token.toString());
       String url = Network.url + path;
       final response = await http
           .post(Uri.parse(url),
@@ -86,10 +86,6 @@ class CallApiUtils<T> {
           // throw result.error!;
           throw mess;
         } else {
-          // String new_access_token =
-          //     await refreshAccessToken(prefs.get('refresh_token'));
-          // prefs.setString('token', new_access_token);
-          // return await sendRequestAPI(path, jsonBodyRequest);
           throw MessageUtils.getMessages(code: Constant.SESSION_LOGIN_EXPIRED);
         }
       }
@@ -103,7 +99,7 @@ class CallApiUtils<T> {
   Future<String> refreshAccessToken(dynamic refreshToken) async {
     SharedPreferences prefs;
     prefs = await SharedPreferences.getInstance();
-    if (prefs.get('refresh_token') == null) {
+    if (prefs.get(Session.refreshToken.toString()) == null) {
       throw MessageUtils.getMessages(code: Constant.SESSION_LOGIN_EXPIRED);
     }
     String url =
@@ -156,7 +152,7 @@ class CallApiUtils<T> {
     APIResponseEntity<T> result = APIResponseEntity();
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
+      String? token = prefs.getString(Session.token.toString());
       String uri = Network.url + pathApi;
 
       // Append query parameters to the URL

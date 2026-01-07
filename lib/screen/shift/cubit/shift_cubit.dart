@@ -8,6 +8,7 @@ import 'package:horeca/language_setting.dart';
 import 'package:horeca/service/sync_service.dart';
 import 'package:horeca/utils/call_api_utils.dart';
 import 'package:horeca/utils/code_list_utils.dart';
+import 'package:horeca/utils/common_utils.dart';
 import 'package:horeca/utils/constants.dart';
 import 'package:horeca/utils/message_utils.dart';
 import 'package:horeca_service/horeca_service.dart';
@@ -43,8 +44,8 @@ class ShiftCubit extends Cubit<ShiftState> {
 
     prefs = await SharedPreferences.getInstance();
 
-    var shiftReportId = prefs.getInt('shiftReportId');
-    var baPositionId = prefs.getInt('baPositionId');
+    var shiftReportId = prefs.getInt(Session.shiftReportId.toString());
+    var baPositionId = prefs.getInt(Session.baPositionId.toString());
     final listOrderInCurrentShift =
         await shiftReportProvider.getListOrderInCurrentShift(shiftReportId);
     // print('list order in current shift $listOrderInCurrentShift');
@@ -58,8 +59,7 @@ class ShiftCubit extends Cubit<ShiftState> {
       result.add(data.orderCd.toString());
       result.add(data.customerName.toString());
       result.add(data.fullAddress.toString());
-      result.add(NumberFormat.currency(locale: 'vi')
-          .format(data.grandTotalAmount ?? 0));
+      result.add(CommonUtils.displayCurrency(data.grandTotalAmount ?? 0));
       result.add(
           CodeListUtils.getMessage(Constant.clHorecaSts, data.horecaStatus) ??
               '');
@@ -80,8 +80,7 @@ class ShiftCubit extends Cubit<ShiftState> {
       result.add(data.productName.toString());
 
       result.add(NumberFormat.decimalPattern().format(data.quantity));
-      result.add(
-          NumberFormat.currency(locale: 'vi').format(data.totalAmount ?? 0));
+      result.add(CommonUtils.displayCurrency(data.totalAmount ?? 0));
       return result;
     }).toList();
     var shiftReport = await shiftReportProvider.getReport(shiftReportId, null);
@@ -108,6 +107,7 @@ class ShiftCubit extends Cubit<ShiftState> {
   }
 
   Future<void> endShift(ShiftReport? shiftReport) async {
+    emit(ReloadControl());
     AppLocalizations multiLang = AppLocalizations.of(context)!;
     try {
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
@@ -116,10 +116,9 @@ class ShiftCubit extends Cubit<ShiftState> {
 
         DateTime now = DateTime.now();
         String endTime = DateFormat(Constant.dateTimeFormatter).format(now);
-        // var baPositionId = prefs.getInt('baPositionId');
         prefs = await SharedPreferences.getInstance();
 
-        var baPositionId = prefs.getInt('baPositionId');
+        var baPositionId = prefs.getInt(Session.baPositionId.toString());
 
         // check sync data
         if (await syncService.checkSyncCurrent(
@@ -136,14 +135,6 @@ class ShiftCubit extends Cubit<ShiftState> {
           }
 
           ShiftReport newData = shiftReport;
-          // List<ShiftVisitDto> lstCustomerVisit = await customerVisitProvider
-          //     .getPlanCustomerVisit(newData.shiftReportId, txn);
-          // bool allVisitCheckout =
-          //     lstCustomerVisit.every((element) => element.endTime != null);
-          // if (!allVisitCheckout) {
-          //   throw Exception(
-          //       "Kết thúc ca thất bại, vui lòng hoàn thành viếng thăm");
-          // }
           newData.endTime = endTime;
           await shiftReportProvider.updateEndTime(newData, txn);
           if (connect == ConnectivityResult.wifi ||
@@ -158,19 +149,7 @@ class ShiftCubit extends Cubit<ShiftState> {
             String requestBodyJson = jsonEncode(requestBody);
             APIResponseHeader response = await sendRequest.sendRequestAPI(
                 APIs.endShift, requestBodyJson);
-
-            // if (response.error != null) {
-            //   throw Exception(response.error?.code);
-            // }
-            // emit(EndShiftSucces(message));
           } else if (connect == ConnectivityResult.none) {
-            // List<CustomerVisit>? lstVisiting = await customerVisitProvider
-            //     .getCustomerVisitByShiftReport(newData.shiftReportId ?? 0, txn);
-            // if (lstVisiting!.isNotEmpty) {
-            //   message =
-            //       MessageUtils.getMessages(code: 'err.ws.shiftreport.0008');
-            //   throw message;
-            // }
             SyncOffline syncOffline = SyncOffline(
                 positionId: newData.baPositionId!,
                 type: SyncType.endShift.toString(),
@@ -190,9 +169,5 @@ class ShiftCubit extends Cubit<ShiftState> {
       // MessageUtils.getMessages(code: e.code);
       emit(EndShiftFailed(error.toString()));
     }
-  }
-
-  Future<void> clickButtonChangeState() async {
-    emit(ClickEndShiftState());
   }
 }

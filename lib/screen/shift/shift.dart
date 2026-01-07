@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:horeca/contants/contants.dart';
@@ -45,6 +46,7 @@ class _ShiftBodyState extends State<ShiftBody> {
   final DatatableController _datatableOrderController = DatatableController(-1);
   ShiftReport? shiftReport;
   ShiftReportHeaderDTO? shiftReportHeader;
+  bool isReloadControl = false;
 
   @override
   void initState() {
@@ -89,6 +91,11 @@ class _ShiftBodyState extends State<ShiftBody> {
     return BlocConsumer<ShiftCubit, ShiftState>(
       listener: (context, state) {
         if (state is EndShiftSucces) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
           String messageTemp = [multiLang.endShift, multiLang.failed].join(" ");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Fluttertoast.showToast(
@@ -104,6 +111,11 @@ class _ShiftBodyState extends State<ShiftBody> {
           });
         }
         if (state is EndShiftFailed) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
           String messageTemp = [multiLang.endShift, multiLang.failed].join(" ");
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Fluttertoast.showToast(
@@ -119,6 +131,23 @@ class _ShiftBodyState extends State<ShiftBody> {
         }
       },
       builder: (context, state) {
+        if (state is ReloadControl) {
+          isReloadControl = true;
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            showDialog(
+              context: context,
+              barrierDismissible:
+                  false, // prevent user from dismissing the dialog
+              builder: (BuildContext context) {
+                return const SpinKitCircle(
+                  color: Colors.blue,
+                  size: 50.0,
+                );
+              },
+            );
+          });
+        }
+
         if (state is ShiftInitSuccess) {
           lstOrder = state.listOrderInShift;
           rowDataOrders = state.rowDataOrders;
@@ -229,7 +258,6 @@ class ButtonEndShift extends StatelessWidget {
             height: Contants.heightButton,
             title: multiLang.finishShift,
             onPress: () {
-              context.read<ShiftCubit>().clickButtonChangeState();
               context.read<ShiftCubit>().endShift(shiftReport);
             },
           ),
@@ -336,8 +364,8 @@ class InformationView extends StatelessWidget {
           title1: multiLang.totalProductPurchase,
           title2: multiLang.totalOrderAmount,
           value1: shiftReportHeader?.totalProductQuantity.toString() ?? '',
-          value2: NumberFormat.currency(locale: 'vi')
-              .format(shiftReportHeader?.totalOrderAmount ?? 0),
+          value2: CommonUtils.formatCurrency(
+              shiftReportHeader?.totalOrderAmount ?? 0),
         ),
       ]),
     );

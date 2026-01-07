@@ -22,8 +22,8 @@ class CustomerCubit extends Cubit<CustomerState> {
   Future<void> init() async {
     prefs = await SharedPreferences.getInstance();
     // get info shift from global var
-    int? shiftReportId = prefs.getInt('shiftReportId');
-    String? shiftCode = prefs.getString('shiftCode');
+    int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
+    String? shiftCode = prefs.getString(Session.shiftCode.toString());
     AppLocalizations multiLang = AppLocalizations.of(context)!;
     print('Shift report id $shiftReportId');
     //get shift report inffo
@@ -86,8 +86,8 @@ class CustomerCubit extends Cubit<CustomerState> {
     emit(StartReload());
     prefs = await SharedPreferences.getInstance();
     // get info shift from global var
-    int? shiftReportId = prefs.getInt('shiftReportId');
-    String? shiftCode = prefs.getString('shiftCode');
+    int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
+    String? shiftCode = prefs.getString(Session.shiftCode.toString());
     print('Shift report id $shiftReportId');
     //get shift report inffo
     List<ShiftReport> lstShiftReport =
@@ -141,7 +141,7 @@ class CustomerCubit extends Cubit<CustomerState> {
     emit(StartSearchRouteAssign());
     prefs = await SharedPreferences.getInstance();
     // get info shift from global var
-    int? shiftReportId = prefs.getInt('shiftReportId');
+    int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
     print('Shift report id $shiftReportId');
 
     lstIndDay = lstIndDay.map((e) => (e + 2) % 7).toList();

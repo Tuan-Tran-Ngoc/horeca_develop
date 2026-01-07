@@ -18,6 +18,8 @@ CustomerVisitCancelRequest _$CustomerVisitCancelRequestFromJson(
       visitDate: json['visitDate'] as String,
       startTime: json['startTime'] as String,
       endTime: json['endTime'] as String,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$CustomerVisitCancelRequestToJson(
@@ -32,4 +34,6 @@ Map<String, dynamic> _$CustomerVisitCancelRequestToJson(
       'shiftCode': instance.shiftCode,
       'startTime': instance.startTime,
       'endTime': instance.endTime,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
     };

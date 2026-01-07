@@ -21,7 +21,7 @@ class StoreCubit extends Cubit<StoreState> {
     // await providerUtils.updateStockBalanceData();
     // await providerUtils.clearDataRevisit(2);
     prefs = await SharedPreferences.getInstance();
-    int? positionId = prefs.getInt('baPositionId');
+    int? positionId = prefs.getInt(Session.baPositionId.toString());
     String now =
         DateFormat(Constant.dateFormatterYYYYMMDD).format(DateTime.now());
     List<ProductStock> lstProductStock =

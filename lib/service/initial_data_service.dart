@@ -100,7 +100,7 @@ class InitialDataService {
   Future<void> createTable() async {
     DatabaseProvider db = DatabaseProvider();
     prefs = await SharedPreferences.getInstance();
-    String username = prefs.getString('username') ?? '';
+    String username = prefs.getString(Session.username.toString()) ?? '';
     var path = await db.createDatabase(username);
     DatabaseProvider.pathDb = path;
 
@@ -459,7 +459,7 @@ class InitialDataService {
       await insertAll<SapOrder>(
           filePath, (json) => SapOrder.fromJson(json), sapOrderProvider, batch);
 
-      //sap_order
+      //sap_order_dtl
       filePath = tempPathSalesman + DefTableConstant.JSON_SAP_ORDER_DTL;
       await insertAll<SapOrderDtl>(filePath,
           (json) => SapOrderDtl.fromJson(json), sapOrderDtlProvider, batch);
@@ -532,11 +532,11 @@ class InitialDataService {
 
       //w_transfer_update_log
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      int? baPositionId = prefs.getInt('baPositionId');
+      int? baPositionId = prefs.getInt(Session.baPositionId.toString());
       String nowTime =
           DateFormat(Constant.dateTimeFormatter).format(DateTime.now());
       TransferUpdateLog transferUpdateLog = TransferUpdateLog(
-          baPositionId: prefs.getInt('baPositionId'),
+          baPositionId: prefs.getInt(Session.baPositionId.toString()),
           dateLastestUpdate: dateCreateFile,
           status: '01',
           createdBy: baPositionId,

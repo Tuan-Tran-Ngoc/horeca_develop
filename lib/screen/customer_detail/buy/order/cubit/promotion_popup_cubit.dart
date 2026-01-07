@@ -241,84 +241,66 @@ class PromotionPopupCubit extends Cubit<PromotionPopupState> {
     emit(EventApplyAllPromotionSuccess(lstPromotion));
   }
 
-  Future<void> warningProductAvailable(
-      int customerId,
-      List<SchemePromotionDto> lstPromotion,
-      List<ProductDto> lstProduct) async {
+  Future<void> warningProductAvailable(int customerId,
+      List<PromotionDto> lstPromotion, List<ProductDto> lstProduct) async {
     emit(ClickBtnSelectStart());
-    List<ProductDto> lstproductAvailable = await productAvailabelForPromotion(
+
+    String result = await promotionService.notifyProductAvailable(
         customerId, lstPromotion, lstProduct);
-
-    String result = '';
-    List<dynamic> params = [];
-    for (ProductDto productAvailable in lstproductAvailable) {
-      if (params.isNotEmpty) {
-        params.add(',');
-      }
-      params.add(
-          NumberFormat.decimalPattern().format(productAvailable.quantity ?? 0));
-      params.add(productAvailable.productName);
-    }
-
-    if (params.isNotEmpty) {
-      params.add('chưa được áp dụng khuyên mãi.');
-    }
-
-    result = params.join(' ');
 
     emit(ClickBtnSelectSuccess(result));
   }
 
-  Future<List<ProductDto>> productAvailabelForPromotion(
-      int customerId,
-      List<SchemePromotionDto> lstPromotion,
-      List<ProductDto> lstProduct) async {
-    // List<PromotionResultOrderDto> lstPromotionCanApply =
-    //     await orderService.applyPromotionOrder(customerId, lstProduct, txn);
-    List<ProductDto> results = [];
-    //get product Apply
-    List<ProductPromotionDto> lstProductApply = [];
-    for (SchemePromotionDto promotion in lstPromotion) {
-      for (ProductPromotionDto productApply
-          in (promotion.lstProductApply ?? [])) {
-        ProductPromotionDto copiedProductApply = ProductPromotionDto(
-            productId: productApply.productId,
-            productName: productApply.productName,
-            totalQuatity: productApply.totalQuatity,
-            totalAmount: productApply.totalAmount);
-        if (!lstProductApply.any(
-            (element) => element.productId == copiedProductApply.productId)) {
-          lstProductApply.add(copiedProductApply);
-        } else {
-          int index = lstProductApply.indexWhere(
-              (element) => element.productId == copiedProductApply.productId);
+  // Future<List<ProductDto>> productAvailabelForPromotion(
+  //     int customerId,
+  //     List<SchemePromotionDto> lstPromotion,
+  //     List<ProductDto> lstProduct) async {
+  //   // List<PromotionResultOrderDto> lstPromotionCanApply =
+  //   //     await orderService.applyPromotionOrder(customerId, lstProduct, txn);
+  //   List<ProductDto> results = [];
+  //   //get product Apply
+  //   List<ProductPromotionDto> lstProductApply = [];
+  //   for (SchemePromotionDto promotion in lstPromotion) {
+  //     for (ProductPromotionDto productApply
+  //         in (promotion.lstProductApply ?? [])) {
+  //       ProductPromotionDto copiedProductApply = ProductPromotionDto(
+  //           productId: productApply.productId,
+  //           productName: productApply.productName,
+  //           totalQuatity: productApply.totalQuatity,
+  //           totalAmount: productApply.totalAmount);
+  //       if (!lstProductApply.any(
+  //           (element) => element.productId == copiedProductApply.productId)) {
+  //         lstProductApply.add(copiedProductApply);
+  //       } else {
+  //         int index = lstProductApply.indexWhere(
+  //             (element) => element.productId == copiedProductApply.productId);
 
-          lstProductApply[index].totalQuatity =
-              (lstProductApply[index].totalQuatity ?? 0) +
-                  (copiedProductApply.totalQuatity ?? 0);
-        }
-      }
-    }
+  //         lstProductApply[index].totalQuatity =
+  //             (lstProductApply[index].totalQuatity ?? 0) +
+  //                 (copiedProductApply.totalQuatity ?? 0);
+  //       }
+  //     }
+  //   }
 
-    for (ProductPromotionDto productApply in lstProductApply) {
-      if (lstProduct
-          .any((element) => element.productId == productApply.productId)) {
-        int index = lstProduct.indexWhere(
-            (element) => element.productId == productApply.productId);
-        if (((lstProduct[index].quantity ?? 0) -
-                (productApply.totalQuatity ?? 0)) !=
-            0) {
-          ProductDto result = ProductDto(
-              productName: lstProduct[index].productName,
-              quantity: (lstProduct[index].quantity ?? 0) -
-                  (productApply.totalQuatity ?? 0));
+  //   for (ProductPromotionDto productApply in lstProductApply) {
+  //     if (lstProduct
+  //         .any((element) => element.productId == productApply.productId)) {
+  //       int index = lstProduct.indexWhere(
+  //           (element) => element.productId == productApply.productId);
+  //       if (((lstProduct[index].quantity ?? 0) -
+  //               (productApply.totalQuatity ?? 0)) !=
+  //           0) {
+  //         ProductDto result = ProductDto(
+  //             productName: lstProduct[index].productName,
+  //             quantity: (lstProduct[index].quantity ?? 0) -
+  //                 (productApply.totalQuatity ?? 0));
 
-          results.add(result);
-          break;
-        }
-      }
-    }
+  //         results.add(result);
+  //         break;
+  //       }
+  //     }
+  //   }
 
-    return results;
-  }
+  //   return results;
+  // }
 }

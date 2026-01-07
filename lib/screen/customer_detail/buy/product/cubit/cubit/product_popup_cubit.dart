@@ -23,12 +23,12 @@ class ProductPopupCubit extends Cubit<ProductPopupState> {
   Future<void> loadingInitialData(
       int customerId, List<ProductDto> availableProduct) async {
     prefs = await SharedPreferences.getInstance();
-    var baPositionId = prefs.getInt('baPositionId');
-    String username = prefs.getString('username') ?? '';
-    List<Brand> lstBrand =
-        await brandProvider.getBrandByStatus(Constant.stsBrdAct);
+    var baPositionId = prefs.getInt(Session.baPositionId.toString());
+    String username = prefs.getString(Session.username.toString()) ?? '';
+    List<Brand> lstBrand = await brandProvider.getBrandByStatus(
+        Constant.stsBrdAct, baPositionId ?? 0);
     List<ProductDto> lstProductDto =
-        await productProvider.getAllInfoProduct(customerId);
+        await productProvider.getAllInfoProduct(customerId, baPositionId ?? 0);
 
     List<ProductStock> lstProductStock =
         await stockBalanceProvider.getListStockBalance(
@@ -37,7 +37,6 @@ class ProductPopupCubit extends Cubit<ProductPopupState> {
             null);
 
     lstProductDto = assignStock(lstProductDto, lstProductStock);
-    lstProductDto.map((product) => {});
 
     if (availableProduct.isNotEmpty) {
       replaceElements(lstProductDto, availableProduct);

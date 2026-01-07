@@ -121,16 +121,16 @@ class GeneratePdfOrderDetail {
                             pw.Text(lstProduct[i].unit ?? '',
                                 style: pw.TextStyle(font: font, fontSize: 12)),
                             pw.Text(
-                                NumberFormat.currency(locale: 'vi')
-                                    .format(lstProduct[i].unitPrice ?? 0),
+                                CommonUtils.displayCurrency(
+                                    lstProduct[i].unitPrice ?? 0),
                                 style: pw.TextStyle(font: font, fontSize: 12)),
                             pw.Text(
-                                NumberFormat.currency(locale: 'vi').format(
+                                CommonUtils.displayCurrency(
                                     lstProduct[i].unitPriceAfterDiscount ?? 0),
                                 style: pw.TextStyle(font: font, fontSize: 12)),
                             pw.Text(
-                                NumberFormat.currency(locale: 'vi')
-                                    .format(lstProduct[i].netValue ?? 0),
+                                CommonUtils.displayCurrency(
+                                    lstProduct[i].netValue ?? 0),
                                 style: pw.TextStyle(font: font, fontSize: 12)),
                           ],
                         ),
@@ -234,8 +234,8 @@ class GeneratePdfOrderDetail {
                                     '',
                                 style: pw.TextStyle(font: font, fontSize: 12)),
                             pw.Text(
-                                NumberFormat.currency(locale: 'vi')
-                                    .format(lstDiscount[i].totalDiscount ?? 0),
+                                CommonUtils.displayCurrency(
+                                    lstDiscount[i].totalDiscount ?? 0),
                                 style: pw.TextStyle(font: font, fontSize: 12)),
                             pw.Text(lstDiscount[i].remark ?? ''),
                           ],
@@ -288,8 +288,8 @@ class GeneratePdfOrderDetail {
                                     '',
                                 style: pw.TextStyle(font: font, fontSize: 12)),
                             pw.Text(
-                                NumberFormat.currency(locale: 'vi')
-                                    .format(lstDiscount[i].totalDiscount ?? 0),
+                                CommonUtils.displayCurrency(
+                                    lstDiscount[i].totalDiscount ?? 0),
                                 style: pw.TextStyle(font: font, fontSize: 12)),
                             pw.Text(lstDiscount[i].remark ?? ''),
                           ],
@@ -314,33 +314,39 @@ class GeneratePdfOrderDetail {
                     padding: const pw.EdgeInsets.fromLTRB(20, 5, 20, 20),
                     child: pw.Column(children: [
                       buildInformationCellSingle(
-                          title: 'Tổng tiền mua hàng',
-                          value: NumberFormat.currency(locale: 'vi')
-                              .format(orderHeader.totalAmount ?? 0),
+                          title: multiLang.totalQuantityProduct,
+                          value: NumberFormat.decimalPattern()
+                              .format(orderHeader.totalQuantity ?? 0),
                           font: font,
                           boldFont: boldFont),
                       buildInformationCellSingle(
-                          title: 'Chiết khấu',
-                          value: NumberFormat.currency(locale: 'vi')
-                              .format(orderHeader.discountAmount ?? 0),
+                          title: multiLang.totalQuantity,
+                          value: CommonUtils.displayCurrency(
+                              orderHeader.totalAmount ?? 0),
                           font: font,
                           boldFont: boldFont),
                       buildInformationCellSingle(
-                          title: 'Tổng khuyến mãi',
-                          value: NumberFormat.currency(locale: 'vi')
-                              .format(orderHeader.promotionAmount ?? 0),
+                          title: multiLang.totalDiscount,
+                          value: CommonUtils.displayCurrency(
+                              orderHeader.discountAmount ?? 0),
                           font: font,
                           boldFont: boldFont),
                       buildInformationCellSingle(
-                          title: 'Tổng VAT',
-                          value: NumberFormat.currency(locale: 'vi')
-                              .format(orderHeader.vatAmount ?? 0),
+                          title: multiLang.totalPromotionValue,
+                          value: CommonUtils.displayCurrency(
+                              orderHeader.promotionAmount ?? 0),
                           font: font,
                           boldFont: boldFont),
                       buildInformationCellSingle(
-                          title: 'Tổng tiền',
-                          value: NumberFormat.currency(locale: 'vi')
-                              .format(orderHeader.grandTotalAmount ?? 0),
+                          title: multiLang.totalVATValue,
+                          value: CommonUtils.displayCurrency(
+                              orderHeader.vatAmount ?? 0),
+                          font: font,
+                          boldFont: boldFont),
+                      buildInformationCellSingle(
+                          title: multiLang.grandTotalAmount,
+                          value: CommonUtils.displayCurrency(
+                              orderHeader.grandTotalAmount ?? 0),
                           font: font,
                           boldFont: boldFont)
                     ])),

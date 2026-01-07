@@ -9,6 +9,7 @@ class RouteAssignment {
   String? frequency;
   int? isUpdate;
   String? startDate;
+  String? endDate;
   int? createdBy;
   String? createdDate;
   int? updatedBy;
@@ -24,6 +25,7 @@ class RouteAssignment {
     this.frequency,
     this.isUpdate,
     this.startDate,
+    this.endDate,
     this.createdBy,
     this.createdDate,
     this.updatedBy,
@@ -41,6 +43,7 @@ class RouteAssignment {
       frequency: json['frequency'],
       isUpdate: json['is_update'],
       startDate: json['start_date'],
+      endDate: json['end_date'],
       createdBy: json['created_by'],
       createdDate: json['created_date'],
       updatedBy: json['updated_by'],
@@ -59,6 +62,7 @@ class RouteAssignment {
       frequency: map['frequency'],
       isUpdate: map['is_update'],
       startDate: map['start_date'],
+      endDate: map['end_date'],
       createdBy: map['created_by'],
       createdDate: map['created_date'],
       updatedBy: map['updated_by'],
@@ -76,6 +80,7 @@ class RouteAssignment {
       columnFrequency: frequency,
       columnIsUpdate: isUpdate,
       columnStartDate: startDate,
+      columnEndDate: endDate,
       columnCreatedBy: createdBy,
       columnCreatedDate: createdDate,
       columnUpdatedBy: updatedBy,

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:horeca/contants/contants.dart';
 import 'package:horeca/screen/customer_detail/buy/order/cubit/create_buy_order_cubit.dart';
@@ -80,6 +81,7 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
   List<List<String>> rowDataPromotion = [];
   List<List<String>> rowDataDiscount = [];
   bool isCheckLiabilities = true;
+  bool isReloadControl = false;
   //bool isCreated = false;
 
   @override
@@ -110,10 +112,12 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
 
     void updateProductOrder(List<ProductDto> results) {
       summaryOrder.totalAmount = 0;
+      summaryOrder.totalQuantity = 0;
       lstAllProduct = results;
       lstProduct = getProductOrder(results);
       int index = 0;
       double totalAmount = 0;
+      double totalQuantity = 0;
       double discountAmount = 0;
       double promotionAmount = 0;
       double vatAmount = 0;
@@ -123,23 +127,23 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
         print('product_id: ${product.productId}');
         totalAmount =
             totalAmount + product.quantity! * (product.priceCostDiscount ?? 0);
+        totalQuantity = totalQuantity + (product.quantity ?? 0);
         // setting product order detail
         result.add(index.toString());
         result.add(product.productName ?? '');
         result.add(NumberFormat.decimalPattern().format(product.quantity));
         result.add(product.uomName ?? '');
-        result.add(NumberFormat.currency(locale: 'vi')
-            .format(product.salesPrice ?? 0));
+        result.add(CommonUtils.displayCurrency(product.salesPrice));
         result.add(product.discountRate ?? '');
-        result.add(NumberFormat.currency(locale: 'vi')
-            .format(product.priceCostDiscount ?? 0));
-        result.add(NumberFormat.currency(locale: 'vi')
-            .format(product.quantity! * (product.priceCostDiscount ?? 0)));
+        result.add(CommonUtils.formatCurrency(product.priceCostDiscount ?? 0));
+        result.add(CommonUtils.formatCurrency(
+            product.quantity! * (product.priceCostDiscount ?? 0)));
 
         return result;
       }).toList();
 
       // setting summary order
+      summaryOrder.totalQuantity = totalQuantity;
       summaryOrder.totalAmount = totalAmount;
       summaryOrder.discountAmount = discountAmount;
       summaryOrder.promotionAmount = promotionAmount;
@@ -150,9 +154,10 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
 
     void updateSummary() {
       if (orderHeader.isTax == 1) {
-        summaryOrder.vatAmount = ((summaryOrder.totalAmount ?? 0) -
-                (summaryOrder.discountAmount ?? 0)) *
-            (orderHeader.vatValue ?? 0);
+        summaryOrder.vatAmount = (((summaryOrder.totalAmount ?? 0) -
+                    (summaryOrder.discountAmount ?? 0).roundToDouble()) *
+                (orderHeader.vatValue ?? 0))
+            .roundToDouble();
       } else {
         summaryOrder.vatAmount = 0;
       }
@@ -173,8 +178,7 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
         result.add(CodeListUtils.getMessage(
                 'cl.discount.type', discount.conditionType) ??
             '');
-        result.add(
-            NumberFormat.currency(locale: 'vi').format(discount.totalDiscount));
+        result.add(CommonUtils.formatCurrency(discount.totalDiscount ?? 0));
         result.add(discount.remark ?? '');
 
         totalDiscount = totalDiscount + (discount.totalDiscount ?? 0);
@@ -551,7 +555,6 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
                               child: InkWell(
                                 onTap: () async {
                                   // Navigator.of(context).pop();
-                                  print('click copy order');
                                   context
                                       .read<CreateBuyOrderCubit>()
                                       .calculatePromotion(
@@ -694,6 +697,37 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
                                               SizedBox(
                                                   width: 200,
                                                   child: Text(
+                                                    multiLang
+                                                        .totalQuantityProduct,
+                                                    textAlign: TextAlign.right,
+                                                    style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  )),
+                                              const SizedBox(
+                                                width: Contants.spacingRow10,
+                                              ),
+                                              Expanded(
+                                                  child: Text(
+                                                NumberFormat.decimalPattern()
+                                                    .format(summaryOrder
+                                                        .totalQuantity),
+                                                textAlign: TextAlign.right,
+                                              )),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 40,
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              SizedBox(
+                                                  width: 200,
+                                                  child: Text(
                                                     multiLang.totalAmount,
                                                     textAlign: TextAlign.right,
                                                     style: const TextStyle(
@@ -705,10 +739,9 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
                                               ),
                                               Expanded(
                                                   child: Text(
-                                                NumberFormat.currency(
-                                                        locale: 'vi')
-                                                    .format(summaryOrder
-                                                        .totalAmount),
+                                                CommonUtils.formatCurrency(
+                                                    summaryOrder.totalAmount ??
+                                                        0),
                                                 textAlign: TextAlign.right,
                                               )),
                                             ],
@@ -736,9 +769,8 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
                                               ),
                                               Expanded(
                                                   child: Text(
-                                                NumberFormat.currency(
-                                                        locale: 'vi')
-                                                    .format(summaryOrder
+                                                CommonUtils.formatCurrency(
+                                                    summaryOrder
                                                         .discountAmount),
                                                 textAlign: TextAlign.right,
                                               )),
@@ -768,9 +800,8 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
                                               ),
                                               Expanded(
                                                   child: Text(
-                                                NumberFormat.currency(
-                                                        locale: 'vi')
-                                                    .format(summaryOrder
+                                                CommonUtils.formatCurrency(
+                                                    summaryOrder
                                                         .promotionAmount),
                                                 textAlign: TextAlign.right,
                                               )),
@@ -799,10 +830,8 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
                                               ),
                                               Expanded(
                                                   child: Text(
-                                                NumberFormat.currency(
-                                                        locale: 'vi')
-                                                    .format(
-                                                        summaryOrder.vatAmount),
+                                                CommonUtils.formatCurrency(
+                                                    summaryOrder.vatAmount),
                                                 textAlign: TextAlign.right,
                                               )),
                                             ],
@@ -830,9 +859,8 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
                                               ),
                                               Expanded(
                                                   child: Text(
-                                                NumberFormat.currency(
-                                                        locale: 'vi')
-                                                    .format(summaryOrder
+                                                CommonUtils.formatCurrency(
+                                                    summaryOrder
                                                         .grandTotalAmount),
                                                 textAlign: TextAlign.right,
                                               )),
@@ -878,6 +906,11 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
     return BlocConsumer<CreateBuyOrderCubit, CreateBuyOrderState>(
       listener: (context, state) {
         if (state is CreateOrderSuccess) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
           Fluttertoast.showToast(
             // msg: 'Lưu đơn hàng thành công',
             msg: CommonUtils.firstLetterUpperCase(state.msg),
@@ -890,6 +923,11 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
           Navigator.of(context).pop();
         }
         if (state is CreateOrderFail) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
           Fluttertoast.showToast(
             msg: CommonUtils.firstLetterUpperCase(state.error),
             toastLength: Toast.LENGTH_SHORT,
@@ -900,13 +938,15 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
           );
         }
 
-        if (state is ClickButtonSave) {}
-
         if (state is CreateBuyOrderCubit) {}
 
         if (state is StartApplyDiscounPromotion) {}
 
         if (state is ValidateFailShowPopup) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
           showDialog(
             barrierDismissible: false,
             context: context,
@@ -974,13 +1014,105 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
           );
         }
 
-        // if (state is EventCalculatePromotionSuccess) {
-        //   lstScheme = chooseSchemePromotion(state.lstPromotion);
-        //   updatePromotionOrder(lstScheme);
-        // }
+        if (state is EventCalculatePromotionSuccess) {
+          if (isReloadControl) {
+            isReloadControl = false;
+            Navigator.pop(context);
+          }
+
+          if (state.notify.isNotEmpty) {
+            AppLocalizations multiLang = AppLocalizations.of(context)!;
+            showDialog(
+              barrierDismissible: false,
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  title: Text(
+                    AppLocalizations.of(context)!.notification.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                  content: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        state.notify,
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              lstScheme =
+                                  chooseSchemePromotion(state.lstPromotion);
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                updatePromotionOrder(lstScheme);
+                              });
+                            },
+                            child: Text(multiLang.ok),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          } else {
+            lstScheme = chooseSchemePromotion(state.lstPromotion);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              updatePromotionOrder(lstScheme);
+            });
+          }
+        }
       },
       builder: (context, state) {
-        if (state is LoadingInit) {
+        if (state is ReloadControl) {
+          isReloadControl = true;
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            showDialog(
+              context: context,
+              barrierDismissible:
+                  false, // prevent user from dismissing the dialog
+              builder: (BuildContext context) {
+                return const SpinKitCircle(
+                  color: Colors.blue,
+                  size: 50.0,
+                );
+              },
+            );
+          });
+        }
+
+        if (state is LoadingInitFail) {
+          Fluttertoast.showToast(
+            msg: CommonUtils.firstLetterUpperCase(state.errorMsg),
+            toastLength: Toast.LENGTH_SHORT,
+            timeInSecForIosWeb: Constant.SHOW_TOAST_TIME,
+            backgroundColor: AppColor.errorColor,
+            textColor: Colors.white,
+            fontSize: 14.0,
+          );
+
+          Navigator.of(context).pop();
+        }
+
+        if (state is LoadingInitSuccess) {
           orderHeader = state.orderHeader;
           lstProduct = state.lstProduct;
           //updateProductOrder(lstProduct);
@@ -999,12 +1131,6 @@ class _CreateBuyOrderBodyState extends State<CreateBuyOrderBody> {
           updateDiscountOrder(lstDiscount);
         }
 
-        if (state is EventCalculatePromotionSuccess) {
-          lstScheme = chooseSchemePromotion(state.lstPromotion);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            updatePromotionOrder(lstScheme);
-          });
-        }
         return OrderContent(context);
       },
     );

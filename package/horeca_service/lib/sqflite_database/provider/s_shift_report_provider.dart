@@ -233,6 +233,7 @@ class ShiftReportProvider {
           FROM s_shift_report tb03
           INNER JOIN m_route_assignment tb04 ON tb04.shift_code = tb03.shift_code
           WHERE tb04.day_of_week = (strftime('%w', tb03.working_date) + 1)
+          AND date(tb03.working_date) between date(tb04.start_date) and date(tb04.end_date)
           AND (tb04.frequency = '00'
             OR (strftime('%W', tb03.working_date) % 2 = 0 AND tb04.frequency = '01')
             OR (strftime('%W', tb03.working_date) % 2 = 1 AND tb04.frequency = '02')) 
@@ -271,6 +272,7 @@ class ShiftReportProvider {
             FROM s_shift_report tb03
             INNER JOIN m_route_assignment tb04 ON tb04.shift_code = tb03.shift_code
             WHERE tb04.day_of_week = (strftime('%w', tb03.working_date) + 1)
+            AND date(tb03.working_date) between date(tb04.start_date) and date(tb04.end_date)
             AND (tb04.frequency = '00'
                 OR (strftime('%W', tb03.working_date) % 2 = 0 AND tb04.frequency = '01')
                 OR (strftime('%W', tb03.working_date) % 2 = 1 AND tb04.frequency = '02')) 

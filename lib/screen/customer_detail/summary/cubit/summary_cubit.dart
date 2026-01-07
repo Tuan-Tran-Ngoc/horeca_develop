@@ -36,13 +36,11 @@ class SummaryCubit extends Cubit<SummaryState> {
   String message = "";
   Future<void> init(
       int customerVisitId, int customerId, int customerAddressId) async {
-    print('customer visit id summary screen $customerVisitId');
     await loadingInit(customerVisitId, customerId, customerAddressId);
   }
 
   Future<void> loadingInit(
       int customerVisitId, int customerId, int customerAddressId) async {
-    print('customer visit id summary screen loading init $customerVisitId');
     CustomerVisit? customerVisit =
         await customerVisitProvider.select(customerVisitId, null);
     List<OrderCheckOutDTO> lstOrder = [];
@@ -76,7 +74,7 @@ class SummaryCubit extends Cubit<SummaryState> {
     } else if (customerAddressId != 0) {
       prefs = await SharedPreferences.getInstance();
       // get info shift from global var
-      int? shiftReportId = prefs.getInt('shiftReportId');
+      int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
       lstOrder = await orderProvider.selectByCustomerVisitIdCheckOut(
           shiftReportId ?? 0, customerId, customerAddressId);
       lstProductInfo = await orderDetailProvider.selectReportCheckoutProduct(
@@ -84,7 +82,7 @@ class SummaryCubit extends Cubit<SummaryState> {
     } else {
       prefs = await SharedPreferences.getInstance();
       // get info shift from global var
-      int? shiftReportId = prefs.getInt('shiftReportId');
+      int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
       lstOrder = await orderProvider.selectByCustomerVisitIdCheckOut(
           shiftReportId ?? 0, customerId, null);
       lstProductInfo = await orderDetailProvider.selectReportCheckoutProduct(
@@ -96,6 +94,7 @@ class SummaryCubit extends Cubit<SummaryState> {
 
   Future<void> checkout(CustomerVisit? customertVisit) async {
     try {
+      emit(ReloadControl());
       AppLocalizations multiLang = AppLocalizations.of(context)!;
       database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
       await database.transaction((txn) async {
@@ -105,9 +104,8 @@ class SummaryCubit extends Cubit<SummaryState> {
 
         DateTime now = DateTime.now();
         String endTime = DateFormat(Constant.dateTimeFormatter).format(now);
-        print(endTime);
         prefs = await SharedPreferences.getInstance();
-        int? baPositionId = prefs.getInt('baPositionId');
+        int? baPositionId = prefs.getInt(Session.baPositionId.toString());
 
         // check sync data
         if (await syncService.checkSyncCurrent(baPositionId ?? 0,
@@ -182,9 +180,5 @@ class SummaryCubit extends Cubit<SummaryState> {
     } catch (error) {
       emit(CheckoutFailed(error.toString()));
     }
-  }
-
-  Future<void> clickButtonChangeState() async {
-    emit(ClickCheckOutState());
   }
 }

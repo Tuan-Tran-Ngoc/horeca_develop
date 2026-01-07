@@ -28,115 +28,126 @@ class PromotionService {
           await selectPromotionInfo(promotion.promotionId ?? 0);
 
       List<SchemePromotionDto> lstScheme = [];
-      if (promotion.conditionType == '00') {
-        //promotion type order
-        for (PromotionDisplayDto promotionScheme in lstPromotionScheme) {
-          List<String> params = ['Đơn hàng đạt'];
-          List<String> paramsCondition = [];
-          List<String> paramsResult = [];
-          for (PromotionDisplayConditionDto promotionCondition
-              in promotionScheme.lstPromotionCondition ?? []) {
-            if (promotionCondition.totalType == '00') {
-              paramsCondition.add(NumberFormat.currency(locale: 'vi')
-                  .format(promotionCondition.conditionQty));
-            } else {
-              paramsCondition.add([
-                NumberFormat.decimalPattern()
-                    .format(promotionCondition.conditionQty),
-                'sản phẩm'
-              ].join(' '));
-            }
-          }
-          params.add(paramsCondition.join(' ,'));
-          params.add('\nNhận');
-          for (PromotionDisplayResultDto promotionResult
-              in promotionScheme.lstPromotionResult ?? []) {
-            paramsResult.add([
-              NumberFormat.decimalPattern().format(promotionResult.resultQty),
-              promotionResult.productName ?? ''
-            ].join(' '));
-          }
-          params.add(paramsResult.join(' ,'));
-          SchemePromotionDto scheme = SchemePromotionDto(
-            programId: promotion.promotionId,
-            schemeId: promotionScheme.promotionSchemeId,
-            schemeContent: params.join(' '),
-            lstProductApply: convertProductPromotionDto(
-                promotionScheme.lstPromotionResult ?? []),
-          );
+      for (PromotionDisplayDto promotionScheme in lstPromotionScheme) {
+        SchemePromotionDto scheme = SchemePromotionDto(
+          programId: promotion.promotionId,
+          schemeId: promotionScheme.promotionSchemeId,
+          schemeContent: promotion.remark,
+          lstProductApply: convertProductPromotionDto(
+              promotionScheme.lstPromotionResult ?? []),
+        );
 
-          lstScheme.add(scheme);
-        }
-      } else if (promotion.conditionType == '01') {
-        //promotion SKU detail
-        for (PromotionDisplayDto promotionScheme in lstPromotionScheme) {
-          List<String> params = [];
-          List<String> paramsCondition = [];
-          List<String> paramsResult = [];
-          params = ['Mua'];
-          for (PromotionDisplayConditionDto promotionCondition
-              in promotionScheme.lstPromotionCondition ?? []) {
-            paramsCondition.add([
-              NumberFormat.decimalPattern()
-                  .format(promotionCondition.conditionQty),
-              promotionCondition.productName ?? ''
-            ].join(' '));
-          }
-          params.add(paramsCondition.join(' ,'));
-          params.add('\nNhận');
-          for (PromotionDisplayResultDto promotionResult
-              in promotionScheme.lstPromotionResult ?? []) {
-            paramsResult.add([
-              NumberFormat.decimalPattern().format(promotionResult.resultQty),
-              promotionResult.productName ?? ''
-            ].join(' '));
-          }
-          params.add(paramsResult.join(' ,'));
-
-          SchemePromotionDto scheme = SchemePromotionDto(
-            programId: promotion.promotionId,
-            schemeId: promotionScheme.promotionSchemeId,
-            schemeContent: params.join(' '),
-          );
-
-          lstScheme.add(scheme);
-        }
-      } else if (promotion.conditionType == '02') {
-        //promotion SKU combo
-        for (PromotionDisplayDto promotionScheme in lstPromotionScheme) {
-          List<String> params = [];
-          List<String> paramsCondition = [];
-          List<String> paramsResult = [];
-          params = ['Đơn hàng mua combo'];
-          double conditionQty = 0;
-          for (PromotionDisplayConditionDto promotionCondition
-              in promotionScheme.lstPromotionCondition ?? []) {
-            paramsCondition.add(promotionCondition.productName ?? '');
-            conditionQty = promotionCondition.conditionQty ?? 0;
-          }
-          params.add(paramsCondition.join(' ,'));
-          params.add('với tổng số lượng là');
-          params.add(NumberFormat.decimalPattern().format(conditionQty));
-          params.add('\nNhận');
-          for (PromotionDisplayResultDto promotionResult
-              in promotionScheme.lstPromotionResult ?? []) {
-            paramsResult.add([
-              NumberFormat.decimalPattern().format(promotionResult.resultQty),
-              promotionResult.productName ?? ''
-            ].join(' '));
-          }
-
-          params.add(paramsResult.join(' ,'));
-
-          SchemePromotionDto scheme = SchemePromotionDto(
-            programId: promotion.promotionId,
-            schemeId: promotionScheme.promotionSchemeId,
-            schemeContent: params.join(' '),
-          );
-
-          lstScheme.add(scheme);
-        }
+        lstScheme.add(scheme);
       }
+      // if (promotion.conditionType == '00') {
+      //   //promotion type order
+      //   for (PromotionDisplayDto promotionScheme in lstPromotionScheme) {
+      //     List<String> params = ['Đơn hàng đạt'];
+      //     List<String> paramsCondition = [];
+      //     List<String> paramsResult = [];
+      //     for (PromotionDisplayConditionDto promotionCondition
+      //         in promotionScheme.lstPromotionCondition ?? []) {
+      //       if (promotionCondition.totalType == '00') {
+      //         paramsCondition.add(NumberFormat.currency(locale: 'vi')
+      //             .format(promotionCondition.conditionQty));
+      //       } else {
+      //         paramsCondition.add([
+      //           NumberFormat.decimalPattern()
+      //               .format(promotionCondition.conditionQty),
+      //           'sản phẩm'
+      //         ].join(' '));
+      //       }
+      //     }
+      //     params.add(paramsCondition.join(' ,'));
+      //     params.add('\nNhận');
+      //     for (PromotionDisplayResultDto promotionResult
+      //         in promotionScheme.lstPromotionResult ?? []) {
+      //       paramsResult.add([
+      //         NumberFormat.decimalPattern().format(promotionResult.resultQty),
+      //         promotionResult.productName ?? ''
+      //       ].join(' '));
+      //     }
+      //     params.add(paramsResult.join(' ,'));
+      //     SchemePromotionDto scheme = SchemePromotionDto(
+      //       programId: promotion.promotionId,
+      //       schemeId: promotionScheme.promotionSchemeId,
+      //       schemeContent: params.join(' '),
+      //       lstProductApply: convertProductPromotionDto(
+      //           promotionScheme.lstPromotionResult ?? []),
+      //     );
+
+      //     lstScheme.add(scheme);
+      //   }
+      // } else if (promotion.conditionType == '01') {
+      //   //promotion SKU detail
+      //   for (PromotionDisplayDto promotionScheme in lstPromotionScheme) {
+      //     List<String> params = [];
+      //     List<String> paramsCondition = [];
+      //     List<String> paramsResult = [];
+      //     params = ['Mua'];
+      //     for (PromotionDisplayConditionDto promotionCondition
+      //         in promotionScheme.lstPromotionCondition ?? []) {
+      //       paramsCondition.add([
+      //         NumberFormat.decimalPattern()
+      //             .format(promotionCondition.conditionQty),
+      //         promotionCondition.productName ?? ''
+      //       ].join(' '));
+      //     }
+      //     params.add(paramsCondition.join(' ,'));
+      //     params.add('\nNhận');
+      //     for (PromotionDisplayResultDto promotionResult
+      //         in promotionScheme.lstPromotionResult ?? []) {
+      //       paramsResult.add([
+      //         NumberFormat.decimalPattern().format(promotionResult.resultQty),
+      //         promotionResult.productName ?? ''
+      //       ].join(' '));
+      //     }
+      //     params.add(paramsResult.join(' ,'));
+
+      //     SchemePromotionDto scheme = SchemePromotionDto(
+      //       programId: promotion.promotionId,
+      //       schemeId: promotionScheme.promotionSchemeId,
+      //       schemeContent: params.join(' '),
+      //     );
+
+      //     lstScheme.add(scheme);
+      //   }
+      // } else if (promotion.conditionType == '02') {
+      //   //promotion SKU combo
+      //   for (PromotionDisplayDto promotionScheme in lstPromotionScheme) {
+      //     List<String> params = [];
+      //     List<String> paramsCondition = [];
+      //     List<String> paramsResult = [];
+      //     params = ['Đơn hàng mua combo'];
+      //     double conditionQty = 0;
+      //     for (PromotionDisplayConditionDto promotionCondition
+      //         in promotionScheme.lstPromotionCondition ?? []) {
+      //       paramsCondition.add(promotionCondition.productName ?? '');
+      //       conditionQty = promotionCondition.conditionQty ?? 0;
+      //     }
+      //     params.add(paramsCondition.join(' ,'));
+      //     params.add('với tổng số lượng là');
+      //     params.add(NumberFormat.decimalPattern().format(conditionQty));
+      //     params.add('\nNhận');
+      //     for (PromotionDisplayResultDto promotionResult
+      //         in promotionScheme.lstPromotionResult ?? []) {
+      //       paramsResult.add([
+      //         NumberFormat.decimalPattern().format(promotionResult.resultQty),
+      //         promotionResult.productName ?? ''
+      //       ].join(' '));
+      //     }
+
+      //     params.add(paramsResult.join(' ,'));
+
+      //     SchemePromotionDto scheme = SchemePromotionDto(
+      //       programId: promotion.promotionId,
+      //       schemeId: promotionScheme.promotionSchemeId,
+      //       schemeContent: params.join(' '),
+      //     );
+
+      //     lstScheme.add(scheme);
+      //   }
+      // }
 
       promotion.lstSchemeOrder = lstScheme;
     }
@@ -336,5 +347,96 @@ class PromotionService {
       }
     }
     return lstPromotion;
+  }
+
+  Future<String> notifyProductAvailable(int customerId,
+      List<PromotionDto> lstPromotion, List<ProductDto> lstProduct) async {
+    List<ProductDto> lstproductAvailable = await productAvailabelForPromotion(
+        customerId, lstPromotion, lstProduct);
+
+    String result = '';
+    List<dynamic> params = [];
+    for (ProductDto productAvailable in lstproductAvailable) {
+      if (params.isNotEmpty) {
+        params.add(',');
+      }
+      params.add(
+          NumberFormat.decimalPattern().format(productAvailable.quantity ?? 0));
+      params.add(productAvailable.productName);
+    }
+
+    if (params.isNotEmpty) {
+      params.add('chưa được áp dụng khuyến mãi.');
+    }
+
+    result = params.join(' ');
+
+    return result;
+  }
+
+  List<SchemePromotionDto> chooseSchemePromotion(
+      List<PromotionDto> lstPromotion) {
+    List<SchemePromotionDto> results = lstPromotion
+        .map((promotion) =>
+            promotion.lstSchemeOrder!.where((scheme) => scheme.isChoose!))
+        .expand((schemes) => schemes)
+        .toList();
+
+    results.sort((a, b) => a.priority.compareTo(b.priority));
+
+    return results;
+  }
+
+  Future<List<ProductDto>> productAvailabelForPromotion(int customerId,
+      List<PromotionDto> lstPromotion, List<ProductDto> lstProduct) async {
+    // List<PromotionResultOrderDto> lstPromotionCanApply =
+    //     await orderService.applyPromotionOrder(customerId, lstProduct, txn);
+    List<ProductDto> results = [];
+    List<SchemePromotionDto> lstSchemePromotion =
+        chooseSchemePromotion(lstPromotion);
+    //get product Apply
+    List<ProductPromotionDto> lstProductApply = [];
+    for (SchemePromotionDto promotion in lstSchemePromotion) {
+      for (ProductPromotionDto productApply
+          in (promotion.lstProductApply ?? [])) {
+        ProductPromotionDto copiedProductApply = ProductPromotionDto(
+            productId: productApply.productId,
+            productName: productApply.productName,
+            totalQuatity: productApply.totalQuatity,
+            totalAmount: productApply.totalAmount);
+        if (!lstProductApply.any(
+            (element) => element.productId == copiedProductApply.productId)) {
+          lstProductApply.add(copiedProductApply);
+        } else {
+          int index = lstProductApply.indexWhere(
+              (element) => element.productId == copiedProductApply.productId);
+
+          lstProductApply[index].totalQuatity =
+              (lstProductApply[index].totalQuatity ?? 0) +
+                  (copiedProductApply.totalQuatity ?? 0);
+        }
+      }
+    }
+
+    for (ProductPromotionDto productApply in lstProductApply) {
+      if (lstProduct
+          .any((element) => element.productId == productApply.productId)) {
+        int index = lstProduct.indexWhere(
+            (element) => element.productId == productApply.productId);
+        if (((lstProduct[index].quantity ?? 0) -
+                (productApply.totalQuatity ?? 0)) !=
+            0) {
+          ProductDto result = ProductDto(
+              productName: lstProduct[index].productName,
+              quantity: (lstProduct[index].quantity ?? 0) -
+                  (productApply.totalQuatity ?? 0));
+
+          results.add(result);
+          break;
+        }
+      }
+    }
+
+    return results;
   }
 }

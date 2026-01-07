@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:horeca/config/app_router.dart';
+import 'package:horeca/date_login_observer.dart';
 import 'package:horeca/language_setting.dart';
 import 'package:horeca/themes/theme.dart';
+import 'package:horeca/utils/constants.dart';
 import 'package:horeca_service/network/network_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -25,8 +28,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  if (prefs.getString('languageCode') != null) {
-    String languageCode = prefs.getString('languageCode').toString();
+  if (prefs.getString(Session.languageCode.toString()) != null) {
+    String languageCode =
+        prefs.getString(Session.languageCode.toString()).toString();
     if (languageCode == 'vi') {
       LanguageSetting().setLocale(const Locale('vi', 'VN'));
     } else {
@@ -34,24 +38,6 @@ void main() async {
     }
   }
   var device = getDeviceType();
-
-  //setting log file
-  // var _myLogFileName = "MyLogFile";
-  // await FlutterLogs.initLogs(
-  //     logLevelsEnabled: [
-  //       LogLevel.INFO,
-  //       LogLevel.WARNING,
-  //       LogLevel.ERROR,
-  //       LogLevel.SEVERE
-  //     ],
-  //     timeStampFormat: TimeStampFormat.TIME_FORMAT_READABLE,
-  //     directoryStructure: DirectoryStructure.FOR_DATE,
-  //     logTypesEnabled: [_myLogFileName],
-  //     logFileExtension: LogFileExtension.LOG,
-  //     logsWriteDirectoryName: "MyLogs",
-  //     logsExportDirectoryName: "MyLogs/Exported",
-  //     debugFileOperations: true,
-  //     isDebuggable: true);
 
   // await setUpLogs();
   final directory = await getApplicationDocumentsDirectory();

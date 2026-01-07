@@ -385,10 +385,8 @@ class _PromotionPopupState extends State<PromotionPopupBody> {
                       onPress: () {
                         context
                             .read<PromotionPopupCubit>()
-                            .warningProductAvailable(
-                                widget.customerId,
-                                chooseSchemePromotion(lstPromotion),
-                                widget.lstProduct);
+                            .warningProductAvailable(widget.customerId,
+                                lstPromotion, widget.lstProduct);
                       },
                     ),
                   ),
@@ -446,9 +444,9 @@ class _PromotionPopupState extends State<PromotionPopupBody> {
                   title: Text(
                     AppLocalizations.of(context)!.notification.toUpperCase(),
                     style: const TextStyle(
-                      color: Colors.blue, // Màu sắc của tiêu đề
-                      fontWeight: FontWeight.bold, // Font chữ đậm
-                      fontSize: 18.0, // Kích thước chữ
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
                     ),
                   ),
                   content: Column(
@@ -459,8 +457,8 @@ class _PromotionPopupState extends State<PromotionPopupBody> {
                       Text(
                         state.notify,
                         style: const TextStyle(
-                          color: Colors.black, // Màu sắc của nội dung
-                          fontSize: 16.0, // Kích thước chữ
+                          color: Colors.black,
+                          fontSize: 16.0,
                         ),
                       ),
                       const SizedBox(height: 20),

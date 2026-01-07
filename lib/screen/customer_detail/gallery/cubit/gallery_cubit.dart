@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:horeca/utils/constants.dart';
 import 'package:horeca_service/horeca_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
@@ -14,7 +15,7 @@ class GalleryCubit extends Cubit<GalleryState> {
 
   Future<void> init() async {
     prefs = await SharedPreferences.getInstance();
-    String username = prefs.getString('username') ?? '';
+    String username = prefs.getString(Session.username.toString()) ?? '';
     var databasesPath = await getDatabasesPath();
     String pathFolder = '$databasesPath/$username/lib/';
 

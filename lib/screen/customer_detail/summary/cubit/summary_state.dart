@@ -31,4 +31,4 @@ final class CheckoutFailed extends SummaryState {
   CheckoutFailed(this.error);
 }
 
-final class ClickCheckOutState extends SummaryState {}
+class ReloadControl extends SummaryState {}

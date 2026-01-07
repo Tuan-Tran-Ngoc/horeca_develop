@@ -215,5 +215,8 @@
 "errMsgNotPriceProduct": "Sản phẩm chưa được đăng giá, không thể đặt hàng sản phẩm này",
 "waringInitialData": "Dữ liệu chưa được đồng bộ sẽ bị xoá khi được khởi tạo.\nBạn có muốn tiếp tục?",
 "ok": "Ok",
-"msgGetInfoLastestUpdate": "Lấy thông tin cập nhật cuối cùng thất bại"
+"msgGetInfoLastestUpdate": "Lấy thông tin cập nhật cuối cùng thất bại",
+"sumQty": "Số lượng sản phẩm mua",
+"mandatoryFinishShift": "Vui lòng bắt đầu ca làm việc hôm nay để thực hiện tác vụ",
+"totalQuantityProduct": "Tổng sản lượng mua"
 }

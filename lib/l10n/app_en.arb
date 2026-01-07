@@ -215,5 +215,8 @@
 "errMsgNotPriceProduct": "The product has not been priced yet, this product cannot be ordered",
 "waringInitialData": "Unsynchronized data will be deleted on startup.\nYou want to continue?",
 "ok": "Ok",
-"msgGetInfoLastestUpdate": "Retrieving last updated information failed"
+"msgGetInfoLastestUpdate": "Retrieving last updated information failed",
+"sumQty": "The quantity of products purchased",
+"mandatoryFinishShift":"Please start today's work shift to perform the task",
+"totalQuantityProduct": "Total purchase volume"
 }

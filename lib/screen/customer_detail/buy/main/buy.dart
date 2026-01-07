@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:horeca/contants/contants.dart';
 import 'package:horeca/screen/customer_detail/buy/main/cubit/buy_cubit.dart';
 import 'package:horeca/screen/customer_detail/buy/order/create_buy_order.dart';
@@ -188,8 +189,7 @@ class _BuyBodyState extends State<BuyBody> {
         result.add(CommonUtils.convertDate(
             data.orderDate.toString(), Constant.dateFormatterDDMMYYYY));
 
-        result.add(
-            NumberFormat.currency(locale: 'vi').format(data.grandTotalAmount));
+        result.add(CommonUtils.displayCurrency(data.grandTotalAmount ?? 0));
 
         result.add(
             CodeListUtils.getMessage(Constant.clHorecaSts, data.horecaStatus) ??
@@ -370,28 +370,33 @@ class _BuyBodyState extends State<BuyBody> {
                                 multiLang.addNew,
                                 multiLang.order
                               ].join(" ")),
-                              onPress: () {
-                                // context.push('/createbuyorder', extra: {
-                                //   "customerId": customerId,
-                                //   "customerVisitId": customerVisitId
-                                // });
-
-                                Navigator.of(context)
-                                    .push(MaterialPageRoute(
-                                  builder: (context) => CreateBuyOrderScreen(
-                                    customerId: widget.customerId,
-                                    customerVisitId: widget.customerVisitId,
-                                  ),
-                                ))
-                                    .then((result) {
-                                  // Xử lý kết quả nhận được từ CustomerDetailScreen
-                                  // listCustomerVisit[_datatableController.selectIndex.value]
-                                  //     .customerVisitId = result;
-                                  // print('Kết quả từ CustomerDetailScreen: $result');
-                                  context.read<BuyCubit>().init(
-                                      widget.customerId,
-                                      widget.customerVisitId);
-                                });
+                              onPress: () async {
+                                if (!(await CommonUtils.checkShiftForToday())) {
+                                  Fluttertoast.showToast(
+                                    msg: CommonUtils.firstLetterUpperCase(
+                                        multiLang.mandatoryFinishShift),
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    timeInSecForIosWeb:
+                                        Constant.SHOW_TOAST_TIME,
+                                    backgroundColor: AppColor.errorColor,
+                                    textColor: Colors.white,
+                                    fontSize: 14.0,
+                                  );
+                                } else {
+                                  if (!mounted) return;
+                                  Navigator.of(context)
+                                      .push(MaterialPageRoute(
+                                    builder: (context) => CreateBuyOrderScreen(
+                                      customerId: widget.customerId,
+                                      customerVisitId: widget.customerVisitId,
+                                    ),
+                                  ))
+                                      .then((result) {
+                                    context.read<BuyCubit>().init(
+                                        widget.customerId,
+                                        widget.customerVisitId);
+                                  });
+                                }
                               },
                             )
                           : SizedBox(

@@ -9,10 +9,15 @@ sealed class CreateBuyOrderState extends Equatable {
 
 final class CreateBuyOrderInitial extends CreateBuyOrderState {}
 
-final class LoadingInit extends CreateBuyOrderState {
+final class LoadingInitSuccess extends CreateBuyOrderState {
   OrderHeaderDto orderHeader;
   List<ProductDto> lstProduct;
-  LoadingInit(this.orderHeader, this.lstProduct);
+  LoadingInitSuccess(this.orderHeader, this.lstProduct);
+}
+
+final class LoadingInitFail extends CreateBuyOrderState {
+  String errorMsg;
+  LoadingInitFail(this.errorMsg);
 }
 
 final class CreateOrderSuccess extends CreateBuyOrderState {
@@ -33,7 +38,7 @@ final class CreateOrderFail extends CreateBuyOrderState {
   CreateOrderFail(this.error);
 }
 
-final class ClickButtonSave extends CreateBuyOrderState {}
+final class ReloadControl extends CreateBuyOrderState {}
 
 final class StartApplyDiscounPromotion extends CreateBuyOrderState {}
 
@@ -50,9 +55,8 @@ final class ApplyDiscountAndPromotionSuccess extends CreateBuyOrderState {
       this.lstProduct, this.lstDiscount, this.lstPromotion);
 }
 
-final class EventCalculatePromotion extends CreateBuyOrderState {}
-
 final class EventCalculatePromotionSuccess extends CreateBuyOrderState {
   List<PromotionDto> lstPromotion;
-  EventCalculatePromotionSuccess(this.lstPromotion);
+  String notify;
+  EventCalculatePromotionSuccess(this.lstPromotion, this.notify);
 }

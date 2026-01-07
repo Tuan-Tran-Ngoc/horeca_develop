@@ -21,6 +21,7 @@ class RouteAssignmentProvider {
           $columnFrequency text,
           $columnIsUpdate integer,
           $columnStartDate text,
+          $columnEndDate text,
           $columnCreatedBy integer,
           $columnCreatedDate text,
           $columnUpdatedBy integer,
