@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class Order {
   int? orderId;
   int? orderIdSync;
@@ -75,17 +77,17 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      orderId: json['order_id'],
-      orderIdSync: json['order_id_sync'],
+      orderId: JsonUtils.toInt(json['order_id']),
+      orderIdSync: JsonUtils.toInt(json['order_id_sync']),
       orderCd: json['order_cd'],
-      customerId: json['customer_id'],
-      customerVisitId: json['customer_visit_id'],
-      membershipId: json['membership_id'],
-      baPositionId: json['ba_position_id'],
-      employeeId: json['employee_id'],
+      customerId: JsonUtils.toInt(json['customer_id']),
+      customerVisitId: JsonUtils.toInt(json['customer_visit_id']),
+      membershipId: JsonUtils.toInt(json['membership_id']),
+      baPositionId: JsonUtils.toInt(json['ba_position_id']),
+      employeeId: JsonUtils.toInt(json['employee_id']),
       employeeName: json['employee_name'],
-      supPositionId: json['sup_position_id'],
-      cityLeaderPositionId: json['city_leader_position_id'],
+      supPositionId: JsonUtils.toInt(json['sup_position_id']),
+      cityLeaderPositionId: JsonUtils.toInt(json['city_leader_position_id']),
       membershipName: json['membership_name'],
       buyerTelNo: json['buyer_tel_no'],
       orderDate: json['order_date'],
@@ -99,16 +101,16 @@ class Order {
       remark: json['remark'],
       grandTotalAmount: json['grand_total_amount'],
       orderType: json['order_type'],
-      visitTimes: json['visit_times'],
+      visitTimes: JsonUtils.toInt(json['visit_times']),
       sapStatus: json['sap_status'],
       sapOrderNo: json['sap_order_no'],
       status: json['status'],
       horecaStatus: json['horeca_status'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
 

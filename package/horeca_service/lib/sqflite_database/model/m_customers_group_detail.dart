@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class CustomersGroupDetail {
   int? customersGroupDetailId;
   int? customerId;
@@ -21,15 +23,15 @@ class CustomersGroupDetail {
       this.version);
 
   CustomersGroupDetail.fromJson(Map<String, dynamic> json) {
-    customersGroupDetailId = json['customers_group_detail_id'];
-    customerId = json['customer_id'];
-    customersGroupId = json['customers_group_id'];
+    customersGroupDetailId = JsonUtils.toInt(json['customers_group_detail_id']);
+    customerId = JsonUtils.toInt(json['customer_id']);
+    customersGroupId = JsonUtils.toInt(json['customers_group_id']);
     status = json['status'];
-    createdBy = json['created_by'];
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toJson() {
@@ -61,14 +63,14 @@ class CustomersGroupDetail {
   }
 
   CustomersGroupDetail.fromMap(Map<dynamic, dynamic> map) {
-    customersGroupDetailId = map['customers_group_detail_id'];
-    customerId = map['customer_id'];
-    customersGroupId = map['customers_group_id'];
+    customersGroupDetailId = JsonUtils.toInt(map['customers_group_detail_id']);
+    customerId = JsonUtils.toInt(map['customer_id']);
+    customersGroupId = JsonUtils.toInt(map['customers_group_id']);
     status = map['status'];
-    createdBy = map['created_by'];
+    createdBy = JsonUtils.toInt(map['created_by']);
     createdDate = map['created_date'];
-    updatedBy = map['updated_by'];
+    updatedBy = JsonUtils.toInt(map['updated_by']);
     updatedDate = map['updated_date'];
-    version = map['version'];
+    version = JsonUtils.toInt(map['version']);
   }
 }

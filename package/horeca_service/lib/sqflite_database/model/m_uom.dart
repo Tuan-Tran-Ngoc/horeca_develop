@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class UOM {
   int? uomId;
   String? uomCode;
@@ -23,28 +25,28 @@ class UOM {
 
   factory UOM.fromJson(Map<String, dynamic> json) {
     return UOM(
-      uomId: json['uom_id'],
+      uomId: JsonUtils.toInt(json['uom_id']),
       uomCode: json['uom_code'],
       uomName: json['uom_name'],
       status: json['status'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
   factory UOM.fromMap(Map<dynamic, dynamic> json) {
     return UOM(
-      uomId: json['uom_id'],
+      uomId: JsonUtils.toInt(json['uom_id']),
       uomCode: json['uom_code'],
       uomName: json['uom_name'],
       status: json['status'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
 

@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class Area {
   int? areaId;
   String? areaName;
@@ -26,16 +28,16 @@ class Area {
   );
 
   Area.fromJson(Map<String, dynamic> json) {
-    areaId = json['area_id'];
+    areaId = JsonUtils.toInt(json['area_id']);
     levelCode = json['level_code'];
     areaCode = json['area_code'];
     areaName = json['area_name'];
-    parentId = json['parent_id'];
-    createdBy = json['created_by'];
+    parentId = JsonUtils.toInt(json['parent_id']);
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
     status = json['status'];
   }
 

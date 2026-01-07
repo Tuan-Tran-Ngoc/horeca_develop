@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class ProductType {
   int? productTypeId;
   String? typeName;
@@ -23,29 +25,29 @@ class ProductType {
 
   factory ProductType.fromJson(Map<String, dynamic> json) {
     return ProductType(
-      productTypeId: json['product_type_id'],
+      productTypeId: JsonUtils.toInt(json['product_type_id']),
       typeName: json['type_name'],
       typeCode: json['type_code'],
       status: json['status'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
 
   factory ProductType.fromMap(Map<dynamic, dynamic> json) {
     return ProductType(
-      productTypeId: json['product_type_id'],
+      productTypeId: JsonUtils.toInt(json['product_type_id']),
       typeName: json['type_name'],
       typeCode: json['type_code'],
       status: json['status'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
 

@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 // ward_id
 // ward_name
 // ward_code
@@ -42,29 +44,29 @@ class Ward {
 
   factory Ward.fromJson(Map<String, dynamic> json) {
     return Ward(
-      wardId: json['ward_id'],
+      wardId: JsonUtils.toInt(json['ward_id']),
       wardName: json['ward_name'],
       wardCode: json['ward_code'],
-      districtId: json['district_id'],
-      createdBy: json['created_by'],
+      districtId: JsonUtils.toInt(json['district_id']),
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
 
   factory Ward.fromMap(Map<dynamic, dynamic> json) {
     return Ward(
-      wardId: json['ward_id'],
+      wardId: JsonUtils.toInt(json['ward_id']),
       wardName: json['ward_name'],
       wardCode: json['ward_code'],
-      districtId: json['district_id'],
-      createdBy: json['created_by'],
+      districtId: JsonUtils.toInt(json['district_id']),
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
 

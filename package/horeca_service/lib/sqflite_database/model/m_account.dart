@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class Account {
   int? accountId;
   String? username;
@@ -29,20 +31,20 @@ class Account {
       this.version);
 
   Account.fromJson(Map<String, dynamic> json) {
-    accountId = json['account_id'];
+    accountId = JsonUtils.toInt(json['account_id']);
     username = json['username'];
     password = json['password'];
     accountNonExpired = json['account_non_expired'] == true ? 1 : 0;
     accountNonLocked = json['account_non_locked'] == true ? 1 : 0;
     credentialsNonExpired = json['credentials_non_expired'] == true ? 1 : 0;
-    accountRuleDefinitionId = json['account_rule_definition_id'];
+    accountRuleDefinitionId = JsonUtils.toInt(json['account_rule_definition_id']);
     credentialsNonExpired = json['credentials_non_expired'] == true ? 1 : 0;
     forceChangePassword = json['force_change_password'] == true ? 1 : 0;
-    createdBy = json['created_by'];
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toJson() {
@@ -78,16 +80,16 @@ class Account {
   }
 
   Account.fromMap(Map<dynamic, dynamic> map) {
-    accountId = map['account_id'];
+    accountId = JsonUtils.toInt(map['account_id']);
     username = map['username'];
     password = map['password'];
-    accountNonExpired = map['account_non_expired'];
-    accountRuleDefinitionId = map['account_rule_definition_id'];
-    forceChangePassword = map['force_change_password'];
-    createdBy = map['created_by'];
+    accountNonExpired = JsonUtils.toInt(map['account_non_expired']);
+    accountRuleDefinitionId = JsonUtils.toInt(map['account_rule_definition_id']);
+    forceChangePassword = JsonUtils.toInt(map['force_change_password']);
+    createdBy = JsonUtils.toInt(map['created_by']);
     createdDate = map['created_date'];
-    updatedBy = map['updated_by'];
+    updatedBy = JsonUtils.toInt(map['updated_by']);
     updatedDate = map['updated_date'];
-    version = map['version'];
+    version = JsonUtils.toInt(map['version']);
   }
 }

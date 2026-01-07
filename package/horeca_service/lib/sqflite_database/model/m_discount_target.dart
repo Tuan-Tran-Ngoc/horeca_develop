@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class DiscountTarget {
   int? discountTargetId;
   int? discountId;
@@ -21,15 +23,15 @@ class DiscountTarget {
       this.version);
 
   DiscountTarget.fromJson(Map<String, dynamic> json) {
-    discountTargetId = json['discount_target_id'];
-    discountId = json['discount_id'];
+    discountTargetId = JsonUtils.toInt(json['discount_target_id']);
+    discountId = JsonUtils.toInt(json['discount_id']);
     targetType = json['target_type'];
-    targetId = json['target_id'];
-    createdBy = json['created_by'];
+    targetId = JsonUtils.toInt(json['target_id']);
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toJson() {
@@ -61,14 +63,14 @@ class DiscountTarget {
   }
 
   DiscountTarget.fromMap(Map<dynamic, dynamic> map) {
-    discountTargetId = map['discount_target_id'];
-    discountId = map['discount_id'];
+    discountTargetId = JsonUtils.toInt(map['discount_target_id']);
+    discountId = JsonUtils.toInt(map['discount_id']);
     targetType = map['target_type'];
-    targetId = map['target_id'];
-    createdBy = map['created_by'];
+    targetId = JsonUtils.toInt(map['target_id']);
+    createdBy = JsonUtils.toInt(map['created_by']);
     createdDate = map['created_date'];
-    updatedBy = map['updated_by'];
+    updatedBy = JsonUtils.toInt(map['updated_by']);
     updatedDate = map['updated_date'];
-    version = map['version'];
+    version = JsonUtils.toInt(map['version']);
   }
 }

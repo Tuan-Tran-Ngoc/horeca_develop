@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class DiscountResult {
   int? discountResultId;
   int? discountId;
@@ -23,16 +25,16 @@ class DiscountResult {
       this.version);
 
   DiscountResult.fromJson(Map<String, dynamic> json) {
-    discountResultId = json['discount_result_id'];
-    discountId = json['discount_id'];
-    discountSchemeId = json['discount_scheme_id'];
+    discountResultId = JsonUtils.toInt(json['discount_result_id']);
+    discountId = JsonUtils.toInt(json['discount_id']);
+    discountSchemeId = JsonUtils.toInt(json['discount_scheme_id']);
     discountType = json['discount_type'];
     resultQty = json['result_qty'];
-    createdBy = json['created_by'];
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toJson() {
@@ -66,15 +68,15 @@ class DiscountResult {
   }
 
   DiscountResult.fromMap(Map<dynamic, dynamic> map) {
-    discountResultId = map['discount_result_id'];
-    discountId = map['discount_id'];
-    discountSchemeId = map['discount_scheme_id'];
+    discountResultId = JsonUtils.toInt(map['discount_result_id']);
+    discountId = JsonUtils.toInt(map['discount_id']);
+    discountSchemeId = JsonUtils.toInt(map['discount_scheme_id']);
     discountType = map['discount_type'];
     resultQty = map['result_qty'];
-    createdBy = map['created_by'];
+    createdBy = JsonUtils.toInt(map['created_by']);
     createdDate = map['created_date'];
-    updatedBy = map['updated_by'];
+    updatedBy = JsonUtils.toInt(map['updated_by']);
     updatedDate = map['updated_date'];
-    version = map['version'];
+    version = JsonUtils.toInt(map['version']);
   }
 }

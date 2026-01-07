@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class CustomerAddress {
   int? customerAddressId;
   int? customerId;
@@ -42,20 +44,20 @@ class CustomerAddress {
 
   factory CustomerAddress.fromJson(Map<String, dynamic> json) {
     return CustomerAddress(
-      customerAddressId: json['customer_address_id'],
-      customerId: json['customer_id'],
-      provinceId: json['province_id'],
-      districtId: json['district_id'],
-      wardId: json['ward_id'],
+      customerAddressId: JsonUtils.toInt(json['customer_address_id']),
+      customerId: JsonUtils.toInt(json['customer_id']),
+      provinceId: JsonUtils.toInt(json['province_id']),
+      districtId: JsonUtils.toInt(json['district_id']),
+      wardId: JsonUtils.toInt(json['ward_id']),
       streetName: json['street_name'],
       addressDetail: json['address_detail'],
       telNo: json['tel_no'],
       faxNo: json['fax_no'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
       defaultAddress: json['default_address'],
       addressCode: json['address_code'],
       oldAddressCode: json['old_address_code'],

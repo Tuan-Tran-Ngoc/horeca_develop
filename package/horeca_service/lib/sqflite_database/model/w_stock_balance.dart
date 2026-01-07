@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class StockBalance {
   int? stockBalanceId;
   int? positionId;
@@ -31,33 +33,33 @@ class StockBalance {
 
   factory StockBalance.fromJson(Map<String, dynamic> json) {
     return StockBalance(
-      stockBalanceId: json['stock_balance_id'],
-      positionId: json['position_id'],
-      productId: json['product_id'],
-      allocatingStock: json['allocating_stock'],
-      availableStock: json['available_stock'],
+      stockBalanceId: JsonUtils.toInt(json['stock_balance_id']),
+      positionId: JsonUtils.toInt(json['position_id']),
+      productId: JsonUtils.toInt(json['product_id']),
+      allocatingStock: JsonUtils.toDouble(json['allocating_stock']),
+      availableStock: JsonUtils.toDouble(json['available_stock']),
       isGood: json['is_good'],
       isReceived: json['is_received'],
       allocateDate: json['allocate_date'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
-      updatedBy: json['updated_by'],
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       updatedDate: json['updated_date'],
-      version: json['version'],
+      version: JsonUtils.toInt(json['version']),
     );
   }
 
   factory StockBalance.fromMap(Map<dynamic, dynamic> json) {
     return StockBalance(
-      stockBalanceId: json['stock_balance_id'],
-      positionId: json['position_id'],
-      productId: json['product_id'],
-      allocatingStock: json['allocating_stock'],
-      availableStock: json['available_stock'],
+      stockBalanceId: JsonUtils.toInt(json['stock_balance_id']),
+      positionId: JsonUtils.toInt(json['position_id']),
+      productId: JsonUtils.toInt(json['product_id']),
+      allocatingStock: JsonUtils.toDouble(json['allocating_stock']),
+      availableStock: JsonUtils.toDouble(json['available_stock']),
       isGood: json['is_good'] == 1 ? true : false,
       isReceived: json['is_received'] == 1 ? true : false,
       allocateDate: json['allocate_date'],
-      createdBy: json['created_by'],
+      createdBy: JsonUtils.toInt(json['created_by']),
       createdDate: json['created_date'],
       updatedBy: json['updated_by'],
       updatedDate: json['updated_date'],

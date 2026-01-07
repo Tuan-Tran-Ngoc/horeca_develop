@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 // String tableDistrict = 'm_district';
 // String columnDistrictId = 'district_id';
 // String columnDistrictName = 'district_name';
@@ -57,13 +59,13 @@ class District {
 // version
   factory District.fromJson(Map<String, dynamic> json) {
     return District(
-      districtId: json['district_id'],
+      districtId: JsonUtils.toInt(json['district_id']),
       districtName: json['district_name'],
       districtCode: json['district_code'],
-      version: json['version'],
-      provinceId: json['province_id'],
-      updatedBy: json['updated_by'],
-      createdBy: json['created_by'],
+      version: JsonUtils.toInt(json['version']),
+      provinceId: JsonUtils.toInt(json['province_id']),
+      updatedBy: JsonUtils.toInt(json['updated_by']),
+      createdBy: JsonUtils.toInt(json['created_by']),
       updatedDate: json['updated_date'],
       createdDate: json['created_date'],
     );
@@ -71,13 +73,13 @@ class District {
 
   factory District.fromMap(Map<dynamic, dynamic> json) {
     return District(
-      districtId: json['district_id'],
+      districtId: JsonUtils.toInt(json['district_id']),
       districtName: json['district_name'],
       districtCode: json['district_code'],
-      version: json['version'],
-      provinceId: json['province_id'],
-      updatedBy: json['updated_by'],
-      createdBy: json['created_by'],
+      version: JsonUtils.toInt(json['version']),
+      provinceId: JsonUtils.toInt(json['province_id']),
+      updatedBy: JsonUtils.toInt(json['updated_by']),
+      createdBy: JsonUtils.toInt(json['created_by']),
       updatedDate: json['updated_date'],
       createdDate: json['created_date'],
     );

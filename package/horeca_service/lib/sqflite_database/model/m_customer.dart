@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class Customer {
   String? representativeName;
   int? areaId;
@@ -34,17 +36,17 @@ class Customer {
   factory Customer.fromJson(Map<String, dynamic> json) {
     return Customer(
       representativeName: json['representative_name'],
-      areaId: json['area_id'],
-      createdBy: json['created_by'],
-      version: json['version'],
-      distributorId: json['distributor_id'],
-      updatedBy: json['updated_by'],
+      areaId: JsonUtils.toInt(json['area_id']),
+      createdBy: JsonUtils.toInt(json['created_by']),
+      version: JsonUtils.toInt(json['version']),
+      distributorId: JsonUtils.toInt(json['distributor_id']),
+      updatedBy: JsonUtils.toInt(json['updated_by']),
       customerName: json['customer_name'],
       createdDate: json['created_date'],
       updatedDate: json['updated_date'],
-      customerId: json['customer_id'],
+      customerId: JsonUtils.toInt(json['customer_id']),
       isUse: json['is_use'],
-      isTax: json['is_tax'],
+      isTax: JsonUtils.toInt(json['is_tax']),
       customerCode: json['customer_code'],
       status: json['status'],
     );

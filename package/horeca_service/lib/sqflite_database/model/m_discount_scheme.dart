@@ -1,3 +1,5 @@
+import 'package:horeca_service/utils/json_utils.dart';
+
 class DiscountScheme {
   int? discountSchemeId;
   int? discountId;
@@ -11,13 +13,13 @@ class DiscountScheme {
       this.createdDate, this.updatedBy, this.updatedDate, this.version);
 
   DiscountScheme.fromJson(Map<String, dynamic> json) {
-    discountSchemeId = json['discount_scheme_id'];
-    discountId = json['discount_id'];
-    createdBy = json['created_by'];
+    discountSchemeId = JsonUtils.toInt(json['discount_scheme_id']);
+    discountId = JsonUtils.toInt(json['discount_id']);
+    createdBy = JsonUtils.toInt(json['created_by']);
     createdDate = json['created_date'];
-    updatedBy = json['updated_by'];
+    updatedBy = JsonUtils.toInt(json['updated_by']);
     updatedDate = json['updated_date'];
-    version = json['version'];
+    version = JsonUtils.toInt(json['version']);
   }
 
   Map<String, dynamic> toMap() {

@@ -1,5 +1,6 @@
 class SummaryOrderDto {
   double? totalAmount;
+  double? totalQuantity;
   double? discountAmount;
   double? promotionAmount;
   double? vatAmount;
@@ -8,6 +9,7 @@ class SummaryOrderDto {
 
   SummaryOrderDto({
     this.totalAmount = 0,
+    this.totalQuantity = 0,
     this.discountAmount = 0,
     this.promotionAmount = 0,
     this.vatAmount = 0,
