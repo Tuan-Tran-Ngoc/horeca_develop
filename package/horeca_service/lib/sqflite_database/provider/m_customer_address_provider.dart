@@ -95,15 +95,21 @@ class CustomerAddressProvider {
     List<int?>? arg = [];
     arg.add(customerId);
 
+    print('SQL_CUS_ADR_001 Query: ${SQLQuery.SQL_CUS_ADR_001}');
+    print('SQL_CUS_ADR_001 Args: $arg');
+    
     List<Map> maps = await database.rawQuery(SQLQuery.SQL_CUS_ADR_001, arg);
 
+    print('SQL_CUS_ADR_001 Result count: ${maps.length}');
     if (maps.isNotEmpty) {
+      print('SQL_CUS_ADR_001 First result: ${maps[0]}');
       for (final item in maps) {
         results.add(AddressVisitDto.fromMap(item));
       }
 
       return results;
     }
+    print('SQL_CUS_ADR_001 No addresses found for customer $customerId');
     return [];
   }
 

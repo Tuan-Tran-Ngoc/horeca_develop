@@ -43,8 +43,11 @@ class ShiftCubit extends Cubit<ShiftState> {
 
     prefs = await SharedPreferences.getInstance();
 
-    var shiftReportId = prefs.getInt('shiftReportId');
-    var baPositionId = prefs.getInt('baPositionId');
+    var shiftReportId = prefs.getInt(Session.shiftReportId.toString());
+    var baPositionId = prefs.getInt(Session.baPositionId.toString());
+    
+    print('shift_cubit init - shiftReportId: $shiftReportId, baPositionId: $baPositionId');
+    
     final listOrderInCurrentShift =
         await shiftReportProvider.getListOrderInCurrentShift(shiftReportId);
     // print('list order in current shift $listOrderInCurrentShift');
@@ -117,10 +120,11 @@ class ShiftCubit extends Cubit<ShiftState> {
 
         DateTime now = DateTime.now();
         String endTime = DateFormat(Constant.dateTimeFormatter).format(now);
-        // var baPositionId = prefs.getInt('baPositionId');
         prefs = await SharedPreferences.getInstance();
 
-        var baPositionId = prefs.getInt('baPositionId');
+        var baPositionId = prefs.getInt(Session.baPositionId.toString());
+        
+        print('endShift - baPositionId: $baPositionId');
 
         // check sync data
         if (await syncService.checkSyncCurrent(

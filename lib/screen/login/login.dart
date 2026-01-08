@@ -112,7 +112,7 @@ class _LoginBodyState extends State<LoginBody> {
               if (state is FirstInitDataSuccess) {
                 if (state.msg == null || state.msg!.isEmpty) {
                   isReloadControl = false;
-                  Navigator.pop(context);
+                  if (mounted && Navigator.canPop(context)) Navigator.pop(context);
                   //context.go('/home');
                 } else {
                   message = [
@@ -121,7 +121,7 @@ class _LoginBodyState extends State<LoginBody> {
                     multiLang.loginAgain
                   ].join(".\n");
                   isReloadControl = false;
-                  Navigator.pop(context);
+                  if (mounted && Navigator.canPop(context)) Navigator.pop(context);
 
                   Fluttertoast.showToast(
                     // msg:
@@ -139,8 +139,10 @@ class _LoginBodyState extends State<LoginBody> {
               if (state is UpdateDataSuccess) {
                 if (state.msg == null || state.msg!.isEmpty) {
                   isReloadControl = false;
-                  Navigator.pop(context);
-                  context.go('/home');
+                  if (mounted) {
+                    if (Navigator.canPop(context)) Navigator.pop(context);
+                    context.go('/home');
+                  }
                 } else {
                   message = [
                     [multiLang.sync, multiLang.data, multiLang.failed]
@@ -148,7 +150,7 @@ class _LoginBodyState extends State<LoginBody> {
                     multiLang.loginAgain
                   ].join(".\n");
                   isReloadControl = false;
-                  Navigator.pop(context);
+                  if (mounted && Navigator.canPop(context)) Navigator.pop(context);
 
                   Fluttertoast.showToast(
                     // msg:
@@ -165,7 +167,7 @@ class _LoginBodyState extends State<LoginBody> {
 
               if (state is CheckInitialDataSuccess) {
                 isReloadControl = false;
-                context.go('/home');
+                if (mounted) context.go('/home');
               }
             },
             builder: (context, state) {

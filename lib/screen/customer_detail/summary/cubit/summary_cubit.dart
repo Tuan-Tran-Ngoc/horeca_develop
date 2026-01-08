@@ -181,4 +181,8 @@ class SummaryCubit extends Cubit<SummaryState> {
       emit(CheckoutFailed(error.toString()));
     }
   }
+
+    Future<void> clickButtonChangeState() async {
+    emit(ClickCheckOutState());
+  }
 }

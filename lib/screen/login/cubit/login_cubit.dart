@@ -77,33 +77,59 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> firstInitData() async {
+    print('========== START firstInitData ==========');
     AppLocalizations multiLang = AppLocalizations.of(context)!;
-    AccountProvider accountProvider = AccountProvider();
-    print(
-        'prefs.getString().toString(): ${prefs.getString(Session.username.toString()).toString()}');
-    List<Account> accountLogin = await accountProvider.getAccountByUsername(
-        prefs.getString(Session.username.toString()).toString());
-    if (accountLogin.isEmpty) {
-      emit(ReloadControl(multiLang.initializingData));
+    try {
+      AccountProvider accountProvider = AccountProvider();
+      print(
+          'prefs.getString().toString(): ${prefs.getString(Session.username.toString()).toString()}');
+      
+      print('Checking for existing account...');
+      List<Account> accountLogin = await accountProvider.getAccountByUsername(
+          prefs.getString(Session.username.toString()).toString());
+      
+      if (accountLogin.isEmpty) {
+        print('No account found, creating initial data...');
+        emit(ReloadControl(multiLang.initializingData));
 
-      String? errorStr = await createDataService.createData();
+        String? errorStr = await createDataService.createData();
+        print('CreateData result: ${errorStr ?? "Success"}');
 
-      emit(FirstInitDataSuccess(errorStr));
+        emit(FirstInitDataSuccess(errorStr));
+      } else {
+        print('Account found: ${accountLogin.length} records');
+      }
+
+      // update new data
+      print('Checking connectivity for data sync...');
+      var connect = await Connectivity().checkConnectivity();
+      if (connect == ConnectivityResult.wifi ||
+          connect == ConnectivityResult.mobile) {
+        print('Connected to network, syncing update data...');
+        UpdateDataService updateDataService = UpdateDataService();
+
+        emit(ReloadControl(multiLang.updatingData));
+        String message = await updateDataService.syncUpdateData(multiLang);
+        print('SyncUpdateData result: $message');
+        emit(UpdateDataSuccess(message));
+      } else {
+        print('No network connection, skipping data sync');
+      }
+      
+      print('Loading messages...');
+      await MessageUtils.loadMessagesIfNeeded();
+      print('Loading code list...');
+      await CodeListUtils.loadCodeListIfNeeded();
+      print('Init data completed successfully');
+      emit(CheckInitialDataSuccess());
+      print('========== END firstInitData SUCCESS ==========');
+    } catch (e, stackTrace) {
+      print('========== ERROR in firstInitData ==========');
+      print('Error: $e');
+      print('StackTrace: $stackTrace');
+      print('========== END firstInitData ERROR ==========');
+      rethrow;
     }
-
-    // update new data
-    var connect = await Connectivity().checkConnectivity();
-    if (connect == ConnectivityResult.wifi ||
-        connect == ConnectivityResult.mobile) {
-      UpdateDataService updateDataService = UpdateDataService();
-
-      emit(ReloadControl(multiLang.updatingData));
-      String message = await updateDataService.syncUpdateData(multiLang);
-      emit(UpdateDataSuccess(message));
-    }
-    await MessageUtils.loadMessagesIfNeeded();
-    await CodeListUtils.loadCodeListIfNeeded();
-    emit(CheckInitialDataSuccess());
   }
 
   Future<void> downloadUnzip(String masterUrlFile, String type) async {
@@ -214,36 +240,52 @@ class LoginCubit extends Cubit<LoginState> {
             .callApiPostMethodWithUrlencoded(APIs.oauth, params);
 
         if (credential != null && credential.accessToken != null) {
-          print(credential.accessToken);
+          print('========== Login Success, Saving Token ==========');
+          print('Access Token: ${credential.accessToken!.substring(0, 20)}...');
 
-          prefs.setString(Session.token.toString(), credential.accessToken!);
-          prefs.setString(
+          await prefs.setString(Session.token.toString(), credential.accessToken!);
+          print('Token saved to SharedPreferences: ${Session.token.toString()}');
+          
+          await prefs.setString(
               Session.dateLogin.toString(),
               DateFormat(Constant.dateFormatterYYYYMMDD)
                   .format(DateTime.now()));
+          print('Date login saved');
 
           if (prefs.get(Session.refreshToken.toString()) == null) {
-            prefs.setString(
+            await prefs.setString(
                 Session.refreshToken.toString(), credential.refreshToken!);
+            print('Refresh token saved');
           }
           if (credential.authenResponse?.baPositionId != null) {
-            prefs.setInt(Session.baPositionId.toString(),
+            await prefs.setInt(Session.baPositionId.toString(),
                 credential.authenResponse!.baPositionId!);
-            prefs.setString(Session.username.toString(),
+            await prefs.setString(Session.username.toString(),
                 credential.authenResponse!.userName ?? '');
+            print('BA Position ID: ${credential.authenResponse!.baPositionId}');
+            print('Username: ${credential.authenResponse!.userName}');
+            
             NetworkService.addAuthorizationHeader(
                 'Bearer ${credential.accessToken}');
+            print('Authorization header set in NetworkService');
 
             String username = (credential.authenResponse!.userName) ?? '';
             isExistDb = await db.isExistDatabase(username);
             InitialDataService initialDataService = InitialDataService();
-            print(isExistDb);
+            print('Database exists: $isExistDb');
             if (isExistDb) {
               await connectDatabase(username);
+              print('Connected to existing database');
             } else {
               await initialDataService.createTable();
+              print('Created new database tables');
             }
           }
+          
+          // Verify token is saved
+          String? savedToken = prefs.getString(Session.token.toString());
+          print('Verification - Token retrieved: ${savedToken != null ? "YES (${savedToken.substring(0, 20)}...)" : "NO"}');
+          print('========== Token Save Complete ==========');
 
           message = [multiLang.login, multiLang.success].join(" ");
 

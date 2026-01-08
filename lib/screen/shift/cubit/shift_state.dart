@@ -40,3 +40,4 @@ final class EndShiftFailed extends ShiftState {
 }
 
 class ReloadControl extends ShiftState {}
+final class ClickEndShiftState extends ShiftState {}

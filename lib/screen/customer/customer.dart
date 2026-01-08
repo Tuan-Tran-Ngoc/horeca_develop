@@ -53,7 +53,7 @@ class _CustomerBodyState extends State<CustomerBody> {
     _datatableController.selectIndex.addListener(() {
       print(
           '_selectIndex $_selectIndex ${_datatableController.selectIndex.value}');
-      if (listCustomerVisit.isNotEmpty) {
+      if (listCustomerVisit.isNotEmpty && _datatableController.selectIndex.value != -1) {
         final customerId =
             listCustomerVisit[_datatableController.selectIndex.value]
                 .customerId;
@@ -63,24 +63,23 @@ class _CustomerBodyState extends State<CustomerBody> {
         final routeId =
             listCustomerVisit[_datatableController.selectIndex.value].routeId;
         print('_customerId $customerId');
-        if (_datatableController.selectIndex.value != -1) {
-          // context.push('/customerdetail', extra: {
-          //   'customerId': customerId ?? 0,
-          //   "customerVisitId": customerVisitId ?? 0
-          // });
-          Navigator.of(context)
-              .push(MaterialPageRoute(
-            builder: (context) => CustomerDetailScreen(
-              routeId: routeId ?? 0,
-              customerId: customerId ?? 0,
-              customerVisitId: customerVisitId ?? 0,
-            ),
-          ))
-              .then((result) {
-            print('back to back');
-            context.read<CustomerCubit>().reload();
-          });
-        }
+        
+        // context.push('/customerdetail', extra: {
+        //   'customerId': customerId ?? 0,
+        //   "customerVisitId": customerVisitId ?? 0
+        // });
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+          builder: (context) => CustomerDetailScreen(
+            routeId: routeId ?? 0,
+            customerId: customerId ?? 0,
+            customerVisitId: customerVisitId ?? 0,
+          ),
+        ))
+            .then((result) {
+          print('back to back');
+          context.read<CustomerCubit>().reload();
+        });
 
         _datatableController.selectIndex.value = -1;
       }

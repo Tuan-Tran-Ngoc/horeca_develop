@@ -171,7 +171,7 @@ class SettingCubit extends Cubit<SettingState> {
       }
 
       prefs = await SharedPreferences.getInstance();
-      String? userName = prefs.getString('username');
+      String? userName = prefs.getString(Session.username.toString());
       if (userName == null || userName.isEmpty) {
         throw 'User not logged in';
       }
@@ -222,7 +222,7 @@ class SettingCubit extends Cubit<SettingState> {
     
     try {
       prefs = await SharedPreferences.getInstance();
-      String? userName = prefs.getString('username');
+      String? userName = prefs.getString(Session.username.toString());
       if (userName == null || userName.isEmpty) {
         throw 'User not logged in';
       }

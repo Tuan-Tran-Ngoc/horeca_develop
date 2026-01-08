@@ -67,15 +67,29 @@ class ShiftReportProvider {
   Future<List<ShiftReport>> getCurrentReport(int? baPositionId) async {
     database = await db.openSQFliteDatabase(DatabaseProvider.pathDb);
     List<ShiftReport> results = [];
+    
+    print('getCurrentReport - baPositionId: $baPositionId');
+    
+    if (baPositionId == null) {
+      print('getCurrentReport - baPositionId is null, returning empty list');
+      return results;
+    }
+    
     List<int?>? arg = [];
     arg.add(baPositionId);
 
     List<Map> resultDBs = await database.rawQuery(SQLQuery.SQL_SFT_RP_001, arg);
-    print('SQL ${SQLQuery.SQL_SFT_RP_001}');
+    print('SQL ${SQLQuery.SQL_SFT_RP_001} with arg: $arg');
+    print('getCurrentReport - Query returned ${resultDBs.length} results');
+    
     if (resultDBs.isNotEmpty) {
       for (var result in resultDBs) {
-        results.add(ShiftReport.fromMap(result));
+        ShiftReport shift = ShiftReport.fromMap(result);
+        print('getCurrentReport - Found shift: id=${shift.shiftReportId}, code=${shift.shiftCode}, endTime=${shift.endTime}');
+        results.add(shift);
       }
+    } else {
+      print('getCurrentReport - No active shifts found for baPositionId: $baPositionId');
     }
     return results;
   }

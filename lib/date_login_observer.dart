@@ -11,20 +11,23 @@ class DateLoginObserver extends NavigatorObserver {
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    _checkDateLogin();
     super.didPush(route, previousRoute);
+    // Schedule check after frame to avoid _debugLocked assertion
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkDateLogin());
   }
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    _checkDateLogin();
     super.didPop(route, previousRoute);
+    // Schedule check after frame to avoid _debugLocked assertion
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkDateLogin());
   }
 
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    _checkDateLogin();
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    // Schedule check after frame to avoid _debugLocked assertion
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkDateLogin());
   }
 
   void _checkDateLogin() async {
@@ -33,7 +36,7 @@ class DateLoginObserver extends NavigatorObserver {
     BuildContext? context = appRoute.routerDelegate.navigatorKey.currentContext;
 
     var connect = await Connectivity().checkConnectivity();
-    if (context != null) {
+    if (context != null && context.mounted) {
       if ((connect == ConnectivityResult.wifi ||
           connect == ConnectivityResult.mobile)) {
         if (dateLogin != null) {
@@ -44,11 +47,15 @@ class DateLoginObserver extends NavigatorObserver {
               loginDate.month != currentDate.month ||
               loginDate.day != currentDate.day) {
             await CommonUtils.logout();
-            GoRouter.of(context).go('/');
+            if (context.mounted) {
+              GoRouter.of(context).go('/');
+            }
           }
         } else {
           await CommonUtils.logout();
-          GoRouter.of(context).go('/');
+          if (context.mounted) {
+            GoRouter.of(context).go('/');
+          }
         }
       }
     }

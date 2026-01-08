@@ -23,13 +23,24 @@ class HomeCubit extends Cubit<HomeState> {
   Future<bool> checkStartShift() async {
     prefs = await SharedPreferences.getInstance();
     int? baPositionId = prefs.getInt(Session.baPositionId.toString());
+    
+    print('checkStartShift - baPositionId from SharedPreferences: $baPositionId');
+    
     List<ShiftReport> lstCurrentReport =
         await shiftReportProvider.getCurrentReport(baPositionId);
+        
+    print('checkStartShift - Found ${lstCurrentReport.length} active shifts');
+    
     if (lstCurrentReport.isNotEmpty) {
       isStartShift = true;
 
       //setting shift info into global variable
       ShiftReport currentReport = lstCurrentReport[0];
+      
+      print('checkStartShift - Setting shiftReportId: ${currentReport.shiftReportId}');
+      print('checkStartShift - Setting shiftCode: ${currentReport.shiftCode}');
+      print('checkStartShift - Setting workingDate: ${currentReport.workingDate}');
+      
       prefs.setInt(
           Session.shiftReportId.toString(), currentReport.shiftReportId ?? 0);
       prefs.setString(
@@ -38,6 +49,7 @@ class HomeCubit extends Cubit<HomeState> {
           Session.workingDate.toString(), currentReport.workingDate ?? '');
     } else {
       isStartShift = false;
+      print('checkStartShift - No active shift found, isStartShift = false');
     }
     emit(CheckStartShiftState(isStartShift));
     return isStartShift;

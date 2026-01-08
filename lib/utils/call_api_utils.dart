@@ -20,72 +20,6 @@ import 'package:http/http.dart' as http;
 /// Uses Flutter localization for user-friendly error messages
 
 class CallApiUtils<T> {
-  /// Check if session/token is available
-  Future<bool> _isSessionValid() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
-      String? refreshToken = prefs.getString('refresh_token');
-
-      // Check if token exists
-      if (token == null || token.isEmpty) {
-        print('Session validation: No token found');
-        return false;
-      }
-
-      // Optionally: Check token expiration if you have an expiry field
-      // int? expiryTime = prefs.getInt('token_expiry');
-      // if (expiryTime != null && DateTime.now().millisecondsSinceEpoch > expiryTime) {
-      //   print('Session validation: Token expired');
-      //   return false;
-      // }
-
-      print('Session validation: Token exists');
-      return true;
-    } catch (e) {
-      print('Session validation error: $e');
-      return false;
-    }
-  }
-
-  /// Attempt to refresh the session using refresh token
-  Future<bool> _refreshSession() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? refreshToken = prefs.getString('refresh_token');
-
-      if (refreshToken == null || refreshToken.isEmpty) {
-        print('Refresh session: No refresh token available');
-        return false;
-      }
-
-      print('Attempting to refresh session...');
-      String newToken = await refreshAccessToken(refreshToken);
-
-      // Save new token
-      await prefs.setString('token', newToken);
-      print('Session refreshed successfully');
-      return true;
-    } catch (e) {
-      print('Failed to refresh session: $e');
-      return false;
-    }
-  }
-
-  /// Validate session before API call, refresh if needed
-  Future<void> _ensureValidSession() async {
-    if (!await _isSessionValid()) {
-      print('Invalid session detected, attempting to refresh...');
-
-      bool refreshed = await _refreshSession();
-      if (!refreshed) {
-        print('Failed to refresh session, user needs to login');
-        throw UnauthorizedException(_getLocalizedMessage('errorUnauthorized'),
-            code: Constant.SESSION_LOGIN_EXPIRED);
-      }
-    }
-  }
-
   /// Get localized error message
   /// If apiMessage is provided, it takes priority over localized messages
   String _getLocalizedMessage(String key, {String? apiMessage}) {
@@ -246,11 +180,8 @@ class CallApiUtils<T> {
       String jsonRequest, T Function(Map<String, dynamic>)? fromJson) async {
     APIResponseEntity<T> result = APIResponseEntity();
     try {
-      // Ensure session is valid before making API call
-      await _ensureValidSession();
-
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
+      String? token = prefs.getString(Session.token.toString());
       String uri = Network.url + pathApi;
 
       final response = await http
@@ -315,12 +246,9 @@ class CallApiUtils<T> {
     APIResponseHeader result = APIResponseHeader();
 
     try {
-      // Ensure session is valid before making API call
-      await _ensureValidSession();
-
       print('jsonBodyRequest $jsonBodyRequest');
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
+      String? token = prefs.getString(Session.token.toString());
       String url = Network.url + path;
       final response = await http
           .post(Uri.parse(url),
@@ -421,6 +349,15 @@ class CallApiUtils<T> {
       // Parse response body first to extract potential error messages
       Map<String, dynamic> responseBody = jsonDecode(response.body);
 
+      // Check for error or error_description in OAuth response
+      if (responseBody['error'] != null) {
+        String errorMsg = responseBody['error'].toString();
+        if (responseBody['error_description'] != null) {
+          errorMsg = responseBody['error_description'].toString();
+        }
+        throw ApiException(errorMsg);
+      }
+
       // Check for errorInfo in response
       if (responseBody['errorInfo'] != null) {
         throw ApiException(responseBody['errorInfo']['errorMessage']);
@@ -462,11 +399,9 @@ class CallApiUtils<T> {
   ) async {
     APIResponseEntity<T> result = APIResponseEntity();
     try {
-      // Ensure session is valid before making API call
-      await _ensureValidSession();
-
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
+      String? token = prefs.getString(Session.token.toString());
+      print('callApiGetMethod - Token: ${token != null ? "EXISTS (${token.substring(0, 20)}...)" : "NULL"}');
       String uri = Network.url + pathApi;
 
       // Append query parameters to the URL
@@ -537,11 +472,8 @@ class CallApiUtils<T> {
       String pathApi, String filePath, String fieldName) async {
     APIResponseHeader result = APIResponseHeader();
     try {
-      // Ensure session is valid before making API call
-      await _ensureValidSession();
-
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('token');
+      String? token = prefs.getString(Session.token.toString());
       String uri = Network.url + pathApi;
 
       var request = http.MultipartRequest('POST', Uri.parse(uri));

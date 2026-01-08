@@ -385,8 +385,10 @@ class _PromotionPopupState extends State<PromotionPopupBody> {
                       onPress: () {
                         context
                             .read<PromotionPopupCubit>()
-                            .warningProductAvailable(widget.customerId,
-                                lstPromotion, widget.lstProduct);
+                            .warningProductAvailable(
+                                widget.customerId,
+                                chooseSchemePromotion(lstPromotion),
+                                widget.lstProduct);
                       },
                     ),
                   ),

@@ -94,13 +94,7 @@ class CommonUtils {
   }
 
   static String formatQtyPercent(double value) {
-    if (value == value.toInt()) {
-      // The value is an integer
-      return NumberFormat.percentPattern().format((value) / 100);
-    } else {
-      // The value has a fractional part
-      return NumberFormat('0.0%').format((value) / 100);
-    }
+    return NumberFormat('0.0%').format(value / 100);
   }
 
   static Future<bool> checkShiftForToday() async {

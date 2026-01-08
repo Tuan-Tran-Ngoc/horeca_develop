@@ -110,8 +110,8 @@ class UpdateDataService {
     String? imeiDevice = await UniqueIdentifier.serial;
     String message = '';
     prefs = await SharedPreferences.getInstance();
-    int? baPositionId = prefs.getInt('baPositionId');
-    String username = prefs.getString('username') ?? '';
+    int? baPositionId = prefs.getInt(Session.baPositionId.toString());
+    String username = prefs.getString(Session.username.toString()) ?? '';
     print('imeiDevice: ${imeiDevice}');
     if (imeiDevice == null) {
       message = multiLang
@@ -168,14 +168,16 @@ class UpdateDataService {
           print('countCallUpdateData $countCallUpdateData');
           sleep(const Duration(seconds: 5));
           Map<String, dynamic> queryParams = {};
-          queryParams['baPositionId'] = prefs.getInt('baPositionId').toString();
+          queryParams['baPositionId'] =  prefs.getInt(Session.baPositionId.toString());
           queryParams['imeiDevice'] = imeiDevice;
           queryParams['dateCreate'] = response.dateCreateFile ?? '';
           queryParams['jobSeqId'] = response.jobSeqId.toString();
+          print('syncGetUpdateData queryParams: $queryParams');
           getInitResponse = await callApiUtils.callApiGetMethod(
               APIs.syncGetUpdateData,
               queryParams,
               GetUpdateDataResponse.fromJson);
+          print('syncGetUpdateData response: ${getInitResponse.data}');
           if (getInitResponse.data != null) {
             final GetUpdateDataResponse response = getInitResponse.data!;
             if (response.fileName != null) {
@@ -185,6 +187,8 @@ class UpdateDataService {
           countCallUpdateData++;
         }
       } catch (error) {
+        print('syncGetUpdateData error: ${error.toString()}');
+        print('Error type: ${error.runtimeType}');
         return error.toString();
       }
 
@@ -282,7 +286,7 @@ class UpdateDataService {
 
   Future<void> downloadUnzip(String masterUrlFile, String type) async {
     final headers = <String, String>{
-      'Authorization': 'Bearer ${prefs.getString('token')}',
+      'Authorization': 'Bearer ${prefs.getString(Session.token.toString())}',
       // Add other headers as needed
     };
     final getDownloadResponse = await http.get(
@@ -663,11 +667,11 @@ class UpdateDataService {
 
       // write log lastest update data
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      int? baPositionId = prefs.getInt('baPositionId');
+      int? baPositionId = prefs.getInt(Session.baPositionId.toString());
       String nowTime =
           DateFormat(Constant.dateTimeFormatter).format(DateTime.now());
       TransferUpdateLog transferUpdateLog = TransferUpdateLog(
-          baPositionId: prefs.getInt('baPositionId'),
+          baPositionId: prefs.getInt(Session.baPositionId.toString()),
           dateLastestUpdate: nowTime,
           status: '01',
           createdBy: baPositionId,
