@@ -333,6 +333,29 @@ class CallApiUtils<T> {
       String uri = Network.url + pathApi;
       String auth = 'Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=';
 
+      print('========== OAuth Token Request ==========');
+      print('URL: $uri');
+      print('Params: ${params.keys.join(", ")}');
+      print('Timeout: ${Constant.REQUEST_TIMMEOUT} seconds');
+      print('Starting request at: ${DateTime.now()}');
+      
+      // Test DNS resolution first
+      try {
+        final testUri = Uri.parse(Network.url);
+        print('Testing connection to host: ${testUri.host}');
+        await InternetAddress.lookup(testUri.host).timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            print('DNS lookup timeout for ${testUri.host}');
+            throw TimeoutException('DNS lookup timeout');
+          },
+        );
+        print('DNS lookup successful');
+      } catch (e) {
+        print('DNS lookup failed: $e');
+        print('This might indicate network connectivity issues');
+      }
+
       final response = await http
           .post(Uri.parse(uri),
               headers: {
@@ -342,9 +365,13 @@ class CallApiUtils<T> {
               body: params)
           .timeout(const Duration(seconds: Constant.REQUEST_TIMMEOUT),
               onTimeout: () {
+        print('Request timed out after ${Constant.REQUEST_TIMMEOUT} seconds');
         throw TimeoutException(_getLocalizedMessage('errorTimeout'),
             code: Constant.ERROR_TIMEOUT);
       });
+
+      print('Response received at: ${DateTime.now()}');
+      print('Response status: ${response.statusCode}');
 
       // Parse response body first to extract potential error messages
       Map<String, dynamic> responseBody = jsonDecode(response.body);
@@ -368,14 +395,22 @@ class CallApiUtils<T> {
         _handleHttpError(response.statusCode, responseBody: responseBody);
       }
       result = LoginResponse.fromJson(responseBody);
-    } on SocketException {
+      print('Login response parsed successfully');
+    } on SocketException catch (e) {
       print(
           'Error: callApiPostMethodWithUrlencoded [$pathApi] - No Internet Connection');
+      print('SocketException details: $e');
       throw NoInternetException(_getLocalizedMessage('errorNoInternet'),
           code: Constant.ERROR_NO_INTERNET);
-    } on TimeoutException {
+    } on TimeoutException catch (e) {
       print(
           'Error: callApiPostMethodWithUrlencoded [$pathApi] - Request Timeout');
+      print('TimeoutException details: $e');
+      print('URL was: ${Network.url}$pathApi');
+      print('Please check:');
+      print('  1. Network connection stability');
+      print('  2. Server availability at ${Network.url}');
+      print('  3. Firewall or proxy settings');
       rethrow;
     } on FormatException catch (e) {
       print(

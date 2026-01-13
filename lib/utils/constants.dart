@@ -1,9 +1,12 @@
 class Constant {
-  //request time out
-  static const int REQUEST_TIMMEOUT = 30;
+  //request time out (increased from 30 to 60 seconds for OAuth requests)
+  static const int REQUEST_TIMMEOUT = 60;
 
   //show toast time
   static const int SHOW_TOAST_TIME = 2;
+
+  //session timeout in minutes
+  static const int SESSION_TIMEOUT_MINUTES = 1;
 
   static const String SESSION_LOGIN_EXPIRED = 'err.sys.0205';
 
