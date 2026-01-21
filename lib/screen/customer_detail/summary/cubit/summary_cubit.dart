@@ -36,6 +36,11 @@ class SummaryCubit extends Cubit<SummaryState> {
   String message = "";
   Future<void> init(
       int customerVisitId, int customerId, int customerAddressId) async {
+    // Use customerVisitId from session if parameter is 0 or null
+    if (customerVisitId == 0) {
+      prefs = await SharedPreferences.getInstance();
+      customerVisitId = prefs.getInt(Session.customerVisitId.toString()) ?? 0;
+    }
     await loadingInit(customerVisitId, customerId, customerAddressId);
   }
 
@@ -174,6 +179,10 @@ class SummaryCubit extends Cubit<SummaryState> {
             throw Exception(response.error?.code);
           }
         }
+
+        // Clear customerVisitId from session after successful checkout
+        await prefs.remove(Session.customerVisitId.toString());
+
         message = [multiLang.endVisit, multiLang.success].join(" ");
         emit(CheckoutSuccess(message));
       });
@@ -182,7 +191,7 @@ class SummaryCubit extends Cubit<SummaryState> {
     }
   }
 
-    Future<void> clickButtonChangeState() async {
+  Future<void> clickButtonChangeState() async {
     emit(ClickCheckOutState());
   }
 }

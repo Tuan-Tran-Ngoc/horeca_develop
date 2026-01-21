@@ -45,9 +45,10 @@ class ShiftCubit extends Cubit<ShiftState> {
 
     var shiftReportId = prefs.getInt(Session.shiftReportId.toString());
     var baPositionId = prefs.getInt(Session.baPositionId.toString());
-    
-    print('shift_cubit init - shiftReportId: $shiftReportId, baPositionId: $baPositionId');
-    
+
+    print(
+        'shift_cubit init - shiftReportId: $shiftReportId, baPositionId: $baPositionId');
+
     final listOrderInCurrentShift =
         await shiftReportProvider.getListOrderInCurrentShift(shiftReportId);
     // print('list order in current shift $listOrderInCurrentShift');
@@ -123,7 +124,7 @@ class ShiftCubit extends Cubit<ShiftState> {
         prefs = await SharedPreferences.getInstance();
 
         var baPositionId = prefs.getInt(Session.baPositionId.toString());
-        
+
         print('endShift - baPositionId: $baPositionId');
 
         // check sync data
@@ -162,24 +163,30 @@ class ShiftCubit extends Cubit<ShiftState> {
                 newData.shiftReportIdSync ?? 0);
             String requestBodyJson = jsonEncode(requestBody);
             print('EndShift API Request: $requestBodyJson');
-            
+
             APIResponseHeader response = await sendRequest.sendRequestAPI(
                 APIs.endShift, requestBodyJson);
-            
+
             print('EndShift API Response: ${response.toString()}');
             print('EndShift API Error: ${response.error?.toString()}');
 
             // Check if API call failed
             if (response.error != null) {
               // Rollback the database changes by throwing an exception
-              String errorMessage = response.error?.message ?? 
-                                   response.error?.code ?? 
-                                   'End shift API call failed';
-              throw Exception('${multiLang.endShift} ${multiLang.failed}: $errorMessage');
+              String errorMessage = response.error?.message ??
+                  response.error?.code ??
+                  'End shift API call failed';
+              throw Exception(
+                  '${multiLang.endShift} ${multiLang.failed}: $errorMessage');
             }
-            
+
             // Only proceed if API call was successful
             message = [multiLang.endShift, multiLang.success].join(" ");
+
+            // Clear session variables when shift ends
+            prefs.remove(Session.shiftReportId.toString());
+            prefs.remove(Session.shiftCode.toString());
+            prefs.remove(Session.workingDate.toString());
           } else if (connect == ConnectivityResult.none) {
             // List<CustomerVisit>? lstVisiting = await customerVisitProvider
             //     .getCustomerVisitByShiftReport(newData.shiftReportId ?? 0, txn);
@@ -196,8 +203,13 @@ class ShiftCubit extends Cubit<ShiftState> {
                 createdDate: endTime);
             await syncOfflineProvider.insert(syncOffline, txn);
             message = [multiLang.endShift, multiLang.success].join(" ");
+
+            // Clear session variables when shift ends
+            prefs.remove(Session.shiftReportId.toString());
+            prefs.remove(Session.shiftCode.toString());
+            prefs.remove(Session.workingDate.toString());
           }
-          
+
           // Emit success only after all operations complete successfully
           emit(EndShiftSucces(message));
         } else {

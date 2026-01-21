@@ -54,12 +54,15 @@ class ProductCubit extends Cubit<ProductState> {
     int? shiftReportId = prefs.getInt(Session.shiftReportId.toString());
     int? baPositionId = prefs.getInt(Session.baPositionId.toString());
 
-    print('product_cubit init - shiftReportId: $shiftReportId, baPositionId: $baPositionId');
+    print(
+        'product_cubit init - shiftReportId: $shiftReportId, baPositionId: $baPositionId');
 
     // Check if session data is valid
     if (shiftReportId == null || baPositionId == null) {
-      print('product_cubit init - Missing session data (shiftReportId or baPositionId is null)');
-      print('product_cubit init - This usually means no shift has been started');
+      print(
+          'product_cubit init - Missing session data (shiftReportId or baPositionId is null)');
+      print(
+          'product_cubit init - This usually means no shift has been started');
       emit(ProductInitialSuccess('', [], [], [], [], false, 0));
       return;
     }
@@ -289,6 +292,10 @@ class ProductCubit extends Cubit<ProductState> {
               multiLang);
         }
 
+        // Save customerVisitId to session
+        await prefs.setInt(
+            Session.customerVisitId.toString(), customerVisitId ?? 0);
+
         emit(StartVisitSuccess(true, customerVisitId, customerAddressId));
       });
     } catch (error) {
@@ -453,6 +460,11 @@ class ProductCubit extends Cubit<ProductState> {
               txn,
               multiLang);
         }
+
+        // Save customerVisitId to session
+        await prefs.setInt(
+            Session.customerVisitId.toString(), revisit.customerVisitId ?? 0);
+
         message = [multiLang.revisit, multiLang.success].join(" ");
         emit(RevisitSuccess(revisit.customerVisitId ?? 0,
             revisit.customerAddressId ?? 0, message));

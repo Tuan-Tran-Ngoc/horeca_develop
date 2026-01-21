@@ -161,6 +161,7 @@ class ShiftPopupCubit extends Cubit<ShiftPopupState> {
         prefs.setInt(
             Session.shiftReportId.toString(), shiftReport?.shiftReportId ?? 0);
         prefs.setString(Session.shiftCode.toString(), shiftCode);
+        prefs.setString(Session.workingDate.toString(), workingDate);
 
         //setting state
         emit(StartShiftSuccess(shiftReport?.shiftReportId));

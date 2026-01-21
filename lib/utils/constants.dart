@@ -105,6 +105,7 @@ enum Session {
   shiftReportId,
   shiftCode,
   workingDate,
+  customerVisitId,
   token,
   dateLogin,
   refreshToken,

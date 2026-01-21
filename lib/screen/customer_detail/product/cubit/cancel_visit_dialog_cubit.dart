@@ -157,6 +157,10 @@ class CancelVisitDialogCubit extends Cubit<CancelVisitDialogState> {
               relatedId: customerVisit.customerVisitId);
           await syncOfflineProvider.insert(syncOffline, txn);
         }
+
+        // Clear customerVisitId from session after successful cancel
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.remove(Session.customerVisitId.toString());
       });
       message = [multiLang.cancelVisit, multiLang.success].join(" ");
       emit(CancelVisitSuccessfully(message));
